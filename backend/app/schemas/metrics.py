@@ -3,6 +3,14 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class DailyMetric(BaseModel):
+    date: str
+    spend: float
+    revenue: float
+    impressions: int
+    clicks: int
+
+
 class MetricsSummary(BaseModel):
     revenue: float
     spend: float
@@ -12,7 +20,7 @@ class MetricsSummary(BaseModel):
     clicks: int
     conversions: int
     orders: int
-    daily: Optional[List[dict]] = None
+    daily: Optional[List[DailyMetric]] = None
 
 
 class CampaignPerformance(BaseModel):
@@ -35,3 +43,8 @@ class OrderEntry(BaseModel):
     source_platform: str
     utm_source: Optional[str]
     utm_campaign: Optional[str]
+
+
+class OrdersResponse(BaseModel):
+    total: int
+    items: List[OrderEntry]
