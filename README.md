@@ -9,7 +9,7 @@ Stack: Next.js (App Router, TypeScript, Tailwind, React Query) frontend, FastAPI
 - `.env.example` — Shared env template; copy to `.env` or per-app envs.
 
 ### Backend — local setup
-1) **Env vars:** From repo root run `cp .env.example backend/.env` and fill required values (`DATABASE_URL`, `JWT_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`). Provider OAuth keys are optional.
+1) **Env vars:** From repo root run `cp .env.example backend/.env` and fill required values (`DATABASE_URL`, `JWT_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`). Provider OAuth keys are optional. Update `BACKEND_CORS_ORIGINS` if your frontend runs on a different domain/port.
 2) **Database:** Start Postgres (e.g., `postgresql://user:password@localhost:5432/omnitrackiq`). Ensure the same URL is in `backend/.env`.
 3) **Install:** `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
 4) **Migrate:** `alembic upgrade head` (uses `DATABASE_URL`).

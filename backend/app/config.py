@@ -1,7 +1,10 @@
-from pydantic import AnyUrl, BaseSettings
+from pydantic import AnyUrl, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
+
     DATABASE_URL: AnyUrl
 
     JWT_SECRET_KEY: str
@@ -22,8 +25,13 @@ class Settings(BaseSettings):
     GA4_CLIENT_EMAIL: str | None = None
     GA4_PRIVATE_KEY: str | None = None
 
-    class Config:
-        env_file = ".env"
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000", "https://your-frontend-domain.com"]
+
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    def assemble_cors_origins(cls, v):
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
 
 settings = Settings()
