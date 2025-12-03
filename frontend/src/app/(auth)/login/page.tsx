@@ -1,0 +1,55 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    }
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-8 space-y-4">
+        <h1 className="text-2xl font-semibold">Log in</h1>
+        <input
+          className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
+          placeholder="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        {error && <div className="text-sm text-rose-400">{error}</div>}
+        <button className="w-full rounded-md bg-emerald-500 py-2 font-semibold text-slate-950 hover:bg-emerald-400 transition">
+          Continue
+        </button>
+      </form>
+    </main>
+  );
+}
