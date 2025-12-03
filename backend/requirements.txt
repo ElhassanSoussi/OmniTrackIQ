@@ -4,6 +4,7 @@ sqlalchemy>=2.0
 alembic
 psycopg2-binary
 pydantic
+pydantic-settings
 PyJWT
 passlib[bcrypt]
 stripe
