@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 
-export function useMetrics(from: string, to: string) {
+export function useCampaigns(from: string, to: string) {
   const params = new URLSearchParams({ from, to });
   return useQuery({
-    queryKey: ["summary", from, to],
-    queryFn: () => apiClient(`/metrics/summary?${params.toString()}`),
+    queryKey: ["campaigns", from, to],
+    queryFn: () => apiClient(`/metrics/campaigns?${params.toString()}`),
   });
 }
