@@ -1,15 +1,46 @@
-from pydantic import BaseModel, EmailStr
+import re
+
+from pydantic import BaseModel, validator
+
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class SignupRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
     account_name: str
 
+    @validator("email")
+    def normalize_email(cls, v: str) -> str:
+        email = v.strip().lower()
+        if not EMAIL_REGEX.match(email):
+            raise ValueError("Invalid email address")
+        return email
+
+    @validator("account_name")
+    def validate_account_name(cls, v: str) -> str:
+        name = v.strip()
+        if not name:
+            raise ValueError("Account name is required")
+        return name
+
+    @validator("password")
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        return v
+
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+
+    @validator("email")
+    def normalize_email(cls, v: str) -> str:
+        email = v.strip().lower()
+        if not EMAIL_REGEX.match(email):
+            raise ValueError("Invalid email address")
+        return email
 
 
 class TokenResponse(BaseModel):
@@ -19,5 +50,5 @@ class TokenResponse(BaseModel):
 
 class UserInfo(BaseModel):
     id: str
-    email: EmailStr
+    email: str
     account_id: str
