@@ -6,22 +6,35 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+    setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Login failed");
+      }
       const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      window.location.href = "/dashboard";
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.access_token);
+        window.location.href = "/dashboard";
+      }
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      if (err?.name === "TypeError") {
+        setError("Cannot reach API. Check server and NEXT_PUBLIC_API_URL.");
+      } else {
+        setError(err.message || "Login failed");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -46,8 +59,11 @@ export default function LoginPage() {
           required
         />
         {error && <div className="text-sm text-rose-400">{error}</div>}
-        <button className="w-full rounded-md bg-emerald-500 py-2 font-semibold text-slate-950 hover:bg-emerald-400 transition">
-          Continue
+        <button
+          disabled={loading}
+          className="w-full rounded-md bg-emerald-500 py-2 font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
+        >
+          {loading ? "Signing in..." : "Continue"}
         </button>
       </form>
     </main>

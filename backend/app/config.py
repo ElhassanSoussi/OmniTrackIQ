@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import AnyUrl, BaseSettings
 
 
@@ -8,19 +10,21 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
+    FRONTEND_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
     STRIPE_SECRET_KEY: str
     STRIPE_WEBHOOK_SECRET: str
 
-    FACEBOOK_CLIENT_ID: str | None = None
-    FACEBOOK_CLIENT_SECRET: str | None = None
-    GOOGLE_ADS_CLIENT_ID: str | None = None
-    GOOGLE_ADS_CLIENT_SECRET: str | None = None
-    TIKTOK_CLIENT_ID: str | None = None
-    TIKTOK_CLIENT_SECRET: str | None = None
-    SHOPIFY_CLIENT_ID: str | None = None
-    SHOPIFY_CLIENT_SECRET: str | None = None
-    GA4_CLIENT_EMAIL: str | None = None
-    GA4_PRIVATE_KEY: str | None = None
+    FACEBOOK_CLIENT_ID: Optional[str] = None
+    FACEBOOK_CLIENT_SECRET: Optional[str] = None
+    GOOGLE_ADS_CLIENT_ID: Optional[str] = None
+    GOOGLE_ADS_CLIENT_SECRET: Optional[str] = None
+    TIKTOK_CLIENT_ID: Optional[str] = None
+    TIKTOK_CLIENT_SECRET: Optional[str] = None
+    SHOPIFY_CLIENT_ID: Optional[str] = None
+    SHOPIFY_CLIENT_SECRET: Optional[str] = None
+    GA4_CLIENT_EMAIL: Optional[str] = None
+    GA4_PRIVATE_KEY: Optional[str] = None
 
     class Config:
         env_file = ".env"

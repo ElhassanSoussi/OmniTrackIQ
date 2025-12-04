@@ -3,7 +3,7 @@
 import { useIntegrations } from "@/hooks/useIntegrations";
 
 export default function IntegrationsPage() {
-  const { integrations, connect, isLoading } = useIntegrations();
+  const { integrations, connect, isLoading, isError, error } = useIntegrations();
 
   const platforms = integrations.length
     ? integrations
@@ -18,9 +18,9 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold text-white">Integrations</h1>
-      {isLoading ? (
-        <div className="text-slate-400">Loading...</div>
-      ) : (
+      {isLoading && <div className="text-slate-400">Loading...</div>}
+      {isError && <div className="text-sm text-rose-400">Failed to load integrations: {error?.message}</div>}
+      {!isLoading && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {platforms.map((int: any) => (
             <div key={int.platform} className="rounded-lg border border-slate-800 bg-slate-900/70 p-4">

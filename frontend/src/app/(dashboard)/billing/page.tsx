@@ -3,13 +3,17 @@
 import { useBilling } from "@/hooks/useBilling";
 
 export default function BillingPage() {
-  const { plan, isLoading, createCheckout } = useBilling();
+  const { plan, isLoading, isError, error, createCheckout } = useBilling();
 
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold text-white">Billing</h1>
       {isLoading ? (
         <div className="text-slate-400">Loading...</div>
+      ) : isError ? (
+        <div className="rounded-lg border border-rose-800/50 bg-rose-900/30 px-4 py-3 text-sm text-rose-200">
+          Failed to load billing status: {error?.message || "Unknown error"}
+        </div>
       ) : (
         <div className="rounded-lg border border-slate-800 bg-slate-900/70 p-4">
           <div className="text-sm text-slate-300">Current plan</div>

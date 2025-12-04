@@ -4,7 +4,7 @@ import { apiClient } from "@/lib/api-client";
 import { useQuery } from "@tanstack/react-query";
 
 export function useBilling() {
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isLoading, isError, error } = useQuery({
     queryKey: ["billing"],
     queryFn: () => apiClient("/billing/me"),
     retry: false,
@@ -18,5 +18,5 @@ export function useBilling() {
     window.location.href = url;
   }
 
-  return { plan: data, reload: refetch, isLoading, createCheckout };
+  return { plan: data, reload: refetch, isLoading, isError, error: error as Error | null, createCheckout };
 }

@@ -12,20 +12,25 @@ interface User {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadMe() {
+    setLoading(true);
+    try {
+      const me = await apiClient("/auth/me");
+      setUser(me);
+      setError(null);
+    } catch (err: any) {
+      setUser(null);
+      setError(err?.message || "Unable to load session");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      try {
-        const me = await apiClient("/auth/me");
-        setUser(me);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadMe();
   }, []);
 
-  return { user, loading };
+  return { user, loading, error, reload: loadMe };
 }

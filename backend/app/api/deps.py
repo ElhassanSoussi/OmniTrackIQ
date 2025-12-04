@@ -24,3 +24,23 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+def get_current_account_user(
+    token_data: TokenData = Depends(decode_access_token),
+    db: Session = Depends(get_db),
+) -> User:
+    """
+    Resolve the authenticated user and ensure they belong to an account.
+    Use this when downstream queries require account scoping.
+    """
+    user = db.query(User).filter(User.id == token_data.sub).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    if not user.account_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account not linked")
+    return user
+
+
+def get_current_account_id(user: User = Depends(get_current_account_user)) -> str:
+    return user.account_id
