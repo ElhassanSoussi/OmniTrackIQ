@@ -4,8 +4,11 @@ uvicorn[standard]
 sqlalchemy>=2.0
 alembic
 psycopg2-binary
-pydantic==1.10.13
+
+# Pydantic v2 stack
+pydantic==2.12.5
 pydantic-settings==2.0.3
+
 PyJWT
 bcrypt==4.0.1
 passlib[bcrypt]
