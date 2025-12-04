@@ -1,16 +1,16 @@
 fastapi==0.103.2
-email-validator
-uvicorn[standard]
-sqlalchemy>=2.0
-alembic
-psycopg2-binary
+uvicorn[standard]==0.23.2
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
 
 # Pydantic v2 stack
-pydantic==2.12.5
-pydantic-settings==2.0.3
+pydantic==2.5.2
+pydantic-settings==2.1.0
 
-PyJWT
+PyJWT==2.8.0
 bcrypt==4.0.1
-passlib[bcrypt]
-stripe
-python-multipart
+passlib[bcrypt]==1.7.4
+stripe==7.8.0
+python-multipart==0.0.6
+email-validator==2.1.0

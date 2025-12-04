@@ -6,7 +6,12 @@ from app.config import settings
 
 app = FastAPI(title="OmniTrackIQ API")
 
-origins = settings.FRONTEND_ORIGINS
+# CORS origins for local development and production
+origins = [
+    "http://localhost:3000",
+    "https://omnitrackiq.com",
+    "https://www.omnitrackiq.com",
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,6 +20,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Base URL for frontend redirects
+BASE_URL = settings.FRONTEND_URL
 
 app.include_router(routes_health.router, prefix="/health", tags=["health"])
 app.include_router(routes_auth.router, prefix="/auth", tags=["auth"])

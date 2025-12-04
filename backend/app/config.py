@@ -1,34 +1,22 @@
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import AnyUrl, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # pydantic-settings v2 style config
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",  # ignore unknown env vars instead of failing
-    )
-
-    # Core app config
-    DATABASE_URL: AnyUrl
+    # Core app config - use str instead of AnyUrl to avoid SQLAlchemy issues
+    DATABASE_URL: str
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
 
-    # CORS / frontend
-    # Can be overridden via env FRONTEND_ORIGINS="https://a.com,https://b.com"
-    FRONTEND_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
-
-    # Stripe – optional so missing env vars don't crash the app
+    # Stripe
     STRIPE_SECRET_KEY: Optional[str] = None
     STRIPE_WEBHOOK_SECRET: Optional[str] = None
+
+    # Frontend URL for CORS and redirects
+    FRONTEND_URL: str = "https://omnitrackiq.com"
 
     # Integrations (all optional)
     FACEBOOK_CLIENT_ID: Optional[str] = None
@@ -46,16 +34,8 @@ class Settings(BaseSettings):
     GA4_CLIENT_EMAIL: Optional[str] = None
     GA4_PRIVATE_KEY: Optional[str] = None
 
-    @field_validator("FRONTEND_ORIGINS", mode="before")
-    @classmethod
-    def split_frontend_origins(cls, v):
-        """
-        Allow FRONTEND_ORIGINS to be given as a comma-separated string in env:
-        FRONTEND_ORIGINS="https://a.com,https://b.com"
-        """
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
+    class Config:
+        env_file = ".env"
 
 
 settings = Settings()
