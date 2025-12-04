@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics
-from app.config import settings
+from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics
 
 app = FastAPI(title="OmniTrackIQ API")
 
-origins = settings.FRONTEND_ORIGINS
+origins = [
+    "http://localhost:3000",
+    "https://omnitrackiq.com",
+    "https://www.omnitrackiq.com"
+]
 
 app.add_middleware(
     CORSMiddleware,

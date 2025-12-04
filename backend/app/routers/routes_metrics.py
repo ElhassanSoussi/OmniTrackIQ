@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_account_user, get_db
+from app.routers.deps import get_current_account_user, get_db
 from app.services.metrics_service import get_campaigns, get_orders, get_summary
 
 router = APIRouter()
