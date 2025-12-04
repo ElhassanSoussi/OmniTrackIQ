@@ -13,3 +13,4 @@ Set this variable in Render and in `.env.local` for local overrides.
 - Root directory: `frontend`
 - Build command: `npm install && npm run build`
 - Start command: `npm run start`
+- Node version: Render uses Node 18 as specified in `.nvmrc` and `package.json` engines.
