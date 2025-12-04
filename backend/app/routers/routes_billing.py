@@ -1,12 +1,16 @@
+import os
+
 import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_account_user, get_db
 from app.config import settings
 from app.models.subscription import Subscription
+from app.routers.deps import get_current_account_user, get_db
 from app.schemas.billing import CheckoutRequest, CheckoutResponse
 from app.services import stripe_service
+
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 router = APIRouter()
 
@@ -18,7 +22,7 @@ def create_checkout(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_account_user),
 ):
-    origin = request.headers.get("origin") or "http://localhost:3000"
+    origin = request.headers.get("origin") or settings.FRONTEND_URL
     success_url = f"{origin}/dashboard/billing?status=success"
     cancel_url = f"{origin}/dashboard/billing?status=cancelled"
 
@@ -45,7 +49,7 @@ async def stripe_webhook(
 ):
     payload = await request.body()
     try:
-        event = stripe.Webhook.construct_event(payload, stripe_signature, settings.STRIPE_WEBHOOK_SECRET)
+        event = stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid signature")
     except Exception:
