@@ -1,69 +1,80 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { user, login, loading: authLoading, error: authError } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; form?: string }>({});
+
+  const isBusy = useMemo(() => authLoading || submitting, [authLoading, submitting]);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/dashboard");
+    }
+  }, [authLoading, router, user]);
+
+  useEffect(() => {
+    if (authError) {
+      setFieldErrors({ form: authError });
+    }
+  }, [authError]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setFieldErrors({});
+    setSubmitting(true);
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Login failed");
-      }
-      const data = await res.json();
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", data.access_token);
-        window.location.href = "/dashboard";
-      }
-    } catch (err: any) {
-      if (err?.name === "TypeError") {
-        setError("Cannot reach API. Check server and NEXT_PUBLIC_API_URL.");
-      } else {
-        setError(err.message || "Login failed");
-      }
+      await login(email, password);
+      router.push("/dashboard");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Login failed";
+      setFieldErrors({ form: message });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-8 space-y-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-8">
         <h1 className="text-2xl font-semibold">Log in</h1>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <div className="text-sm text-rose-400">{error}</div>}
+        <div className="space-y-2">
+          <input
+            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
+            placeholder="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          {fieldErrors.email && <div className="text-sm text-rose-400">{fieldErrors.email}</div>}
+        </div>
+        <div className="space-y-2">
+          <input
+            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {fieldErrors.password && <div className="text-sm text-rose-400">{fieldErrors.password}</div>}
+        </div>
+        {fieldErrors.form && <div className="text-sm text-rose-400">{fieldErrors.form}</div>}
         <button
-          disabled={loading}
+          disabled={isBusy}
           className="w-full rounded-md bg-emerald-500 py-2 font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
         >
-          {loading ? "Signing in..." : "Continue"}
+          {isBusy ? "Signing in..." : "Continue"}
         </button>
       </form>
     </main>

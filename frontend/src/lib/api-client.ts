@@ -1,31 +1,39 @@
-export async function apiClient(endpoint: string, options: RequestInit = {}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://omnitrackiq-backend.onrender.com";
+
+export async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const url = `${API_BASE_URL}${path}`;
+
+  const res = await fetch(url, {
     ...options,
-    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
+    credentials: "include",
   });
 
-  if (res.status === 401 || res.status === 403) {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
-    }
-    throw new Error("Unauthorized");
-  }
-
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Request failed");
+    let body: any = null;
+    try {
+      body = await res.json();
+    } catch {
+      // ignore
+    }
+    const message =
+      body?.detail || body?.message || `Request failed with ${res.status}`;
+    throw new Error(message);
   }
 
-  const contentType = res.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    return res.json();
+  try {
+    return (await res.json()) as T;
+  } catch {
+    // empty body
+    return undefined as T;
   }
-  return res.text();
 }
+
+export { API_BASE_URL };

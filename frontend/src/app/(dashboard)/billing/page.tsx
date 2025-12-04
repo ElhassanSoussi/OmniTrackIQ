@@ -3,7 +3,7 @@
 import { useBilling } from "@/hooks/useBilling";
 
 export default function BillingPage() {
-  const { plan, isLoading, isError, error, createCheckout } = useBilling();
+  const { plan, isLoading, isError, error, createCheckout, openPortal } = useBilling();
 
   return (
     <div className="space-y-4">
@@ -31,6 +31,12 @@ export default function BillingPage() {
               className="rounded-md border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-slate-500 transition"
             >
               Choose Starter
+            </button>
+            <button
+              onClick={() => openPortal()}
+              className="rounded-md border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-200 hover:border-emerald-400 transition"
+            >
+              Manage subscription
             </button>
           </div>
         </div>
