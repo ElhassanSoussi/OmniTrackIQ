@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import AnyUrl, BaseSettings
+from pydantic_settings import AnyUrl, BaseSettings
 
 
 class Settings(BaseSettings):
