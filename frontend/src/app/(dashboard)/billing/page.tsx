@@ -39,7 +39,7 @@ export default function BillingPage() {
         <div className="flex justify-between mt-3">
           <span className="text-gray-400">Renewal Date:</span>
           <span className="text-white font-semibold">
-            {billing.renewalDate ?? "N/A"}
+            {billing.nextPaymentDate ?? "N/A"}
           </span>
         </div>
       </div>
