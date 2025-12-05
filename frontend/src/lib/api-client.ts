@@ -1,31 +1,57 @@
-export async function apiClient(endpoint: string, options: RequestInit = {}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3001";
+
+if (!process.env.NEXT_PUBLIC_API_URL) {
+  console.warn(
+    "[api-client] NEXT_PUBLIC_API_URL is not set; defaulting to http://localhost:3001",
+  );
+}
+
+const getAuthToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem("token");
+  } catch (err) {
+    console.warn("[api-client] Unable to read auth token", err);
+    return null;
+  }
+};
+
+export async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${API_BASE_URL}${normalizedPath}`;
+  const token = getAuthToken();
+
+  const res = await fetch(url, {
     ...options,
-    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers || {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
     },
+    credentials: "include",
   });
 
-  if (res.status === 401 || res.status === 403) {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
-    }
-    throw new Error("Unauthorized");
-  }
-
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Request failed");
+    let body: any = null;
+    try {
+      body = await res.json();
+    } catch {
+      // ignore
+    }
+    const message =
+      body?.detail || body?.message || `Request failed with ${res.status}`;
+    throw new Error(message);
   }
 
-  const contentType = res.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    return res.json();
+  try {
+    return (await res.json()) as T;
+  } catch {
+    // empty body
+    return undefined as T;
   }
-  return res.text();
 }
+
