@@ -39,7 +39,7 @@ This repo is organized as a monorepo:
 - `.env.example` — template for environment variables
 
 **Tech stack versions:**
-- Python: 3.11.9 (see `runtime.txt`)
+- Python: 3.11.9 (see root `runtime.txt`)
 - Node.js: 18 (see `frontend/.nvmrc`)
 - FastAPI: 0.103.2 (see `backend/requirements.txt`)
 - SQLAlchemy: 2.0.44
