@@ -14,9 +14,9 @@ import {
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { useMetrics } from "@/hooks/useMetrics";
-import { useCampaigns } from "@/hooks/useCampaigns";
-import { useOrders } from "@/hooks/useOrders";
+import { MetricsDailyPoint, useMetrics } from "@/hooks/useMetrics";
+import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
+import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
@@ -24,9 +24,9 @@ export default function DashboardPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
   const { from, to } = getDateRange(range);
 
-  const { data: summary, isLoading: summaryLoading, isError: summaryError, error: summaryErr } = useMetrics(from, to);
-  const { data: campaignsData, isLoading: campaignsLoading, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
-  const { data: ordersData, isLoading: ordersLoading, isError: ordersError, error: ordersErr } = useOrders(from, to);
+  const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to);
+  const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
+  const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
 
   const kpis: KPIItem[] = useMemo(() => {
     if (!summary) {
@@ -48,7 +48,7 @@ export default function DashboardPage() {
 
   const chartData = useMemo(() => {
     if (summary?.daily?.length) {
-      return summary.daily.map((d: any) => ({
+      return summary.daily.map((d: MetricsDailyPoint) => ({
         label: d.date,
         spend: Number(d.spend || 0),
       }));
@@ -65,9 +65,12 @@ export default function DashboardPage() {
       ];
     }
 
-    return campaignsData.map((c: any) => {
-      const spend = formatCurrency(c.spend);
-      const roas = c.roas ? `${Number(c.roas).toFixed(1)}x` : c.revenue && c.spend ? `${(Number(c.revenue) / Number(c.spend || 1)).toFixed(1)}x` : "—";
+    return campaignsData.map((c: CampaignMetrics) => {
+      const spend = formatCurrency(c.spend ?? 0);
+      const calculatedRoas =
+        c.roas ?? (c.revenue !== undefined && c.spend ? Number(c.revenue) / Number(c.spend || 1) : undefined);
+      const roas = calculatedRoas !== undefined ? `${Number(calculatedRoas).toFixed(1)}x` : "—";
+
       return {
         name: c.campaign_name || c.name || "Untitled campaign",
         platform: c.platform || "unknown",
@@ -93,11 +96,14 @@ export default function DashboardPage() {
       ? Array.isArray(ordersData[1])
         ? ordersData[1]
         : ordersData
-      : ordersData.items || ordersData.orders || ordersData.results || [];
+      : (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.items ||
+        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.orders ||
+        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.results ||
+        [];
 
     if (!rawOrders.length) return [];
 
-    return rawOrders.slice(0, 20).map((o: any) => {
+    return rawOrders.slice(0, 20).map((o: OrderRecord) => {
       const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
       const id = o.external_order_id || o.id || "—";
       const date = o.date_time ? new Date(o.date_time).toLocaleString() : o.date || "";
