@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://omnitrackiq-backend.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+const API_BASE_URL = API_URL;
 
 export async function apiFetch<T>(
   path: string,
@@ -36,4 +37,4 @@ export async function apiFetch<T>(
   }
 }
 
-export { API_BASE_URL };
+export { API_BASE_URL, API_URL };
