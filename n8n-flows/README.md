@@ -10,4 +10,3 @@ This directory contains exported n8n workflow JSON files for version control.
 4. Commit the files to version control
 
 This ensures workflows are backed up and can be imported to new n8n instances.
-
