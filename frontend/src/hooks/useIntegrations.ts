@@ -46,9 +46,9 @@ export function useIntegrations() {
     setActionError(null);
     setConnecting(platform);
     try {
-      const { url } = await apiFetch<{ url: string }>(`/integrations/${platform}/connect-url`);
-      if (url) {
-        window.location.href = url;
+      const result = await apiFetch<{ url: string }>(`/integrations/${platform}/connect-url`);
+      if (result?.url) {
+        window.location.href = result.url;
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to start connection";

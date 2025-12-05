@@ -1,13 +1,26 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 
-export function useMetrics(from: string, to: string) {
-  return useQuery({
+export type MetricsSummary = {
+  revenue: number;
+  spend: number;
+  roas: number;
+  orders: number;
+  daily?: Array<{
+    date: string;
+    spend: number;
+    revenue?: number;
+    orders?: number;
+  }>;
+};
+
+export function useMetrics(from: string, to: string): UseQueryResult<MetricsSummary | undefined> {
+  return useQuery<MetricsSummary | undefined>({
     queryKey: ["summary", from, to],
     enabled: Boolean(from && to),
-    queryFn: () => apiFetch(`/metrics/summary?from=${from}&to=${to}`),
+    queryFn: () => apiFetch<MetricsSummary>(`/metrics/summary?from=${from}&to=${to}`),
     retry: false,
   });
 }

@@ -13,12 +13,12 @@ export default function OrdersPage() {
   const { data, isLoading, isError, error } = useOrders(from, to);
 
   const orders: OrderRow[] =
-    data && ((Array.isArray(data) && data.length) || data.items || data.orders || data.results)
+    data && ((Array.isArray(data) && data.length) || (data as any).items || (data as any).orders || (data as any).results)
       ? (Array.isArray(data)
           ? Array.isArray(data[1])
             ? data[1]
             : data
-          : data.items || data.orders || data.results || []
+          : (data as any).items || (data as any).orders || (data as any).results || []
         ).map((o: any) => {
           const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
           const id = o.external_order_id || o.id || "—";

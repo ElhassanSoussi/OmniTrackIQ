@@ -31,7 +31,7 @@ export function useAuth(): UseAuthResult {
     setError(null);
     try {
       const me = await apiFetch<AuthUser>("/auth/me");
-      setUser(me);
+      setUser(me || null);
     } catch (err) {
       setUser(null);
       const message = err instanceof Error ? err.message : "Unable to load session";
