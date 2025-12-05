@@ -29,29 +29,33 @@ export function useBilling(): UseBillingResult {
     isLoading,
     isError,
     error,
-  } = useQuery<BillingPlan>({
+  } = useQuery<BillingPlan | undefined>({
     queryKey: ['billing'],
     queryFn: () => apiFetch<BillingPlan>('/billing/me'),
     retry: false,
   });
 
   async function createCheckout(plan: string) {
-    const { url } = await apiFetch<{ url: string }>('/billing/checkout', {
+    const result = await apiFetch<{ url: string }>('/billing/checkout', {
       method: 'POST',
       body: JSON.stringify({ plan }),
     });
 
     // Redirect to Stripe checkout
-    window.location.href = url;
+    if (result?.url) {
+      window.location.href = result.url;
+    }
   }
 
   async function openPortal() {
-    const { url } = await apiFetch<{ url: string }>('/billing/portal', {
+    const result = await apiFetch<{ url: string }>('/billing/portal', {
       method: 'POST',
     });
 
     // Redirect to billing portal
-    window.location.href = url;
+    if (result?.url) {
+      window.location.href = result.url;
+    }
   }
 
   return {

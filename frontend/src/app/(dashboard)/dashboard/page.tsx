@@ -14,7 +14,7 @@ import {
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { useMetrics } from "@/hooks/useMetrics";
+import { useMetrics, MetricsSummary } from "@/hooks/useMetrics";
 import { useCampaigns } from "@/hooks/useCampaigns";
 import { useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
@@ -38,11 +38,14 @@ export default function DashboardPage() {
       ];
     }
 
+    // Type assertion after null check
+    const data: MetricsSummary = summary;
+    
     return [
-      { label: "Revenue", value: formatCurrency(summary.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
-      { label: "Ad Spend", value: formatCurrency(summary.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
-      { label: "ROAS", value: `${summary.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
-      { label: "Orders", value: formatNumber(summary.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
+      { label: "Revenue", value: formatCurrency(data.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
+      { label: "Ad Spend", value: formatCurrency(data.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
+      { label: "ROAS", value: `${data.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
+      { label: "Orders", value: formatNumber(data.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
     ];
   }, [summary]);
 
