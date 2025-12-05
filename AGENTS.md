@@ -103,7 +103,7 @@ python -m compileall app/
 
 From `frontend/`:
 ```bash
-# Install dependencies (use npm, no lockfile present)
+# Install dependencies (npm with package-lock.json)
 npm install
 
 # Start development server (port 3000)
@@ -178,6 +178,7 @@ in `app/services/`.
 # app/api/routes_example.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserResponse
@@ -190,7 +191,8 @@ async def get_user(
     db: AsyncSession = Depends(get_db)
 ) -> UserResponse:
     """Fetch a user by ID."""
-    user = await db.get(User, user_id)
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
@@ -230,8 +232,15 @@ export function UserCard({ name, email, role = 'user' }: UserCardProps) {
 import { UserCard } from '@/components/UserCard';
 
 export default async function DashboardPage() {
-  // Server-side data fetching
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`);
+  // Server-side data fetching with error handling
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+    cache: 'no-store'
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch users');
+  }
+  
   const users = await response.json();
   
   return (
@@ -334,9 +343,9 @@ pip install -r requirements.txt
 
 **Frontend (Node.js):**
 ```bash
-# Install with npm (no lockfile, so version will be latest matching range)
+# Install with npm (package-lock.json present)
 npm install package-name@^1.2.3
-# Commit updated package.json
+# Commit updated package.json and package-lock.json
 ```
 
 **Version pinning strategy:**
