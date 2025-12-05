@@ -34,7 +34,7 @@ export function useBilling(): UseBillingResult {
     isLoading,
     isError,
     error,
-  } = useQuery<BackendBillingResponse>({
+  } = useQuery<BackendBillingResponse | undefined, Error>({
     queryKey: ['billing'],
     queryFn: () => apiFetch<BackendBillingResponse>('/billing/me'),
     retry: false,
@@ -51,22 +51,30 @@ export function useBilling(): UseBillingResult {
     : null;
 
   async function createCheckout(plan: string) {
-    const { url } = await apiFetch<{ url: string }>('/billing/checkout', {
+    const response = await apiFetch<{ url: string }>('/billing/checkout', {
       method: 'POST',
       body: JSON.stringify({ plan }),
     });
 
+    if (!response?.url) {
+      throw new Error('No checkout URL received');
+    }
+
     // Redirect to Stripe checkout
-    window.location.href = url;
+    window.location.href = response.url;
   }
 
   async function openPortal() {
-    const { url } = await apiFetch<{ url: string }>('/billing/portal', {
+    const response = await apiFetch<{ url: string }>('/billing/portal', {
       method: 'POST',
     });
 
+    if (!response?.url) {
+      throw new Error('No portal URL received');
+    }
+
     // Redirect to billing portal
-    window.location.href = url;
+    window.location.href = response.url;
   }
 
   return {

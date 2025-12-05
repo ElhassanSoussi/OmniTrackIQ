@@ -13,7 +13,7 @@ export default function OrdersPage() {
   const { data, isLoading, isError, error } = useOrders(from, to);
 
   const orders: OrderRow[] =
-    data && ((Array.isArray(data) && data.length) || data.items || data.orders || data.results)
+    data && !Array.isArray(data) && ((data.items || data.orders || data.results) || (Array.isArray(data) && data.length))
       ? (Array.isArray(data)
           ? Array.isArray(data[1])
             ? data[1]

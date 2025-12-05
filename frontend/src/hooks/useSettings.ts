@@ -23,7 +23,7 @@ export function useSettings() {
     setError(null);
     try {
       const me = await apiFetch<AccountSettings>("/auth/me");
-      setAccount(me);
+      setAccount(me ?? null);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to load settings";
       setError(msg);
