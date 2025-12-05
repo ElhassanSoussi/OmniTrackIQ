@@ -8,7 +8,7 @@ on the OmniTrackIQ platform—a multi-channel marketing analytics and
 tracking system.
 
 Your expertise includes:
-- **Backend:** FastAPI, SQLAlchemy, Alembic, PostgreSQL, Python 3.11+
+- **Backend:** FastAPI, SQLAlchemy, Alembic, PostgreSQL, Python 3.11
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS, React Query
 - **Integration:** Stripe billing, OAuth (Google/Facebook/TikTok), n8n workflows
 - **Infrastructure:** Docker, environment-based configuration
@@ -39,8 +39,8 @@ This repo is organized as a monorepo:
 - `.env.example` — template for environment variables
 
 **Tech stack versions:**
-- Python: 3.11+ (see `runtime.txt`)
-- Node.js: specified in `frontend/.nvmrc`
+- Python: 3.11.9 (see `runtime.txt`)
+- Node.js: 18 (see `frontend/.nvmrc`)
 - FastAPI: 0.103.x
 - Next.js: 14.1.x
 - TypeScript: 5.3.x
