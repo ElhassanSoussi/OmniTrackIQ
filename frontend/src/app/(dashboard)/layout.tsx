@@ -3,9 +3,16 @@
 import Sidebar from "@/components/layout/sidebar";
 import Topbar from "@/components/layout/topbar";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, error, reload } = useAuth();
+  const router = useRouter();
+  const { user, loading, error, refresh } = useAuth();
+
+  if (!loading && !user && !error) {
+    router.replace("/login");
+    return null;
+  }
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-200">Loading...</div>;
@@ -25,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Go to login
             </a>
             <button
-              onClick={() => reload()}
+              onClick={() => refresh()}
               className="inline-flex rounded-md border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-slate-500 transition"
             >
               Retry
@@ -34,13 +41,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
-    }
-    return null;
   }
 
   return (
