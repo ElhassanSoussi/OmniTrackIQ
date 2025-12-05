@@ -1,9 +1,10 @@
+const DEFAULT_API_BASE_URL = "http://localhost:3001";
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3001";
+  (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
 
 if (!process.env.NEXT_PUBLIC_API_URL) {
   console.warn(
-    "[api-client] NEXT_PUBLIC_API_URL is not set; defaulting to http://localhost:3001",
+    `[api-client] NEXT_PUBLIC_API_URL is not set; defaulting to ${DEFAULT_API_BASE_URL}`,
   );
 }
 
