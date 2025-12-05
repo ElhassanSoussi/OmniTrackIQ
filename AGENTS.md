@@ -41,9 +41,11 @@ This repo is organized as a monorepo:
 **Tech stack versions:**
 - Python: 3.11.9 (see `runtime.txt`)
 - Node.js: 18 (see `frontend/.nvmrc`)
-- FastAPI: 0.103.x
-- Next.js: 14.1.x
-- TypeScript: 5.3.x
+- FastAPI: 0.103.2 (see `backend/requirements.txt`)
+- SQLAlchemy: 2.0.44
+- Next.js: 14.1.0 (see `frontend/package.json`)
+- TypeScript: ^5.3.0
+- React Query: ^5.0.0
 - PostgreSQL: 14+ (not in repo, required for local dev)
 
 Before making changes, inspect the relevant folder and understand how it 
@@ -344,13 +346,14 @@ pip install -r requirements.txt
 **Frontend (Node.js):**
 ```bash
 # Install with npm (package-lock.json present)
-npm install package-name@^1.2.3
+npm install package-name
+# Or with specific version: npm install package-name@14.1.0
 # Commit updated package.json and package-lock.json
 ```
 
 **Version pinning strategy:**
 - Backend: Pin exact versions in `requirements.txt` (e.g., `fastapi==0.103.2`).
-- Frontend: Use caret ranges (e.g., `"next": "14.1.0"` or `"^14.1.0"`).
+- Frontend: Mix of exact versions and caret ranges (e.g., `"next": "14.1.0"`, `"@tanstack/react-query": "^5.0.0"`).
 - Review security advisories before adding new dependencies.
 
 ## Testing guidelines
