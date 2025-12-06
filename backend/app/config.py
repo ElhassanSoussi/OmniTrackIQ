@@ -34,8 +34,13 @@ class Settings(BaseSettings):
     GA4_CLIENT_EMAIL: Optional[str] = None
     GA4_PRIVATE_KEY: Optional[str] = None
 
-    class Config:
-        env_file = ".env"
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000", "https://your-frontend-domain.com"]
+
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    def assemble_cors_origins(cls, v):
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
 
 settings = Settings()
