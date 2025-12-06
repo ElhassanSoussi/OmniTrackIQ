@@ -15,6 +15,10 @@ Stack: Next.js (App Router, TypeScript, Tailwind, React Query) frontend, FastAPI
 4) **Migrate:** `alembic upgrade head` (uses `DATABASE_URL`).
 5) **Run API:** `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`. CORS allows `http://localhost:3000` by default.
 
+### Backend — Render deployment
+- **Build command:** `pip install -r backend/requirements.txt && alembic upgrade head`
+- **Start command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
 ### Frontend — local setup
 1) **Env vars:** In `frontend/.env.local` set `NEXT_PUBLIC_API_URL=http://localhost:8000`.
 2) **Install:** `cd frontend && npm install` (no lockfile present; npm assumed).
