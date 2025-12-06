@@ -1,11 +1,30 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { apiFetch } from "@/lib/api-client";
+
+export type MetricsDailyPoint = {
+  date: string;
+  revenue?: number;
+  spend?: number;
+  roas?: number;
+  orders?: number;
+};
+
+export type MetricsSummary = {
+  revenue: number;
+  spend: number;
+  roas: number;
+  orders: number;
+  daily?: MetricsDailyPoint[];
+};
 
 export function useMetrics(from: string, to: string) {
-  return useQuery({
+  return useQuery<MetricsSummary>({
     queryKey: ["summary", from, to],
-    queryFn: () => apiClient(`/metrics/summary?from=${from}&to=${to}`),
+    enabled: Boolean(from && to),
+    queryFn: async () => {
+      const result = await apiFetch<MetricsSummary>(`/metrics/summary?from=${from}&to=${to}`);
+      return result as MetricsSummary;
+    },
+    retry: false,
   });
 }

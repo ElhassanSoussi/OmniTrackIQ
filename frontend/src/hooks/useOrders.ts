@@ -1,11 +1,36 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { apiFetch } from "@/lib/api-client";
 
-export function useOrders(from: string, to: string, limit = 50) {
-  return useQuery({
-    queryKey: ["orders", from, to, limit],
-    queryFn: () => apiClient(`/metrics/orders?from=${from}&to=${to}&limit=${limit}`),
+export type OrderRecord = {
+  id?: string;
+  external_order_id?: string;
+  date_time?: string;
+  date?: string;
+  total_amount?: number;
+  amount?: number;
+  currency?: string;
+  source_platform?: string;
+  source?: string;
+  utm_source?: string;
+  utmSource?: string;
+  utm_campaign?: string;
+  utmCampaign?: string;
+};
+
+export type OrdersResponse =
+  | OrderRecord[]
+  | { items?: OrderRecord[]; orders?: OrderRecord[]; results?: OrderRecord[] }
+  | [unknown, OrderRecord[]]
+  | undefined;
+
+export function useOrders(from: string, to: string) {
+  return useQuery<OrdersResponse>({
+    queryKey: ["orders", from, to],
+    enabled: Boolean(from && to),
+    queryFn: async () => {
+      const result = await apiFetch<OrdersResponse>(`/metrics/orders?from=${from}&to=${to}`);
+      return result as OrdersResponse;
+    },
+    retry: false,
   });
 }
