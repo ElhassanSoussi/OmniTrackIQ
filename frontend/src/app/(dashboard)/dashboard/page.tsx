@@ -45,26 +45,18 @@ export default function DashboardPage() {
     );
   }
 
-  const kpis: KPIItem[] = useMemo(() => {
-    if (!summary) {
-      return [
-        { label: "Revenue", value: "$124,200", subtext: "Blended", trend: "+18% vs last period", tone: "positive" },
-        { label: "Ad Spend", value: "$32,400", subtext: "Across channels", trend: "+6% vs last period", tone: "negative" },
-        { label: "ROAS", value: "3.8x", subtext: "Target 3.0x", trend: "+0.4x vs last period", tone: "positive" },
-        { label: "Orders", value: "2,340", subtext: "Avg $53 AOV", trend: "+12% vs last period", tone: "positive" },
-      ];
-    }
-
-    return [
+  const kpis: KPIItem[] = useMemo(
+    () => [
       { label: "Revenue", value: formatCurrency(summary.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
       { label: "Ad Spend", value: formatCurrency(summary.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
       { label: "ROAS", value: `${summary.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
       { label: "Orders", value: formatNumber(summary.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
-    ];
-  }, [summary]);
+    ],
+    [summary],
+  );
 
   const chartData = useMemo(() => {
-    if (summary?.daily?.length) {
+    if (summary.daily?.length) {
       return summary.daily.map((d: MetricsDailyPoint) => ({
         label: d.date,
         spend: Number(d.spend || 0),
