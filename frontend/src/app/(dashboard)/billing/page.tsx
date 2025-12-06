@@ -5,7 +5,7 @@ import { useBilling } from "@/hooks/useBilling";
 export default function BillingPage() {
   const { plan: billing, isLoading: loading, isError, error } = useBilling();
 
-  if (loading) {
+  if (isLoading) {
     return <div className="text-white">Loading billing info...</div>;
   }
 
@@ -13,7 +13,7 @@ export default function BillingPage() {
     return <div className="text-red-500">Error: {error.message}</div>;
   }
 
-  if (!billing) {
+  if (!plan) {
     return <div className="text-gray-400">No billing information found.</div>;
   }
 
@@ -25,14 +25,14 @@ export default function BillingPage() {
         <div className="flex justify-between">
           <span className="text-gray-400">Subscription Status:</span>
           <span className="text-white font-semibold">
-            {billing.status ?? "Unknown"}
+            {plan.status ?? "Unknown"}
           </span>
         </div>
 
         <div className="flex justify-between mt-3">
           <span className="text-gray-400">Current Plan:</span>
           <span className="text-white font-semibold">
-            {billing.plan ?? "Free"}
+            {plan.plan ?? "Free"}
           </span>
         </div>
 

@@ -38,6 +38,9 @@ export default function DashboardPage() {
       ];
     }
 
+    // Type assertion after null check
+    const data: MetricsSummary = summary;
+    
     return [
       { label: "Revenue", value: formatCurrency((summary as MetricsSummary).revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
       { label: "Ad Spend", value: formatCurrency((summary as MetricsSummary).spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
