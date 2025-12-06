@@ -1,8 +1,23 @@
-const DEFAULT_API_BASE_URL = "http://localhost:3001";
+const DEFAULT_API_BASE_URL = "http://localhost:8000";
 
-const API_BASE_URL =
-  (process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") ??
-    DEFAULT_API_BASE_URL);
+function normalizeBaseUrl(rawValue: string | undefined): string {
+  if (!rawValue) return DEFAULT_API_BASE_URL;
+
+  const withProtocol = /^https?:\/\//i.test(rawValue)
+    ? rawValue
+    : `https://${rawValue}`;
+
+  return withProtocol.replace(/\/+$/, "");
+}
+
+const envBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+const API_BASE_URL = normalizeBaseUrl(envBaseUrl);
+
+if (!envBaseUrl && process.env.NODE_ENV !== "production") {
+  console.warn(
+    `[api-client] NEXT_PUBLIC_API_URL is not set. Falling back to ${DEFAULT_API_BASE_URL}. Set NEXT_PUBLIC_API_URL to your backend URL.`,
+  );
+}
 
 function getAuthToken() {
   if (typeof window === "undefined") return null;
@@ -18,8 +33,7 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T | undefined> {
-  const normalizedPath =
-    path.startsWith("/") ? path : `/${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = `${API_BASE_URL}${normalizedPath}`;
 
   const token = getAuthToken();
@@ -55,3 +69,4 @@ export async function apiFetch<T>(
 }
 
 export const API_URL = API_BASE_URL;
+

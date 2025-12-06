@@ -26,7 +26,7 @@ export function useIntegrations() {
   const [connecting, setConnecting] = useState<IntegrationPlatform | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const { data, refetch, isLoading, error, isError } = useQuery({
+  const { data, refetch, isLoading, error, isError } = useQuery<IntegrationItem[]>({
     queryKey: ["integrations"],
     queryFn: async () => {
       const response = await apiFetch<IntegrationItem[] | { integrations: IntegrationItem[] }>("/integrations");
