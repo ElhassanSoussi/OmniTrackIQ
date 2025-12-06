@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
@@ -6,6 +7,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.config import settings
+
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -16,18 +20,18 @@ def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> 
 
     :param subject: The subject (usually user ID or email).
     :param expires_minutes: Optional custom expiration in minutes. If None,
-                            use settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES.
+                            use JWT_ACCESS_TOKEN_EXPIRE_MINUTES.
     :return: Encoded JWT token as a string.
     """
     if expires_minutes is None:
-        expires_minutes = settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        expires_minutes = JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
     payload: dict[str, Any] = {"sub": subject, "exp": expire}
     token = jwt.encode(
         payload,
         settings.JWT_SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM,
+        algorithm=JWT_ALGORITHM,
     )
     return token
 
@@ -49,7 +53,7 @@ def decode_access_token(token: str = Depends(oauth2_scheme)) -> TokenData:
         payload = jwt.decode(
             token,
             settings.JWT_SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM],
+            algorithms=[JWT_ALGORITHM],
         )
         sub: Optional[str] = payload.get("sub")
 
