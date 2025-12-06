@@ -12,6 +12,7 @@ pnpm-lock.yaml
 # Next.js / TypeScript
 frontend/.next/
 frontend/.turbo/
+# TypeScript build artifacts
 *.tsbuildinfo
 
 # macOS

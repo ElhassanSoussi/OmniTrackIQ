@@ -31,7 +31,10 @@ export function useBilling(): UseBillingResult {
     error,
   } = useQuery<BillingPlan | undefined>({
     queryKey: ['billing'],
-    queryFn: () => apiFetch<BillingPlan>('/billing/me'),
+    queryFn: async () => {
+      const result = await apiFetch<BillingPlan>('/billing/me');
+      return result as BillingPlan;
+    },
     retry: false,
   });
 

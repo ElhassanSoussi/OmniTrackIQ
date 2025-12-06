@@ -1,17 +1,25 @@
-"use client";
-
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 
-type Campaign = {
-  [key: string]: any;  // Allow any structure for now
+export type CampaignMetrics = {
+  campaign_name?: string;
+  name?: string;
+  platform?: string;
+  spend?: number;
+  revenue?: number;
+  roas?: number;
+  clicks?: number;
+  conversions?: number;
 };
 
-export function useCampaigns(from: string, to: string): UseQueryResult<Campaign[] | undefined> {
-  return useQuery<Campaign[] | undefined>({
+export function useCampaigns(from: string, to: string) {
+  return useQuery<CampaignMetrics[]>({
     queryKey: ["campaigns", from, to],
     enabled: Boolean(from && to),
-    queryFn: () => apiFetch<Campaign[]>(`/metrics/campaigns?from=${from}&to=${to}`),
+    queryFn: async () => {
+      const result = await apiFetch<CampaignMetrics[]>(`/metrics/campaigns?from=${from}&to=${to}`);
+      return result as CampaignMetrics[];
+    },
     retry: false,
   });
 }

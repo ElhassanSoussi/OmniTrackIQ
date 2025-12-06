@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api-client";
+import { formatErrorMessage } from "@/lib/format";
 
 export interface AccountSettings {
   id: string;
@@ -25,7 +26,7 @@ export function useSettings() {
       const me = await apiFetch<AccountSettings>("/auth/me");
       setAccount(me || null);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unable to load settings";
+      const msg = formatErrorMessage(err);
       setError(msg);
       setAccount(null);
     } finally {
@@ -49,7 +50,7 @@ export function useSettings() {
       setMessage("Account details updated");
       await refresh();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to update account";
+      const msg = formatErrorMessage(err);
       setError(msg);
       throw err;
     } finally {
@@ -69,7 +70,7 @@ export function useSettings() {
       setMessage("Email updated");
       await refresh();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to update email";
+      const msg = formatErrorMessage(err);
       setError(msg);
       throw err;
     } finally {
@@ -88,7 +89,7 @@ export function useSettings() {
       });
       setMessage("Password updated");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to update password";
+      const msg = formatErrorMessage(err);
       setError(msg);
       throw err;
     } finally {

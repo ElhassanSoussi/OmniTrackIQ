@@ -3,14 +3,14 @@
 import { useBilling } from "@/hooks/useBilling";
 
 export default function BillingPage() {
-  const { plan, isLoading, error } = useBilling();
+  const { plan: billing, isLoading: loading, isError, error } = useBilling();
 
   if (isLoading) {
     return <div className="text-white">Loading billing info...</div>;
   }
 
-  if (error) {
-    return <div className="text-red-500">{error.message}</div>;
+  if (isError && error) {
+    return <div className="text-red-500">Error: {error.message}</div>;
   }
 
   if (!plan) {
@@ -39,7 +39,7 @@ export default function BillingPage() {
         <div className="flex justify-between mt-3">
           <span className="text-gray-400">Renewal Date:</span>
           <span className="text-white font-semibold">
-            {plan.renews_at ?? "N/A"}
+            {billing.renews_at ?? "N/A"}
           </span>
         </div>
       </div>

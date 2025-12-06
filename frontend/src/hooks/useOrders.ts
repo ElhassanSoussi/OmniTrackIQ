@@ -1,20 +1,36 @@
-"use client";
-
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 
-type OrdersResponse = {
-  items?: any[];
-  orders?: any[];
-  results?: any[];
-  [key: string]: any;  // Allow additional properties
-} | any[];  // Can also be an array
+export type OrderRecord = {
+  id?: string;
+  external_order_id?: string;
+  date_time?: string;
+  date?: string;
+  total_amount?: number;
+  amount?: number;
+  currency?: string;
+  source_platform?: string;
+  source?: string;
+  utm_source?: string;
+  utmSource?: string;
+  utm_campaign?: string;
+  utmCampaign?: string;
+};
 
-export function useOrders(from: string, to: string): UseQueryResult<OrdersResponse | undefined> {
-  return useQuery<OrdersResponse | undefined>({
+export type OrdersResponse =
+  | OrderRecord[]
+  | { items?: OrderRecord[]; orders?: OrderRecord[]; results?: OrderRecord[] }
+  | [unknown, OrderRecord[]]
+  | undefined;
+
+export function useOrders(from: string, to: string) {
+  return useQuery<OrdersResponse>({
     queryKey: ["orders", from, to],
     enabled: Boolean(from && to),
-    queryFn: () => apiFetch<OrdersResponse>(`/metrics/orders?from=${from}&to=${to}`),
+    queryFn: async () => {
+      const result = await apiFetch<OrdersResponse>(`/metrics/orders?from=${from}&to=${to}`);
+      return result as OrdersResponse;
+    },
     retry: false,
   });
 }

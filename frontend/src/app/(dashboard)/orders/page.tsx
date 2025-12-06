@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { DashboardSection, DateRangeToggle, DateRangeValue, OrdersTable } from "@/components/dashboard";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { useOrders } from "@/hooks/useOrders";
+import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatErrorMessage } from "@/lib/format";
 
 export default function OrdersPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
@@ -14,12 +14,12 @@ export default function OrdersPage() {
 
   const orders: OrderRow[] =
     data && ((Array.isArray(data) && data.length) || (data as any).items || (data as any).orders || (data as any).results)
-      ? (Array.isArray(data)
-          ? Array.isArray(data[1])
-            ? data[1]
+      ? ((Array.isArray(data)
+          ? Array.isArray((data as any)[1])
+            ? (data as any)[1]
             : data
-          : (data as any).items || (data as any).orders || (data as any).results || []
-        ).map((o: any) => {
+          : (data as any).items || (data as any).orders || (data as any).results || []) as OrderRecord[]
+        ).map((o: OrderRecord) => {
           const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
           const id = o.external_order_id || o.id || "—";
           const date = o.date_time ? new Date(o.date_time).toLocaleString() : o.date || "";
@@ -47,7 +47,7 @@ export default function OrdersPage() {
       actions={<DateRangeToggle value={range} onChange={setRange} />}
     >
       {isLoading && <div className="text-slate-400">Loading...</div>}
-      {isError && <div className="text-sm text-rose-400">Failed to load orders: {error instanceof Error ? error.message : "Unknown error"}</div>}
+      {isError && <div className="text-sm text-rose-400">Failed to load orders: {formatErrorMessage(error)}</div>}
       {!isLoading && !isError && <OrdersTable orders={orders} />}
     </DashboardSection>
   );
