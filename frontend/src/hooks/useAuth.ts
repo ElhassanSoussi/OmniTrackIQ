@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api-client";
+import { formatErrorMessage } from "@/lib/format";
 
 export interface AuthUser {
   id: string;
@@ -31,10 +32,10 @@ export function useAuth(): UseAuthResult {
     setError(null);
     try {
       const me = await apiFetch<AuthUser>("/auth/me");
-      setUser(me ?? null);
+      setUser(me || null);
     } catch (err) {
       setUser(null);
-      const message = err instanceof Error ? err.message : "Unable to load session";
+      const message = formatErrorMessage(err);
       if (!message.includes("401") && !message.toLowerCase().includes("unauthorized")) {
         setError(message);
       }
@@ -59,7 +60,7 @@ export function useAuth(): UseAuthResult {
 
         await refresh();
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Login failed";
+        const message = formatErrorMessage(err);
         setError(message);
         throw err;
       } finally {
@@ -85,7 +86,7 @@ export function useAuth(): UseAuthResult {
 
         await refresh();
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Signup failed";
+        const message = formatErrorMessage(err);
         setError(message);
         throw err;
       } finally {
@@ -101,7 +102,7 @@ export function useAuth(): UseAuthResult {
     try {
       await apiFetch("/auth/logout", { method: "POST" });
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Logout failed";
+      const message = formatErrorMessage(err);
       setError(message);
     } finally {
       setUser(null);

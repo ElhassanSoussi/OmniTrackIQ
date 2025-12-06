@@ -34,9 +34,12 @@ export function useBilling(): UseBillingResult {
     isLoading,
     isError,
     error,
-  } = useQuery<BackendBillingResponse | undefined, Error>({
+  } = useQuery<BillingPlan | undefined>({
     queryKey: ['billing'],
-    queryFn: () => apiFetch<BackendBillingResponse>('/billing/me'),
+    queryFn: async () => {
+      const result = await apiFetch<BillingPlan>('/billing/me');
+      return result as BillingPlan;
+    },
     retry: false,
   });
 
@@ -51,7 +54,7 @@ export function useBilling(): UseBillingResult {
     : null;
 
   async function createCheckout(plan: string) {
-    const response = await apiFetch<{ url: string }>('/billing/checkout', {
+    const result = await apiFetch<{ url: string }>('/billing/checkout', {
       method: 'POST',
       body: JSON.stringify({ plan }),
     });
@@ -61,11 +64,13 @@ export function useBilling(): UseBillingResult {
     }
 
     // Redirect to Stripe checkout
-    window.location.href = response.url;
+    if (result?.url) {
+      window.location.href = result.url;
+    }
   }
 
   async function openPortal() {
-    const response = await apiFetch<{ url: string }>('/billing/portal', {
+    const result = await apiFetch<{ url: string }>('/billing/portal', {
       method: 'POST',
     });
 
@@ -74,7 +79,9 @@ export function useBilling(): UseBillingResult {
     }
 
     // Redirect to billing portal
-    window.location.href = response.url;
+    if (result?.url) {
+      window.location.href = result.url;
+    }
   }
 
   return {
