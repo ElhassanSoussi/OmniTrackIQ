@@ -9,6 +9,9 @@ npm-debug.log*
 yarn.lock
 pnpm-lock.yaml
 
+# TypeScript build artifacts
+*.tsbuildinfo
+
 # macOS
 .DS_Store
 
