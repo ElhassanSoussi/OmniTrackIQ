@@ -3,38 +3,46 @@
 import { useBilling } from "@/hooks/useBilling";
 
 export default function BillingPage() {
-  const { plan, isLoading, isError, error, createCheckout } = useBilling();
+  const { plan: billing, isLoading: loading, isError, error } = useBilling();
+
+  if (isLoading) {
+    return <div className="text-white">Loading billing info...</div>;
+  }
+
+  if (isError && error) {
+    return <div className="text-red-500">Error: {error.message}</div>;
+  }
+
+  if (!plan) {
+    return <div className="text-gray-400">No billing information found.</div>;
+  }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-white">Billing</h1>
-      {isLoading ? (
-        <div className="text-slate-400">Loading...</div>
-      ) : isError ? (
-        <div className="rounded-lg border border-rose-800/50 bg-rose-900/30 px-4 py-3 text-sm text-rose-200">
-          Failed to load billing status: {error?.message || "Unknown error"}
+    <div className="p-6 text-white">
+      <h1 className="text-2xl font-bold mb-4">Billing</h1>
+
+      <div className="bg-[#0d0f1a] rounded-xl p-4 shadow-md">
+        <div className="flex justify-between">
+          <span className="text-gray-400">Subscription Status:</span>
+          <span className="text-white font-semibold">
+            {plan.status ?? "Unknown"}
+          </span>
         </div>
-      ) : (
-        <div className="rounded-lg border border-slate-800 bg-slate-900/70 p-4">
-          <div className="text-sm text-slate-300">Current plan</div>
-          <div className="text-xl font-semibold text-white">{plan?.plan || "none"}</div>
-          <div className="text-sm text-slate-400">Status: {plan?.status || "none"}</div>
-          <div className="mt-4 flex gap-3">
-            <button
-              onClick={() => createCheckout("pro")}
-              className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition"
-            >
-              Upgrade to Pro
-            </button>
-            <button
-              onClick={() => createCheckout("starter")}
-              className="rounded-md border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-slate-500 transition"
-            >
-              Choose Starter
-            </button>
-          </div>
+
+        <div className="flex justify-between mt-3">
+          <span className="text-gray-400">Current Plan:</span>
+          <span className="text-white font-semibold">
+            {plan.plan ?? "Free"}
+          </span>
         </div>
-      )}
+
+        <div className="flex justify-between mt-3">
+          <span className="text-gray-400">Renewal Date:</span>
+          <span className="text-white font-semibold">
+            {billing.renews_at ?? "N/A"}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

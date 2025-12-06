@@ -9,6 +9,12 @@ npm-debug.log*
 yarn.lock
 pnpm-lock.yaml
 
+# Next.js / TypeScript
+frontend/.next/
+frontend/.turbo/
+# TypeScript build artifacts
+*.tsbuildinfo
+
 # macOS
 .DS_Store
 
@@ -19,5 +25,3 @@ __pycache__/
 .env
 venv/
 node_modules/
-frontend/.next/
-frontend/.turbo/

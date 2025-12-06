@@ -14,19 +14,19 @@ import {
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { useMetrics } from "@/hooks/useMetrics";
-import { useCampaigns } from "@/hooks/useCampaigns";
-import { useOrders } from "@/hooks/useOrders";
+import { MetricsDailyPoint, MetricsSummary, useMetrics } from "@/hooks/useMetrics";
+import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
+import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
 
 export default function DashboardPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
   const { from, to } = getDateRange(range);
 
-  const { data: summary, isLoading: summaryLoading, isError: summaryError, error: summaryErr } = useMetrics(from, to);
-  const { data: campaignsData, isLoading: campaignsLoading, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
-  const { data: ordersData, isLoading: ordersLoading, isError: ordersError, error: ordersErr } = useOrders(from, to);
+  const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to);
+  const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
+  const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
 
   const kpis: KPIItem[] = useMemo(() => {
     if (!summary) {
@@ -38,17 +38,20 @@ export default function DashboardPage() {
       ];
     }
 
+    // Type assertion after null check
+    const data: MetricsSummary = summary;
+    
     return [
-      { label: "Revenue", value: formatCurrency(summary.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
-      { label: "Ad Spend", value: formatCurrency(summary.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
-      { label: "ROAS", value: `${summary.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
-      { label: "Orders", value: formatNumber(summary.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
+      { label: "Revenue", value: formatCurrency((summary as MetricsSummary).revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
+      { label: "Ad Spend", value: formatCurrency((summary as MetricsSummary).spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
+      { label: "ROAS", value: `${(summary as MetricsSummary).roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
+      { label: "Orders", value: formatNumber((summary as MetricsSummary).orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
     ];
   }, [summary]);
 
   const chartData = useMemo(() => {
     if (summary?.daily?.length) {
-      return summary.daily.map((d: any) => ({
+      return (summary as MetricsSummary).daily!.map((d: MetricsDailyPoint) => ({
         label: d.date,
         spend: Number(d.spend || 0),
       }));
@@ -65,9 +68,12 @@ export default function DashboardPage() {
       ];
     }
 
-    return campaignsData.map((c: any) => {
-      const spend = formatCurrency(c.spend);
-      const roas = c.roas ? `${Number(c.roas).toFixed(1)}x` : c.revenue && c.spend ? `${(Number(c.revenue) / Number(c.spend || 1)).toFixed(1)}x` : "—";
+    return campaignsData.map((c: CampaignMetrics) => {
+      const spend = formatCurrency(c.spend ?? 0);
+      const calculatedRoas =
+        c.roas ?? (c.revenue !== undefined && c.spend ? Number(c.revenue) / Number(c.spend || 1) : undefined);
+      const roas = calculatedRoas !== undefined ? `${Number(calculatedRoas).toFixed(1)}x` : "—";
+
       return {
         name: c.campaign_name || c.name || "Untitled campaign",
         platform: c.platform || "unknown",
@@ -89,15 +95,18 @@ export default function DashboardPage() {
       ];
     }
 
-    const rawOrders = Array.isArray(ordersData)
+    const rawOrders = (Array.isArray(ordersData)
       ? Array.isArray(ordersData[1])
         ? ordersData[1]
         : ordersData
-      : ordersData.items || ordersData.orders || ordersData.results || [];
+      : (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.items ||
+        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.orders ||
+        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.results ||
+        []) as OrderRecord[];
 
     if (!rawOrders.length) return [];
 
-    return rawOrders.slice(0, 20).map((o: any) => {
+    return rawOrders.slice(0, 20).map((o: OrderRecord) => {
       const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
       const id = o.external_order_id || o.id || "—";
       const date = o.date_time ? new Date(o.date_time).toLocaleString() : o.date || "";
@@ -112,7 +121,7 @@ export default function DashboardPage() {
     });
   }, [ordersData]);
 
-  const hasNoLiveData = summary && summary.revenue === 0 && summary.spend === 0 && summary.orders === 0;
+  const hasNoLiveData = summary ? (summary as MetricsSummary).revenue === 0 && (summary as MetricsSummary).spend === 0 && (summary as MetricsSummary).orders === 0 : false;
 
   return (
     <div className="space-y-10">
@@ -150,7 +159,7 @@ export default function DashboardPage() {
 
           {summaryError ? (
             <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
-              Failed to load metrics: {summaryErr instanceof Error ? summaryErr.message : "Unknown error"}
+              Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
           ) : (
             <KPIGrid items={kpis} />
@@ -168,14 +177,14 @@ export default function DashboardPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             {campaignsError ? (
               <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
-                Failed to load campaigns: {campaignsErr instanceof Error ? campaignsErr.message : "Unknown error"}
+                Failed to load campaigns: {formatErrorMessage(campaignsErr)}
               </div>
             ) : (
               <CampaignsTable campaigns={topCampaigns} />
             )}
             {ordersError ? (
               <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
-                Failed to load orders: {ordersErr instanceof Error ? ordersErr.message : "Unknown error"}
+                Failed to load orders: {formatErrorMessage(ordersErr)}
               </div>
             ) : (
               <OrdersTable orders={recentOrders} />
