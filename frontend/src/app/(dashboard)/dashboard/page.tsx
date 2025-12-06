@@ -14,11 +14,11 @@ import {
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { MetricsDailyPoint, useMetrics } from "@/hooks/useMetrics";
+import { MetricsDailyPoint, MetricsSummary, useMetrics } from "@/hooks/useMetrics";
 import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
 import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
 
 export default function DashboardPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
@@ -39,16 +39,16 @@ export default function DashboardPage() {
     }
 
     return [
-      { label: "Revenue", value: formatCurrency(summary.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
-      { label: "Ad Spend", value: formatCurrency(summary.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
-      { label: "ROAS", value: `${summary.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
-      { label: "Orders", value: formatNumber(summary.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
+      { label: "Revenue", value: formatCurrency((summary as MetricsSummary).revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
+      { label: "Ad Spend", value: formatCurrency((summary as MetricsSummary).spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
+      { label: "ROAS", value: `${(summary as MetricsSummary).roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
+      { label: "Orders", value: formatNumber((summary as MetricsSummary).orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
     ];
   }, [summary]);
 
   const chartData = useMemo(() => {
     if (summary?.daily?.length) {
-      return summary.daily.map((d: MetricsDailyPoint) => ({
+      return (summary as MetricsSummary).daily!.map((d: MetricsDailyPoint) => ({
         label: d.date,
         spend: Number(d.spend || 0),
       }));
@@ -92,14 +92,14 @@ export default function DashboardPage() {
       ];
     }
 
-    const rawOrders = Array.isArray(ordersData)
+    const rawOrders = (Array.isArray(ordersData)
       ? Array.isArray(ordersData[1])
         ? ordersData[1]
         : ordersData
       : (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.items ||
         (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.orders ||
         (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.results ||
-        [];
+        []) as OrderRecord[];
 
     if (!rawOrders.length) return [];
 
@@ -118,7 +118,7 @@ export default function DashboardPage() {
     });
   }, [ordersData]);
 
-  const hasNoLiveData = summary && summary.revenue === 0 && summary.spend === 0 && summary.orders === 0;
+  const hasNoLiveData = summary ? (summary as MetricsSummary).revenue === 0 && (summary as MetricsSummary).spend === 0 && (summary as MetricsSummary).orders === 0 : false;
 
   return (
     <div className="space-y-10">
@@ -156,7 +156,7 @@ export default function DashboardPage() {
 
           {summaryError ? (
             <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
-              Failed to load metrics: {summaryErr instanceof Error ? summaryErr.message : "Unknown error"}
+              Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
           ) : (
             <KPIGrid items={kpis} />
@@ -174,14 +174,14 @@ export default function DashboardPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             {campaignsError ? (
               <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
-                Failed to load campaigns: {campaignsErr instanceof Error ? campaignsErr.message : "Unknown error"}
+                Failed to load campaigns: {formatErrorMessage(campaignsErr)}
               </div>
             ) : (
               <CampaignsTable campaigns={topCampaigns} />
             )}
             {ordersError ? (
               <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
-                Failed to load orders: {ordersErr instanceof Error ? ordersErr.message : "Unknown error"}
+                Failed to load orders: {formatErrorMessage(ordersErr)}
               </div>
             ) : (
               <OrdersTable orders={recentOrders} />

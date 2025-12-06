@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
+import { formatErrorMessage } from "@/lib/format";
 
 export type IntegrationPlatform = "facebook" | "google_ads" | "tiktok" | "shopify" | "ga4";
 export type IntegrationStatus = "connected" | "disconnected" | "coming_soon" | "error";
@@ -35,7 +36,7 @@ export function useIntegrations() {
       return BASE_INTEGRATIONS.map((base) => {
         const match = items.find((item) => item.platform === base.platform);
         return match ? { ...base, ...match } : base;
-      });
+      }) as IntegrationItem[];
     },
     retry: false,
   });
@@ -46,12 +47,12 @@ export function useIntegrations() {
     setActionError(null);
     setConnecting(platform);
     try {
-      const { url } = await apiFetch<{ url: string }>(`/integrations/${platform}/connect-url`);
-      if (url) {
-        window.location.href = url;
+      const result = await apiFetch<{ url: string }>(`/integrations/${platform}/connect-url`);
+      if (result?.url) {
+        window.location.href = result.url;
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unable to start connection";
+      const message = formatErrorMessage(err);
       setActionError(message);
     } finally {
       setConnecting(null);
