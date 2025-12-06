@@ -16,7 +16,7 @@ import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
 import { MetricsDailyPoint, useMetricsSummary } from "@/hooks/useMetrics";
 import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
-import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
+import { OrderRecord, useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
@@ -31,7 +31,7 @@ export default function DashboardPage() {
     isLoading: summaryLoading,
   } = useMetricsSummary(from, to);
   const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
-  const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
+  const { data: ordersData = [], isError: ordersError, error: ordersErr } = useOrders(from, to);
 
   if (summaryLoading) {
     return <div className="p-6 text-slate-200">Loading dashboard...</div>;
@@ -109,18 +109,9 @@ export default function DashboardPage() {
       ];
     }
 
-    const rawOrders = Array.isArray(ordersData)
-      ? Array.isArray(ordersData[1])
-        ? ordersData[1]
-        : ordersData
-      : (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.items ||
-        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.orders ||
-        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.results ||
-        [];
+    if (!ordersData.length) return [];
 
-    if (!rawOrders.length) return [];
-
-    return rawOrders.slice(0, 20).map((o: OrderRecord) => {
+    return ordersData.slice(0, 20).map((o: OrderRecord) => {
       const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
       const id = o.external_order_id || o.id || "—";
       const date = o.date_time ? new Date(o.date_time).toLocaleString() : o.date || "";

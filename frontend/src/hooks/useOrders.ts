@@ -25,11 +25,25 @@ export type OrdersResponse =
   | [unknown, OrderRecord[]]
   | undefined;
 
+function normalizeOrders(response?: OrdersResponse): OrderRecord[] {
+  if (!response) return [];
+
+  if (Array.isArray(response)) {
+    return Array.isArray(response[1]) ? response[1] : response;
+  }
+
+  return response.items || response.orders || response.results || [];
+}
+
 export function useOrders(from: string, to: string) {
-  return useQuery<OrdersResponse>({
+  return useQuery<OrderRecord[], Error>({
     queryKey: ["orders", from, to],
     enabled: Boolean(from && to),
-    queryFn: () => apiFetch<OrdersResponse>(`/metrics/orders?from=${from}&to=${to}`),
+    queryFn: async () => {
+      const response = await apiFetch<OrdersResponse>(`/metrics/orders?from=${from}&to=${to}`);
+      return normalizeOrders(response);
+    },
     retry: false,
+    placeholderData: [],
   });
 }
