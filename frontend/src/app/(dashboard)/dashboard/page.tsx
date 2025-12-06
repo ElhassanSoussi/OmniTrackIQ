@@ -14,9 +14,9 @@ import {
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { MetricsDailyPoint, useMetrics } from "@/hooks/useMetrics";
+import { MetricsDailyPoint, useMetricsSummary } from "@/hooks/useMetrics";
 import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
-import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
+import { OrderRecord, useOrders } from "@/hooks/useOrders";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
@@ -24,30 +24,39 @@ export default function DashboardPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
   const { from, to } = getDateRange(range);
 
-  const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to);
+  const {
+    data: summary,
+    isError: summaryError,
+    error: summaryErr,
+    isLoading: summaryLoading,
+  } = useMetricsSummary(from, to);
   const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
-  const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
+  const { data: ordersData = [], isError: ordersError, error: ordersErr } = useOrders(from, to);
 
-  const kpis: KPIItem[] = useMemo(() => {
-    if (!summary) {
-      return [
-        { label: "Revenue", value: "$124,200", subtext: "Blended", trend: "+18% vs last period", tone: "positive" },
-        { label: "Ad Spend", value: "$32,400", subtext: "Across channels", trend: "+6% vs last period", tone: "negative" },
-        { label: "ROAS", value: "3.8x", subtext: "Target 3.0x", trend: "+0.4x vs last period", tone: "positive" },
-        { label: "Orders", value: "2,340", subtext: "Avg $53 AOV", trend: "+12% vs last period", tone: "positive" },
-      ];
-    }
+  if (summaryLoading) {
+    return <div className="p-6 text-slate-200">Loading dashboard...</div>;
+  }
 
-    return [
+  if (summaryError || !summary) {
+    return (
+      <div className="p-6 text-slate-200">
+        Unable to load metrics: {summaryErr instanceof Error ? summaryErr.message : "Unknown error"}
+      </div>
+    );
+  }
+
+  const kpis: KPIItem[] = useMemo(
+    () => [
       { label: "Revenue", value: formatCurrency(summary.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
       { label: "Ad Spend", value: formatCurrency(summary.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
       { label: "ROAS", value: `${summary.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
       { label: "Orders", value: formatNumber(summary.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
-    ];
-  }, [summary]);
+    ],
+    [summary],
+  );
 
   const chartData = useMemo(() => {
-    if (summary?.daily?.length) {
+    if (summary.daily?.length) {
       return summary.daily.map((d: MetricsDailyPoint) => ({
         label: d.date,
         spend: Number(d.spend || 0),
@@ -92,18 +101,9 @@ export default function DashboardPage() {
       ];
     }
 
-    const rawOrders = Array.isArray(ordersData)
-      ? Array.isArray(ordersData[1])
-        ? ordersData[1]
-        : ordersData
-      : (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.items ||
-        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.orders ||
-        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.results ||
-        [];
+    if (!ordersData.length) return [];
 
-    if (!rawOrders.length) return [];
-
-    return rawOrders.slice(0, 20).map((o: OrderRecord) => {
+    return ordersData.slice(0, 20).map((o: OrderRecord) => {
       const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
       const id = o.external_order_id || o.id || "—";
       const date = o.date_time ? new Date(o.date_time).toLocaleString() : o.date || "";

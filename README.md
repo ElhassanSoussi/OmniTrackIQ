@@ -16,9 +16,10 @@ Stack: Next.js (App Router, TypeScript, Tailwind, React Query) frontend, FastAPI
 5) **Run API:** `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`. CORS allows `http://localhost:3000` by default.
 
 ### Frontend — local setup
-1) **Env vars:** In `frontend/.env.local` set `NEXT_PUBLIC_API_URL=http://localhost:8000`.
-2) **Install:** `cd frontend && npm install` (no lockfile present; npm assumed).
-3) **Run dev server:** `npm run dev` (Next.js on port 3000). For production: `npm run build` then `npm run start`; lint with `npm run lint`.
+1) **Env vars:** In `frontend/.env.local` set `NEXT_PUBLIC_API_URL=http://localhost:8000` (production uses `https://omnitrackiq-backend.onrender.com`).
+2) **Node:** Use Node 20 LTS (pinned via `.nvmrc` and `package.json`).
+3) **Install:** `cd frontend && npm install` (uses the bundled `package-lock.json`).
+4) **Run dev server:** `npm run dev` (Next.js on port 3000). For production: `npm run build` then `npm run start`; lint with `npm run lint`.
 
 ### n8n flows — local setup
 1) **Run n8n (Docker example):** `docker run -it --rm -p 5678:5678 -v $(pwd)/n8n-data:/home/node/.n8n n8nio/n8n`. Point it to your Postgres if needed (set env vars like `DB_POSTGRESDB_HOST`, `DB_POSTGRESDB_DATABASE`, etc.).

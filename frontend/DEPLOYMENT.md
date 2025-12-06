@@ -16,5 +16,5 @@ All frontend API calls go through the shared `apiFetch` helper in `src/lib/api-c
 - Root directory: `frontend`
 - Build command: `npm install && npm run build`
 - Start command: `npm run start`
-- Node version: Render uses Node 18 as specified in `.nvmrc` and `package.json`.
+- Node version: Render uses Node 20 LTS as specified in `.nvmrc` and `package.json`.
 - Required Render env: `NEXT_PUBLIC_API_URL=https://omnitrackiq-backend.onrender.com`
