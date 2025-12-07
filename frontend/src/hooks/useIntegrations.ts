@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/api-client";
 import { formatErrorMessage } from "@/lib/format";
 
 export type IntegrationPlatform = "facebook" | "google_ads" | "tiktok" | "shopify" | "ga4";
-export type IntegrationStatus = "connected" | "disconnected" | "coming_soon" | "error";
+export type IntegrationStatus = "connected" | "disconnected" | "error";
 
 export interface IntegrationItem {
   platform: IntegrationPlatform;
@@ -54,7 +54,7 @@ export function useIntegrations() {
     } catch (err) {
       const message = formatErrorMessage(err);
       setActionError(message);
-      // Re-throw so the calling component can handle "coming soon" or other specific errors
+      // Re-throw so the calling component can handle specific errors
       throw new Error(message);
     } finally {
       setConnecting(null);

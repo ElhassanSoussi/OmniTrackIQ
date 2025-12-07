@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     TIKTOK_CLIENT_ID: Optional[str] = None
     TIKTOK_CLIENT_SECRET: Optional[str] = None
 
+    GITHUB_CLIENT_ID: Optional[str] = None
+    GITHUB_CLIENT_SECRET: Optional[str] = None
+
+    APPLE_CLIENT_ID: Optional[str] = None
+    APPLE_CLIENT_SECRET: Optional[str] = None
+
     SHOPIFY_CLIENT_ID: Optional[str] = None
     SHOPIFY_CLIENT_SECRET: Optional[str] = None
 
