@@ -137,7 +137,7 @@ export default function MetricsDashboard() {
         </div>
       </div>
 
-      <OrdersTable orders={ordersRows} loading={ordersLoading || summaryLoading} />
+      <OrdersTable orders={ordersRows} loading={ordersLoading} />
     </div>
   );
 }
