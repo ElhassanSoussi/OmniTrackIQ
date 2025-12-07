@@ -42,23 +42,23 @@ export default function MetricsDashboard() {
   const cards = [
     {
       label: "Revenue",
-      value: summary ? formatCurrency(summary.revenue) : "—",
-      subtext: summary ? `${formatNumber(summary.orders)} orders` : "Waiting for data",
+      value: summary ? formatCurrency(summary.revenue ?? 0) : "—",
+      subtext: summary ? `${formatNumber(summary.orders ?? 0)} orders` : "Waiting for data",
     },
     {
       label: "Ad Spend",
-      value: summary ? formatCurrency(summary.spend) : "—",
-      subtext: summary ? `${formatNumber(summary.clicks)} clicks` : undefined,
+      value: summary ? formatCurrency(summary.spend ?? 0) : "—",
+      subtext: summary ? `${formatNumber(summary.clicks ?? 0)} clicks` : undefined,
     },
     {
       label: "ROAS",
-      value: summary ? `${summary.roas.toFixed(1)}x` : "—",
-      subtext: summary ? `${formatCurrency(summary.profit)} profit` : undefined,
+      value: summary ? `${(summary.roas ?? 0).toFixed(1)}x` : "—",
+      subtext: summary ? `${formatCurrency(summary.profit ?? 0)} profit` : undefined,
     },
     {
       label: "Impressions",
-      value: summary ? formatNumber(summary.impressions) : "—",
-      subtext: summary ? `${formatNumber(summary.conversions)} conversions` : undefined,
+      value: summary ? formatNumber(summary.impressions ?? 0) : "—",
+      subtext: summary ? `${formatNumber(summary.conversions ?? 0)} conversions` : undefined,
     },
   ];
 
