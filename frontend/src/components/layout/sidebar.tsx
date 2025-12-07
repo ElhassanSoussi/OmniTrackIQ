@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 const links = [
-  { href: "/dashboard", label: "Overview", icon: "📊" },
-  { href: "/campaigns", label: "Campaigns", icon: "📈" },
-  { href: "/orders", label: "Orders", icon: "📦" },
-  { href: "/integrations", label: "Integrations", icon: "🔗" },
-  { href: "/billing", label: "Billing", icon: "💳" },
-  { href: "/settings", label: "Settings", icon: "⚙️" },
+  { href: "/dashboard", label: "Overview" },
+  { href: "/campaigns", label: "Campaigns" },
+  { href: "/orders", label: "Orders" },
+  { href: "/integrations", label: "Integrations" },
+  { href: "/billing", label: "Billing" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export default function Sidebar() {
@@ -34,13 +34,12 @@ export default function Sidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+              className={`flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 active
                   ? "bg-emerald-50 text-emerald-700"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
-              <span className="text-base">{link.icon}</span>
               {link.label}
             </Link>
           );
@@ -56,9 +55,8 @@ export default function Sidebar() {
         )}
         <button
           onClick={() => logout()}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900"
+          className="flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900"
         >
-          <span>🚪</span>
           Sign out
         </button>
       </div>

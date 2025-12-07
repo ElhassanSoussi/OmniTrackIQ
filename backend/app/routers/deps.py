@@ -22,7 +22,10 @@ def get_current_user(
 ) -> User:
     user = db.query(User).filter(User.id == token_data.sub).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Your account was not found. Please sign up or contact support."
+        )
     return user
 
 
@@ -36,9 +39,15 @@ def get_current_account_user(
     """
     user = db.query(User).filter(User.id == token_data.sub).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Your account was not found. Please sign up or contact support."
+        )
     if not user.account_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account not linked")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Your account setup is incomplete. Please contact support."
+        )
     return user
 
 

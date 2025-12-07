@@ -100,10 +100,10 @@ export function useAuth(): UseAuthResult {
     setLoading(true);
     setError(null);
     try {
+      // Call logout endpoint (best-effort, we'll clear local state regardless)
       await apiFetch("/auth/logout", { method: "POST" });
-    } catch (err) {
-      const message = formatErrorMessage(err);
-      setError(message);
+    } catch {
+      // Ignore errors - we'll clear local state regardless
     } finally {
       setUser(null);
       if (typeof window !== "undefined") {

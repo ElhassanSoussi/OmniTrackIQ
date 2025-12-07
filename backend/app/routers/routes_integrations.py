@@ -76,16 +76,24 @@ def connect_url(platform: str, user=Depends(get_current_account_user)):
     
     # Check if OAuth is configured for this platform
     if not client_id:
+        platform_names = {
+            "facebook": "Facebook Ads",
+            "google_ads": "Google Ads",
+            "tiktok": "TikTok Ads",
+            "shopify": "Shopify",
+            "ga4": "Google Analytics 4",
+        }
+        display_name = platform_names.get(platform, platform.title())
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail=f"OAuth for {platform} is not configured. Please set {config['client_id_setting']} in environment variables."
+            detail=f"{display_name} integration is coming soon! We're working on enabling this connection."
         )
     
     # Shopify requires special handling (store-specific URL)
     if platform == "shopify":
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Shopify integration requires store URL. Please contact support to set up your Shopify connection."
+            detail="Shopify integration requires additional setup. Please contact support to connect your store."
         )
     
     # Build OAuth URL

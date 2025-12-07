@@ -25,9 +25,14 @@ export default function IntegrationsPage() {
     } catch (err) {
       // Check if it's a "coming soon" / 501 error
       const message = err instanceof Error ? err.message : String(err);
-      if (message.toLowerCase().includes("coming soon") || message.includes("501")) {
+      if (
+        message.toLowerCase().includes("coming soon") || 
+        message.includes("501") ||
+        message.toLowerCase().includes("not configured") ||
+        message.toLowerCase().includes("additional setup")
+      ) {
         setComingSoonPlatform(platform);
-        setTimeout(() => setComingSoonPlatform(null), 4000);
+        setTimeout(() => setComingSoonPlatform(null), 5000);
       }
     }
   }

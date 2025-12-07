@@ -55,6 +55,16 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
     return TokenResponse(access_token=token)
 
 
+@router.post("/logout")
+def logout():
+    """
+    Logout endpoint. Since we use JWT tokens stored client-side,
+    the actual logout happens on the client by removing the token.
+    This endpoint exists for API completeness and future session invalidation.
+    """
+    return {"message": "Logged out successfully"}
+
+
 @router.get("/me", response_model=UserInfo)
 def me(current_user: User = Depends(get_current_user)):
     return UserInfo(id=current_user.id, email=current_user.email, account_id=current_user.account_id)

@@ -11,7 +11,8 @@ from app.config import settings
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+# auto_error=True will return a clearer 401 response when no token provided
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=True)
 
 
 def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> str:
@@ -49,6 +50,13 @@ def decode_access_token(token: str = Depends(oauth2_scheme)) -> TokenData:
     :return: TokenData with the subject.
     :raises HTTPException: if token is invalid or expired.
     """
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Please log in to continue",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     try:
         payload = jwt.decode(
             token,
@@ -60,7 +68,8 @@ def decode_access_token(token: str = Depends(oauth2_scheme)) -> TokenData:
         if sub is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token",
+                detail="Invalid session. Please log in again.",
+                headers={"WWW-Authenticate": "Bearer"},
             )
 
         return TokenData(sub=sub)
@@ -68,11 +77,13 @@ def decode_access_token(token: str = Depends(oauth2_scheme)) -> TokenData:
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expired",
+            detail="Your session has expired. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
+            detail="Invalid session. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
