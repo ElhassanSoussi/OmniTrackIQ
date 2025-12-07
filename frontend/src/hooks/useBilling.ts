@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api-client';
 import { useQuery } from '@tanstack/react-query';
 
 // Backend response structure from /billing/me
-interface BackendBillingResponse {
+interface BillingPlan {
   plan: string | null;
   status: string;
   renewal: string | null; // ISO datetime string
@@ -59,14 +59,12 @@ export function useBilling(): UseBillingResult {
       body: JSON.stringify({ plan }),
     });
 
-    if (!response?.url) {
+    if (!result?.url) {
       throw new Error('No checkout URL received');
     }
 
     // Redirect to Stripe checkout
-    if (result?.url) {
-      window.location.href = result.url;
-    }
+    window.location.href = result.url;
   }
 
   async function openPortal() {
@@ -74,14 +72,12 @@ export function useBilling(): UseBillingResult {
       method: 'POST',
     });
 
-    if (!response?.url) {
+    if (!result?.url) {
       throw new Error('No portal URL received');
     }
 
     // Redirect to billing portal
-    if (result?.url) {
-      window.location.href = result.url;
-    }
+    window.location.href = result.url;
   }
 
   return {
