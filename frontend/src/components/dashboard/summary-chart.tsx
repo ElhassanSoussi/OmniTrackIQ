@@ -41,12 +41,12 @@ export default function SummaryChart({ daily = [], loading }: { daily?: DailyPoi
                 <div className="flex items-end gap-1">
                   <div
                     className="w-8 rounded-t-md bg-emerald-500/80"
-                    style={{ height: `${spendHeight}%`, minHeight: "12px" }}
+                    style={{ height: `${spendHeight}%` }}
                     aria-label={`Spend ${point.spend}`}
                   />
                   <div
                     className="w-3 rounded-t-md bg-sky-500/80"
-                    style={{ height: `${clicksHeight}%`, minHeight: "12px" }}
+                    style={{ height: `${clicksHeight}%` }}
                     aria-label={`Clicks ${point.clicks}`}
                   />
                 </div>
