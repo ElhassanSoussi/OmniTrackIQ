@@ -5,12 +5,13 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.routers.deps import get_current_account_user, get_db
+from app.schemas.metrics import MetricsSummary, CampaignPerformance
 from app.services.metrics_service import get_campaigns, get_orders, get_summary
 
 router = APIRouter()
 
 
-@router.get("/summary")
+@router.get("/summary", response_model=MetricsSummary)
 def summary(
     from_date: Optional[date] = Query(None, alias="from"),
     to_date: Optional[date] = Query(None, alias="to"),
