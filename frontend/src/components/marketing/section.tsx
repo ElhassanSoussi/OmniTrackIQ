@@ -10,7 +10,7 @@ interface SectionProps {
 
 export function Section({ children, className = "", id, bordered = false }: SectionProps) {
   return (
-    <section id={id} className={bordered ? "border-t border-white/5" : ""}>
+    <section id={id} className={bordered ? "border-t border-gray-200" : ""}>
       <Container className={`py-16 md:py-20 ${className}`}>{children}</Container>
     </section>
   );

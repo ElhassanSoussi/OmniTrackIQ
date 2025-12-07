@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { SocialLoginButtons } from "@/components/auth";
 
 // Client-side validation helpers
 function validateEmail(email: string): string | null {
@@ -81,16 +82,20 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold text-gray-900">Create your account</h1>
           <p className="text-sm text-gray-500">Start your free trial today</p>
         </div>
+
+        {/* Social Login Buttons */}
+        <SocialLoginButtons mode="signup" />
         
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Account name</label>
+          <label htmlFor="accountName" className="text-sm font-medium text-gray-700">Account name</label>
           <input
+            id="accountName"
             className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               fieldErrors.accountName ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
             }`}
@@ -102,8 +107,9 @@ export default function SignupPage() {
         </div>
         
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
           <input
+            id="email"
             className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
             }`}
@@ -116,8 +122,9 @@ export default function SignupPage() {
         </div>
         
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Password</label>
+          <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
           <input
+            id="password"
             className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
             }`}
@@ -142,6 +149,17 @@ export default function SignupPage() {
         >
           {isBusy ? "Creating account..." : "Create account"}
         </button>
+        
+        <p className="text-center text-sm text-gray-500">
+          By signing up, you agree to our{" "}
+          <Link href="/terms" className="text-emerald-600 hover:text-emerald-700">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700">
+            Privacy Policy
+          </Link>
+        </p>
         
         <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}

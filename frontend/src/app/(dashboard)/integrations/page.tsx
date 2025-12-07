@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import { useIntegrations, IntegrationItem } from "@/hooks/useIntegrations";
 
 const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; description: string; icon: string }> = {
@@ -52,14 +53,17 @@ export default function IntegrationsPage() {
             return (
               <div
                 key={card.platform}
-                className="flex h-full flex-col justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+                className="flex h-full flex-col justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <Link 
+                      href={`/integrations/${card.platform}`}
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    >
                       <span className="text-2xl">{card.icon}</span>
-                      <span className="text-lg font-semibold text-gray-900">{card.title}</span>
-                    </div>
+                      <span className="text-lg font-semibold text-gray-900 hover:text-emerald-600">{card.title}</span>
+                    </Link>
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         isConnected
@@ -81,9 +85,12 @@ export default function IntegrationsPage() {
                 </div>
 
                 <div className="mt-5 flex items-center justify-between">
-                  <div className="text-xs text-gray-400">
-                    {card.connected_at ? `Connected ${new Date(card.connected_at).toLocaleDateString()}` : "OAuth opens in new tab"}
-                  </div>
+                  <Link 
+                    href={`/integrations/${card.platform}`}
+                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    View details →
+                  </Link>
                   <button
                     disabled={isConnected || isComingSoon || isPending}
                     onClick={() => connect(card.platform)}

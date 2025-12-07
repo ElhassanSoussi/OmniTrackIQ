@@ -46,14 +46,14 @@ export default function LandingPage() {
       <Section>
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
               OmniTrackIQ for eCommerce teams
             </div>
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold leading-tight text-white md:text-5xl">
+              <h1 className="text-4xl font-semibold leading-tight text-gray-900 md:text-5xl">
                 Every ad dollar, every order, one dashboard.
               </h1>
-              <p className="text-lg text-slate-200">
+              <p className="text-lg text-gray-600">
                 OmniTrackIQ unifies ad spend, revenue, and channel performance so you can scale confidently. No more
                 spreadsheets—just trustworthy, real-time ROAS.
               </p>
@@ -64,8 +64,8 @@ export default function LandingPage() {
                 View live demo
               </Button>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-              <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-emerald-200">7-day setup</span>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">7-day setup</span>
               <span>•</span>
               <span>Data stays in your cloud</span>
               <span>•</span>
@@ -73,37 +73,37 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-900/80 via-slate-900 to-slate-950/80 p-6 shadow-2xl shadow-emerald-500/10">
+          <div className="rounded-3xl border border-gray-200 bg-gradient-to-b from-white via-gray-50 to-gray-100 p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold text-white">Live performance snapshot</div>
-              <div className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200">Auto-sync</div>
+              <div className="text-sm font-semibold text-gray-900">Live performance snapshot</div>
+              <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Auto-sync</div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-4">
               {stats.slice(0, 2).map((item) => (
-                <div key={item.label} className="rounded-xl border border-slate-800/80 bg-slate-900/70 p-4">
-                  <div className="text-xs uppercase tracking-wide text-slate-500">{item.label}</div>
-                  <div className="mt-1 text-2xl font-semibold text-white">{item.value}</div>
-                  <div className="text-xs text-emerald-200">{item.detail}</div>
+                <div key={item.label} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="text-xs uppercase tracking-wide text-gray-500">{item.label}</div>
+                  <div className="mt-1 text-2xl font-semibold text-gray-900">{item.value}</div>
+                  <div className="text-xs text-emerald-600">{item.detail}</div>
                 </div>
               ))}
-              <div className="col-span-2 rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-purple-500/10 p-5">
-                <div className="text-xs uppercase tracking-wide text-emerald-200">Insights</div>
-                <div className="mt-2 text-sm text-slate-100">
+              <div className="col-span-2 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-sky-50 to-purple-50 p-5">
+                <div className="text-xs uppercase tracking-wide text-emerald-700">Insights</div>
+                <div className="mt-2 text-sm text-gray-700">
                   ROAS improved +18% WoW; TikTok prospecting and Google brand are leading. Consider shifting +10% budget
                   to top converters.
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-3 text-xs text-slate-200">
-                  <div className="rounded-lg bg-white/5 px-3 py-2">
-                    <div className="text-[11px] text-slate-400">Best channel</div>
-                    <div className="text-sm font-semibold text-white">Google Ads</div>
+                <div className="mt-3 grid grid-cols-3 gap-3 text-xs text-gray-600">
+                  <div className="rounded-lg bg-white/80 border border-gray-100 px-3 py-2 shadow-sm">
+                    <div className="text-[11px] text-gray-500">Best channel</div>
+                    <div className="text-sm font-semibold text-gray-900">Google Ads</div>
                   </div>
-                  <div className="rounded-lg bg-white/5 px-3 py-2">
-                    <div className="text-[11px] text-slate-400">Top campaign</div>
-                    <div className="text-sm font-semibold text-white">TikTok Prospecting</div>
+                  <div className="rounded-lg bg-white/80 border border-gray-100 px-3 py-2 shadow-sm">
+                    <div className="text-[11px] text-gray-500">Top campaign</div>
+                    <div className="text-sm font-semibold text-gray-900">TikTok Prospecting</div>
                   </div>
-                  <div className="rounded-lg bg-white/5 px-3 py-2">
-                    <div className="text-[11px] text-slate-400">Alert</div>
-                    <div className="text-sm font-semibold text-white">CPA drift +9%</div>
+                  <div className="rounded-lg bg-white/80 border border-gray-100 px-3 py-2 shadow-sm">
+                    <div className="text-[11px] text-gray-500">Alert</div>
+                    <div className="text-sm font-semibold text-gray-900">CPA drift +9%</div>
                   </div>
                 </div>
               </div>
@@ -112,7 +112,7 @@ export default function LandingPage() {
         </div>
 
         <Container className="mt-10">
-          <div className="grid gap-4 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-4 md:grid-cols-4">
+          <div className="grid gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-4">
             {stats.map((stat) => (
               <StatCard key={stat.label} label={stat.label} value={stat.value} detail={stat.detail} />
             ))}
@@ -150,12 +150,12 @@ export default function LandingPage() {
       </Section>
 
       <Section bordered>
-        <div className="overflow-hidden rounded-3xl border border-slate-800/80 bg-gradient-to-r from-slate-900 via-slate-900/70 to-slate-950 p-8 shadow-2xl shadow-emerald-500/10 md:p-10">
+        <div className="overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-r from-emerald-50 via-white to-gray-50 p-8 shadow-lg md:p-10">
           <div className="grid gap-6 items-center md:grid-cols-[2fr,1fr]">
             <div className="space-y-3">
-              <div className="text-sm font-semibold uppercase tracking-wide text-emerald-200">Get started</div>
-              <div className="text-3xl font-semibold text-white md:text-4xl">Launch OmniTrackIQ in under a week.</div>
-              <p className="text-base text-slate-300">
+              <div className="text-sm font-semibold uppercase tracking-wide text-emerald-700">Get started</div>
+              <div className="text-3xl font-semibold text-gray-900 md:text-4xl">Launch OmniTrackIQ in under a week.</div>
+              <p className="text-base text-gray-600">
                 Connect your ad accounts, plug in Shopify and GA4, and ship automated alerts. Our team will guide your
                 first dashboards and data sanity checks.
               </p>

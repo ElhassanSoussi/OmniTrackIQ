@@ -12,11 +12,11 @@ type ButtonProps = {
 
 export function Button({ href, variant = "primary", className = "", children, ...buttonProps }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950";
+    "inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
   const variants: Record<Variant, string> = {
-    primary: "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400",
-    secondary: "border border-slate-700 text-slate-100 hover:border-slate-500 hover:text-white",
-    ghost: "bg-white/5 text-slate-100 hover:bg-white/10",
+    primary: "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700",
+    secondary: "border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 bg-white",
+    ghost: "bg-gray-100 text-gray-700 hover:bg-gray-200",
   };
   const classes = `${base} ${variants[variant]} ${className}`;
 

@@ -6,14 +6,14 @@ interface FeatureCardProps {
 
 export function FeatureCard({ title, description, tag }: FeatureCardProps) {
   return (
-    <div className="h-full rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-xl shadow-black/30">
+    <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
       {tag && (
-        <div className="mb-3 inline-flex rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">
+        <div className="mb-3 inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
           {tag}
         </div>
       )}
-      <div className="text-lg font-semibold text-white">{title}</div>
-      <p className="mt-2 text-sm text-slate-300">{description}</p>
+      <div className="text-lg font-semibold text-gray-900">{title}</div>
+      <p className="mt-2 text-sm text-gray-600">{description}</p>
     </div>
   );
 }

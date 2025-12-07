@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { SocialLoginButtons } from "@/components/auth";
 
 // Client-side validation helpers
 function validateEmail(email: string): string | null {
@@ -71,16 +72,20 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
           <p className="text-sm text-gray-500">Sign in to your account</p>
         </div>
+
+        {/* Social Login Buttons */}
+        <SocialLoginButtons mode="login" />
         
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
           <input
+            id="email"
             className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
             }`}
@@ -93,8 +98,14 @@ export default function LoginPage() {
         </div>
         
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Password</label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
+            <Link href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700">
+              Forgot password?
+            </Link>
+          </div>
           <input
+            id="password"
             className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
             }`}
