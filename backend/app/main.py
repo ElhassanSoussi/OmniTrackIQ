@@ -7,10 +7,14 @@ from app.routers import routes_auth, routes_billing, routes_health, routes_integ
 app = FastAPI(title="OmniTrackIQ API")
 
 # CORS origins for local development and production
+# NOTE: Add all frontend URLs that need to access this API
 origins = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "https://omnitrackiq.com",
     "https://www.omnitrackiq.com",
+    "https://omnitrackiq.onrender.com",  # Render frontend deployment
+    "https://omnitrackiq-frontend.onrender.com",  # Alternative Render frontend name
 ]
 
 app.add_middleware(
