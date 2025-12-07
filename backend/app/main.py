@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics
 
 app = FastAPI(title="OmniTrackIQ API")
