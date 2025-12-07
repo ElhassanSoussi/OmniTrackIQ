@@ -8,6 +8,16 @@ interface SocialLoginButtonsProps {
   mode: "login" | "signup";
 }
 
+// Configuration for each OAuth provider
+// Set `implemented: true` when backend OAuth routes are ready
+const PROVIDER_CONFIG: Record<SocialProvider, { implemented: boolean; name: string }> = {
+  google: { implemented: false, name: "Google" },
+  github: { implemented: false, name: "GitHub" },
+  facebook: { implemented: false, name: "Facebook" },
+  apple: { implemented: false, name: "Apple" },
+  tiktok: { implemented: false, name: "TikTok" },
+};
+
 const PROVIDERS: { id: SocialProvider; name: string; icon: React.ReactNode; bgColor: string; textColor: string; hoverBg: string }[] = [
   {
     id: "google",
@@ -74,66 +84,108 @@ const PROVIDERS: { id: SocialProvider; name: string; icon: React.ReactNode; bgCo
   },
 ];
 
+// Get the API base URL from environment
+function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!envUrl) return "http://localhost:8000";
+  return envUrl.replace(/\/+$/, "");
+}
+
 export function SocialLoginButtons({ mode }: SocialLoginButtonsProps) {
   const [loading, setLoading] = useState<SocialProvider | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: "info" | "error" } | null>(null);
+
+  function showNotification(message: string, type: "info" | "error" = "info") {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  }
 
   async function handleSocialLogin(provider: SocialProvider) {
+    const config = PROVIDER_CONFIG[provider];
+    
+    // If not implemented, show a friendly "Coming soon" message
+    if (!config.implemented) {
+      showNotification(`${config.name} sign-in is coming soon!`, "info");
+      return;
+    }
+
+    // OAuth flow - redirect to backend OAuth endpoint
     setLoading(provider);
-    
-    // TODO: Implement actual OAuth flow
-    // This should redirect to: /api/auth/${provider}
-    // which then redirects to the OAuth provider
-    
-    // For now, show a coming soon alert
-    setTimeout(() => {
-      alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login coming soon!`);
+    try {
+      const apiBase = getApiBaseUrl();
+      const redirectUrl = `${apiBase}/auth/${provider}/login?mode=${mode}`;
+      window.location.href = redirectUrl;
+    } catch {
+      showNotification(`Failed to start ${config.name} sign-in. Please try again.`, "error");
       setLoading(null);
-    }, 500);
-    
-    // Future implementation:
-    // window.location.href = `/api/auth/${provider}?mode=${mode}`;
+    }
   }
 
   const actionText = mode === "login" ? "Sign in" : "Sign up";
 
   return (
     <div className="space-y-3">
+      {/* Toast notification */}
+      {notification && (
+        <div
+          className={`rounded-lg px-4 py-3 text-sm font-medium transition-all ${
+            notification.type === "error"
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-blue-50 text-blue-700 border border-blue-200"
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
+
       {/* Primary options: Google and GitHub */}
       <div className="grid grid-cols-2 gap-3">
-        {PROVIDERS.slice(0, 2).map((provider) => (
-          <button
-            key={provider.id}
-            onClick={() => handleSocialLogin(provider.id)}
-            disabled={loading !== null}
-            className={`flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium transition ${provider.bgColor} ${provider.textColor} ${provider.hoverBg} disabled:opacity-60 disabled:cursor-not-allowed`}
-          >
-            {loading === provider.id ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            ) : (
-              provider.icon
-            )}
-            <span>{provider.name}</span>
-          </button>
-        ))}
+        {PROVIDERS.slice(0, 2).map((provider) => {
+          const config = PROVIDER_CONFIG[provider.id];
+          const isComingSoon = !config.implemented;
+          
+          return (
+            <button
+              key={provider.id}
+              onClick={() => handleSocialLogin(provider.id)}
+              disabled={loading !== null}
+              title={isComingSoon ? `${config.name} sign-in coming soon` : `${actionText} with ${provider.name}`}
+              className={`flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium transition ${provider.bgColor} ${provider.textColor} ${provider.hoverBg} disabled:opacity-60 disabled:cursor-not-allowed ${isComingSoon ? "opacity-75" : ""}`}
+            >
+              {loading === provider.id ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                provider.icon
+              )}
+              <span>{provider.name}</span>
+              {isComingSoon && <span className="text-[10px] opacity-60">(soon)</span>}
+            </button>
+          );
+        })}
       </div>
 
       {/* Secondary options in a row */}
       <div className="flex gap-2 justify-center">
-        {PROVIDERS.slice(2).map((provider) => (
-          <button
-            key={provider.id}
-            onClick={() => handleSocialLogin(provider.id)}
-            disabled={loading !== null}
-            title={`${actionText} with ${provider.name}`}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 transition ${provider.bgColor} ${provider.textColor} ${provider.hoverBg} disabled:opacity-60 disabled:cursor-not-allowed`}
-          >
-            {loading === provider.id ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            ) : (
-              provider.icon
-            )}
-          </button>
-        ))}
+        {PROVIDERS.slice(2).map((provider) => {
+          const config = PROVIDER_CONFIG[provider.id];
+          const isComingSoon = !config.implemented;
+          
+          return (
+            <button
+              key={provider.id}
+              onClick={() => handleSocialLogin(provider.id)}
+              disabled={loading !== null}
+              title={isComingSoon ? `${config.name} sign-in coming soon` : `${actionText} with ${provider.name}`}
+              className={`relative flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 transition ${provider.bgColor} ${provider.textColor} ${provider.hoverBg} disabled:opacity-60 disabled:cursor-not-allowed ${isComingSoon ? "opacity-75" : ""}`}
+            >
+              {loading === provider.id ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                provider.icon
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Divider */}

@@ -8,7 +8,6 @@ import { useIntegrations, IntegrationPlatform, IntegrationItem } from "@/hooks/u
 // Integration metadata with detailed information
 const INTEGRATION_INFO: Record<IntegrationPlatform, {
   title: string;
-  icon: string;
   description: string;
   features: string[];
   docsUrl: string;
@@ -16,7 +15,6 @@ const INTEGRATION_INFO: Record<IntegrationPlatform, {
 }> = {
   facebook: {
     title: "Facebook Ads",
-    icon: "📘",
     description: "Connect your Meta Business account to sync ad spend, campaigns, ad sets, and conversion data from Facebook and Instagram ads.",
     features: [
       "Real-time ad spend tracking",
@@ -35,7 +33,6 @@ const INTEGRATION_INFO: Record<IntegrationPlatform, {
   },
   google_ads: {
     title: "Google Ads",
-    icon: "🔍",
     description: "Import search, display, shopping, and YouTube advertising performance automatically from your Google Ads accounts.",
     features: [
       "Search and shopping campaign metrics",
@@ -54,7 +51,6 @@ const INTEGRATION_INFO: Record<IntegrationPlatform, {
   },
   tiktok: {
     title: "TikTok Ads",
-    icon: "🎵",
     description: "Bring in spend, clicks, impressions, and conversions from TikTok Ads Manager to understand your short-form video ad performance.",
     features: [
       "Campaign and ad group performance",
@@ -73,7 +69,6 @@ const INTEGRATION_INFO: Record<IntegrationPlatform, {
   },
   shopify: {
     title: "Shopify",
-    icon: "🛒",
     description: "Stream orders, revenue, refunds, and customer data from your Shopify store to power accurate attribution and ROAS calculations.",
     features: [
       "Real-time order and revenue sync",
@@ -92,7 +87,6 @@ const INTEGRATION_INFO: Record<IntegrationPlatform, {
   },
   ga4: {
     title: "Google Analytics 4",
-    icon: "📊",
     description: "Connect Google Analytics 4 to align web analytics data with your advertising and commerce metrics for full-funnel visibility.",
     features: [
       "Session and user metrics alignment",
@@ -119,6 +113,7 @@ export default function IntegrationDetailPage() {
   const { integrations, connect, connecting, isLoading, actionError } = useIntegrations();
 
   const [disconnecting, setDisconnecting] = useState(false);
+  const [comingSoonMessage, setComingSoonMessage] = useState<string | null>(null);
 
   // Validate provider
   const validPlatforms: IntegrationPlatform[] = ["facebook", "google_ads", "tiktok", "shopify", "ga4"];
@@ -141,7 +136,6 @@ export default function IntegrationDetailPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="text-6xl mb-4">🔌</div>
           <h1 className="text-xl font-semibold text-gray-900">Integration not found</h1>
           <p className="text-gray-500 mt-2">Redirecting to integrations page...</p>
         </div>
@@ -150,8 +144,20 @@ export default function IntegrationDetailPage() {
   }
 
   const isConnected = integration?.status === "connected";
-  const isComingSoon = integration?.status === "coming_soon";
   const isPending = connecting === platform;
+
+  async function handleConnect() {
+    setComingSoonMessage(null);
+    try {
+      await connect(platform);
+    } catch (err: any) {
+      // Check if this is a "coming soon" error from backend (501)
+      if (err?.message?.toLowerCase().includes("coming soon")) {
+        setComingSoonMessage(err.message);
+      }
+      // Other errors are handled by actionError from the hook
+    }
+  }
 
   async function handleDisconnect() {
     setDisconnecting(true);
@@ -175,30 +181,23 @@ export default function IntegrationDetailPage() {
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-3xl">
-            {info.icon}
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">{info.title}</h1>
-            <div className="flex items-center gap-3 mt-1">
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                  isConnected
-                    ? "bg-emerald-100 text-emerald-700"
-                    : isComingSoon
-                    ? "bg-gray-100 text-gray-600"
-                    : "bg-amber-100 text-amber-700"
-                }`}
-              >
-                {isConnected ? "Connected" : isComingSoon ? "Coming soon" : "Not connected"}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">{info.title}</h1>
+          <div className="flex items-center gap-3 mt-1">
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                isConnected
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-amber-100 text-amber-700"
+              }`}
+            >
+              {isConnected ? "Connected" : "Not connected"}
+            </span>
+            {integration?.connected_at && (
+              <span className="text-sm text-gray-500">
+                Connected {new Date(integration.connected_at).toLocaleDateString()}
               </span>
-              {integration?.connected_at && (
-                <span className="text-sm text-gray-500">
-                  Connected {new Date(integration.connected_at).toLocaleDateString()}
-                </span>
-              )}
-            </div>
+            )}
           </div>
         </div>
 
@@ -213,7 +212,7 @@ export default function IntegrationDetailPage() {
                 {disconnecting ? "Disconnecting..." : "Disconnect"}
               </button>
               <button
-                onClick={() => connect(platform)}
+                onClick={handleConnect}
                 disabled={isPending}
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
               >
@@ -222,17 +221,30 @@ export default function IntegrationDetailPage() {
             </>
           ) : (
             <button
-              onClick={() => connect(platform)}
-              disabled={isComingSoon || isPending}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={handleConnect}
+              disabled={isPending}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
             >
-              {isComingSoon ? "Coming soon" : isPending ? "Connecting..." : "Connect"}
+              {isPending ? "Connecting..." : "Connect"}
             </button>
           )}
         </div>
       </div>
 
-      {actionError && (
+      {/* Coming soon toast */}
+      {comingSoonMessage && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 flex items-center justify-between">
+          <span>{comingSoonMessage}</span>
+          <button
+            onClick={() => setComingSoonMessage(null)}
+            className="ml-4 text-blue-500 hover:text-blue-700 font-medium"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {actionError && !comingSoonMessage && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {actionError}
         </div>

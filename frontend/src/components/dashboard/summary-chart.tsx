@@ -50,16 +50,16 @@ export default function SummaryChart({ data }: { data?: SummaryPoint[] }) {
           const spendHeight = (point.spend / maxValue) * 100;
           return (
             <div key={point.label} className="flex flex-1 flex-col items-center gap-2">
-              <div className="flex w-full items-end justify-center gap-1.5">
+              <div className="flex w-full items-end justify-center gap-1.5 h-full">
                 {showRevenue && (
                   <div
-                    className="w-3 rounded-t-sm bg-emerald-500"
-                    style={{ height: `${revenueHeight}%` }}
+                    className={`w-3 rounded-t-sm bg-emerald-500 transition-all duration-300`}
+                    style={{ "--bar-height": `${revenueHeight}%`, height: "var(--bar-height)" } as React.CSSProperties}
                   />
                 )}
                 <div
-                  className="w-3 rounded-t-sm bg-blue-500"
-                  style={{ height: `${spendHeight}%` }}
+                  className={`w-3 rounded-t-sm bg-blue-500 transition-all duration-300`}
+                  style={{ "--bar-height": `${spendHeight}%`, height: "var(--bar-height)" } as React.CSSProperties}
                 />
               </div>
               <div className="text-xs text-gray-500">{point.label}</div>

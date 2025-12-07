@@ -20,7 +20,7 @@ const BASE_INTEGRATIONS: IntegrationItem[] = [
   { platform: "google_ads", status: "disconnected" },
   { platform: "tiktok", status: "disconnected" },
   { platform: "shopify", status: "disconnected" },
-  { platform: "ga4", status: "coming_soon" },
+  { platform: "ga4", status: "disconnected" },
 ];
 
 export function useIntegrations() {
@@ -54,6 +54,8 @@ export function useIntegrations() {
     } catch (err) {
       const message = formatErrorMessage(err);
       setActionError(message);
+      // Re-throw so the calling component can handle "coming soon" or other specific errors
+      throw new Error(message);
     } finally {
       setConnecting(null);
     }
