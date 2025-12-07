@@ -1,0 +1,162 @@
+{
+  "name": "Facebook Ads → OmniTrackIQ",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 1 }]
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "adAccount",
+        "operation": "get",
+        "adAccountId": "={{ $env.FACEBOOK_AD_ACCOUNT_ID }}"
+      },
+      "id": "facebook-1",
+      "name": "Get Ad Account",
+      "type": "n8n-nodes-base.facebookAds",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "facebookAdsApi": {
+          "id": "facebook-ads-cred",
+          "name": "Facebook Ads"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "adInsights",
+        "operation": "getAll",
+        "adAccountId": "={{ $env.FACEBOOK_AD_ACCOUNT_ID }}",
+        "returnAll": true,
+        "options": {
+          "datePreset": "last_7d",
+          "level": "campaign",
+          "fields": ["campaign_name", "campaign_id", "spend", "impressions", "clicks", "actions", "cost_per_action_type"]
+        }
+      },
+      "id": "facebook-2",
+      "name": "Get Campaign Insights",
+      "type": "n8n-nodes-base.facebookAds",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "credentials": {
+        "facebookAdsApi": {
+          "id": "facebook-ads-cred",
+          "name": "Facebook Ads"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Transform Facebook Ads data for OmniTrackIQ\nconst items = [];\n\nfor (const item of $input.all()) {\n  const data = item.json;\n  \n  // Extract conversions from actions array\n  const purchases = data.actions?.find(a => a.action_type === 'purchase');\n  const conversions = purchases ? parseInt(purchases.value) : 0;\n  \n  items.push({\n    json: {\n      account_id: $env.OMNITRACKIQ_ACCOUNT_ID,\n      platform: 'facebook',\n      campaign_id: data.campaign_id,\n      campaign_name: data.campaign_name,\n      date: new Date().toISOString().split('T')[0],\n      spend: parseFloat(data.spend) || 0,\n      impressions: parseInt(data.impressions) || 0,\n      clicks: parseInt(data.clicks) || 0,\n      conversions: conversions,\n      currency: 'USD'\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "transform-1",
+      "name": "Transform Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ad_spend (account_id, platform, campaign_id, campaign_name, date, spend, impressions, clicks, conversions, currency, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())\nON CONFLICT (account_id, platform, campaign_id, date) \nDO UPDATE SET \n  spend = EXCLUDED.spend,\n  impressions = EXCLUDED.impressions,\n  clicks = EXCLUDED.clicks,\n  conversions = EXCLUDED.conversions,\n  updated_at = NOW()",
+        "options": {
+          "queryParams": "={{ [$json.account_id, $json.platform, $json.campaign_id, $json.campaign_name, $json.date, $json.spend, $json.impressions, $json.clicks, $json.conversions, $json.currency] }}"
+        }
+      },
+      "id": "postgres-1",
+      "name": "Upsert Ad Spend",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [1050, 300],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "OmniTrackIQ DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-error",
+      "name": "Check Error",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#omnitrackiq-alerts",
+        "text": "⚠️ Facebook Ads sync failed!\n\nError: {{ $json.error }}\nTime: {{ $now.toISO() }}",
+        "otherOptions": {}
+      },
+      "id": "slack-1",
+      "name": "Alert on Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1450, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-cred",
+          "name": "Slack"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "Get Ad Account", "type": "main", "index": 0 }]]
+    },
+    "Get Ad Account": {
+      "main": [[{ "node": "Get Campaign Insights", "type": "main", "index": 0 }]]
+    },
+    "Get Campaign Insights": {
+      "main": [[{ "node": "Transform Data", "type": "main", "index": 0 }]]
+    },
+    "Transform Data": {
+      "main": [[{ "node": "Upsert Ad Spend", "type": "main", "index": 0 }]]
+    },
+    "Upsert Ad Spend": {
+      "main": [[{ "node": "Check Error", "type": "main", "index": 0 }]]
+    },
+    "Check Error": {
+      "main": [
+        [{ "node": "Alert on Error", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [{ "name": "omnitrackiq" }, { "name": "facebook" }, { "name": "etl" }]
+}

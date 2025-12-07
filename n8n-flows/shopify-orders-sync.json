@@ -1,0 +1,164 @@
+{
+  "name": "Shopify Orders → OmniTrackIQ",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 1 }]
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "order",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 250,
+        "options": {
+          "status": "any",
+          "createdAtMin": "={{ $now.minus(7, 'days').toISO() }}",
+          "fields": "id,order_number,created_at,total_price,subtotal_price,total_discounts,currency,financial_status,fulfillment_status,customer,line_items,discount_codes,source_name,referring_site,landing_site"
+        }
+      },
+      "id": "shopify-1",
+      "name": "Get Recent Orders",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "shopifyApi": {
+          "id": "shopify-cred",
+          "name": "Shopify Store"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Transform Shopify orders for OmniTrackIQ\nconst items = [];\n\nfor (const item of $input.all()) {\n  const order = item.json;\n  \n  // Extract UTM params from landing_site or referring_site\n  let source = 'direct';\n  let campaign = null;\n  \n  if (order.landing_site) {\n    try {\n      const url = new URL('https://example.com' + order.landing_site);\n      source = url.searchParams.get('utm_source') || 'direct';\n      campaign = url.searchParams.get('utm_campaign');\n    } catch (e) {}\n  }\n  \n  // Map source to platform\n  let platform = 'organic';\n  if (source.includes('facebook') || source.includes('fb') || source.includes('instagram')) {\n    platform = 'facebook';\n  } else if (source.includes('google')) {\n    platform = 'google_ads';\n  } else if (source.includes('tiktok')) {\n    platform = 'tiktok';\n  }\n  \n  items.push({\n    json: {\n      account_id: $env.OMNITRACKIQ_ACCOUNT_ID,\n      shopify_order_id: String(order.id),\n      order_number: order.order_number,\n      order_date: order.created_at.split('T')[0],\n      revenue: parseFloat(order.total_price) || 0,\n      subtotal: parseFloat(order.subtotal_price) || 0,\n      discount: parseFloat(order.total_discounts) || 0,\n      currency: order.currency || 'USD',\n      status: order.financial_status || 'pending',\n      fulfillment_status: order.fulfillment_status || 'unfulfilled',\n      customer_email: order.customer?.email || null,\n      items_count: order.line_items?.length || 0,\n      source: source,\n      platform: platform,\n      campaign: campaign,\n      discount_codes: order.discount_codes?.map(d => d.code).join(',') || null\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "transform-1",
+      "name": "Transform Orders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO orders (account_id, shopify_order_id, order_number, order_date, revenue, subtotal, discount, currency, status, fulfillment_status, customer_email, items_count, source, platform, campaign, discount_codes, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW())\nON CONFLICT (account_id, shopify_order_id) \nDO UPDATE SET \n  status = EXCLUDED.status,\n  fulfillment_status = EXCLUDED.fulfillment_status,\n  updated_at = NOW()",
+        "options": {
+          "queryParams": "={{ [$json.account_id, $json.shopify_order_id, $json.order_number, $json.order_date, $json.revenue, $json.subtotal, $json.discount, $json.currency, $json.status, $json.fulfillment_status, $json.customer_email, $json.items_count, $json.source, $json.platform, $json.campaign, $json.discount_codes] }}"
+        }
+      },
+      "id": "postgres-1",
+      "name": "Upsert Orders",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [850, 300],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "OmniTrackIQ DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Update daily_metrics with aggregated order data\nINSERT INTO daily_metrics (account_id, date, revenue, orders, created_at, updated_at)\nSELECT \n  account_id,\n  order_date as date,\n  SUM(revenue) as revenue,\n  COUNT(*) as orders,\n  NOW() as created_at,\n  NOW() as updated_at\nFROM orders\nWHERE account_id = $1\n  AND order_date >= CURRENT_DATE - INTERVAL '7 days'\nGROUP BY account_id, order_date\nON CONFLICT (account_id, date)\nDO UPDATE SET\n  revenue = EXCLUDED.revenue,\n  orders = EXCLUDED.orders,\n  updated_at = NOW()",
+        "options": {
+          "queryParams": "={{ [$json.account_id] }}"
+        }
+      },
+      "id": "postgres-2",
+      "name": "Update Daily Metrics",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [1050, 300],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "OmniTrackIQ DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-error",
+      "name": "Check Error",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#omnitrackiq-alerts",
+        "text": "⚠️ Shopify Orders sync failed!\n\nError: {{ $json.error }}\nTime: {{ $now.toISO() }}",
+        "otherOptions": {}
+      },
+      "id": "slack-1",
+      "name": "Alert on Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1450, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-cred",
+          "name": "Slack"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "Get Recent Orders", "type": "main", "index": 0 }]]
+    },
+    "Get Recent Orders": {
+      "main": [[{ "node": "Transform Orders", "type": "main", "index": 0 }]]
+    },
+    "Transform Orders": {
+      "main": [[{ "node": "Upsert Orders", "type": "main", "index": 0 }]]
+    },
+    "Upsert Orders": {
+      "main": [[{ "node": "Update Daily Metrics", "type": "main", "index": 0 }]]
+    },
+    "Update Daily Metrics": {
+      "main": [[{ "node": "Check Error", "type": "main", "index": 0 }]]
+    },
+    "Check Error": {
+      "main": [
+        [{ "node": "Alert on Error", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [{ "name": "omnitrackiq" }, { "name": "shopify" }, { "name": "etl" }]
+}
