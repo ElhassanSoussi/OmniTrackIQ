@@ -33,6 +33,13 @@ function formatAmount(amount: number | string, currency = "USD") {
   if (typeof amount === "number") {
     return amount.toLocaleString("en-US", { style: "currency", currency, maximumFractionDigits: 0 });
   }
+  if (typeof amount === "string") {
+    const parsed = parseFloat(amount.replace(/,/g, ""));
+    if (!isNaN(parsed)) {
+      return parsed.toLocaleString("en-US", { style: "currency", currency, maximumFractionDigits: 0 });
+    }
+    return amount;
+  }
   return amount;
 }
 
