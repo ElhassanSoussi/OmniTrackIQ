@@ -6,16 +6,16 @@ interface InsightCardProps {
 
 export function InsightCard({ title, description, badge }: InsightCardProps) {
   return (
-    <div className="h-full rounded-2xl border border-slate-800/80 bg-slate-900/70 p-5 shadow-lg shadow-black/25">
+    <div className="h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-sm font-semibold text-white">{title}</div>
+        <div className="text-sm font-semibold text-gray-900">{title}</div>
         {badge && (
-          <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-200">
+          <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
             {badge}
           </span>
         )}
       </div>
-      <p className="mt-2 text-sm text-slate-300">{description}</p>
+      <p className="mt-2 text-sm text-gray-600">{description}</p>
     </div>
   );
 }

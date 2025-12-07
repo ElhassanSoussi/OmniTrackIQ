@@ -1,8 +1,29 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+
+// Client-side validation helpers
+function validateEmail(email: string): string | null {
+  if (!email.trim()) return "Email is required";
+  const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  if (!emailRegex.test(email)) return "Please enter a valid email address";
+  return null;
+}
+
+function validatePassword(password: string): string | null {
+  if (!password) return "Password is required";
+  if (password.length < 8) return "Password must be at least 8 characters";
+  return null;
+}
+
+function validateAccountName(name: string): string | null {
+  if (!name.trim()) return "Account name is required";
+  if (name.trim().length < 2) return "Account name must be at least 2 characters";
+  return null;
+}
 
 export default function SignupPage() {
   const router = useRouter();
@@ -30,6 +51,21 @@ export default function SignupPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    
+    // Client-side validation
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+    const accountNameError = validateAccountName(accountName);
+    
+    if (emailError || passwordError || accountNameError) {
+      setFieldErrors({
+        email: emailError || undefined,
+        password: passwordError || undefined,
+        accountName: accountNameError || undefined,
+      });
+      return;
+    }
+    
     setFieldErrors({});
     setSubmitting(true);
 
@@ -45,48 +81,74 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-8">
-        <h1 className="text-2xl font-semibold">Create your account</h1>
-        <div className="space-y-2">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold text-gray-900">Create your account</h1>
+          <p className="text-sm text-gray-500">Start your free trial today</p>
+        </div>
+        
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Account name</label>
           <input
-            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-            placeholder="Account name"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              fieldErrors.accountName ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            }`}
+            placeholder="Your company or team name"
             value={accountName}
             onChange={(e) => setAccountName(e.target.value)}
-            required
           />
-          {fieldErrors.accountName && <div className="text-sm text-rose-400">{fieldErrors.accountName}</div>}
+          {fieldErrors.accountName && <p className="text-sm text-red-600">{fieldErrors.accountName}</p>}
         </div>
-        <div className="space-y-2">
+        
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <input
-            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-            placeholder="Email"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            }`}
+            placeholder="you@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
-          {fieldErrors.email && <div className="text-sm text-rose-400">{fieldErrors.email}</div>}
+          {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
         </div>
-        <div className="space-y-2">
+        
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Password</label>
           <input
-            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-            placeholder="Password"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            }`}
+            placeholder="At least 8 characters"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
-          {fieldErrors.password && <div className="text-sm text-rose-400">{fieldErrors.password}</div>}
+          {fieldErrors.password && <p className="text-sm text-red-600">{fieldErrors.password}</p>}
         </div>
-        {fieldErrors.form && <div className="text-sm text-rose-400">{fieldErrors.form}</div>}
+        
+        {fieldErrors.form && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {fieldErrors.form}
+          </div>
+        )}
+        
         <button
+          type="submit"
           disabled={isBusy}
-          className="w-full rounded-md bg-emerald-500 py-2 font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
+          className="w-full rounded-lg bg-emerald-600 py-2.5 font-semibold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isBusy ? "Signing up..." : "Sign up"}
+          {isBusy ? "Creating account..." : "Create account"}
         </button>
+        
+        <p className="text-center text-sm text-gray-500">
+          Already have an account?{" "}
+          <Link href="/login" className="font-medium text-emerald-600 hover:text-emerald-700">
+            Sign in
+          </Link>
+        </p>
       </form>
     </main>
   );

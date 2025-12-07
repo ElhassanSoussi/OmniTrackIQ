@@ -25,6 +25,9 @@ export default function SettingsPage() {
   useEffect(() => {
     if (message) {
       setLocalMessage(message);
+      // Auto-clear success message after 3 seconds
+      const timeout = setTimeout(() => setLocalMessage(null), 3000);
+      return () => clearTimeout(timeout);
     }
   }, [message]);
 
@@ -74,33 +77,50 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-xl font-semibold text-white">Settings</h1>
-        <p className="text-sm text-slate-400">Manage your account profile, login email, and password.</p>
+      <div className="space-y-1">
+        <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500">Manage your account profile, login email, and password.</p>
       </div>
 
+      {/* Toast messages */}
+      {localMessage && (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          ✓ {localMessage}
+        </div>
+      )}
+      {localError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {localError}
+        </div>
+      )}
+
       {loading ? (
-        <div className="text-slate-400">Loading settings...</div>
+        <div className="flex items-center gap-2 text-gray-500">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+          Loading settings...
+        </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
-          <form onSubmit={handleAccountSubmit} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-inner shadow-black/10">
+          <form onSubmit={handleAccountSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-white">Account</h2>
-              <p className="text-sm text-slate-400">Update your workspace details that appear across dashboards.</p>
+              <h2 className="text-lg font-semibold text-gray-900">Account</h2>
+              <p className="text-sm text-gray-500">Update your workspace details that appear across dashboards.</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm text-slate-300">Account name</label>
+            <div className="space-y-1">
+              <label htmlFor="accountName" className="text-sm font-medium text-gray-700">Account name</label>
               <input
-                className="w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-slate-100"
+                id="accountName"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
                 required
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm text-slate-300">Display name</label>
+            <div className="space-y-1">
+              <label htmlFor="displayName" className="text-sm font-medium text-gray-700">Display name</label>
               <input
-                className="w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-slate-100"
+                id="displayName"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
@@ -109,21 +129,22 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving === "account"}
-              className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving === "account" ? "Saving..." : "Save changes"}
             </button>
           </form>
 
-          <form onSubmit={handleEmailSubmit} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-inner shadow-black/10">
+          <form onSubmit={handleEmailSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-white">Login email</h2>
-              <p className="text-sm text-slate-400">Change the email you use to sign in.</p>
+              <h2 className="text-lg font-semibold text-gray-900">Login email</h2>
+              <p className="text-sm text-gray-500">Change the email you use to sign in.</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm text-slate-300">Email</label>
+            <div className="space-y-1">
+              <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
               <input
-                className="w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-slate-100"
+                id="email"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -133,50 +154,49 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving === "email"}
-              className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving === "email" ? "Updating..." : "Update email"}
             </button>
           </form>
 
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-inner shadow-black/10 lg:col-span-2">
+          <form onSubmit={handlePasswordSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-white">Password</h2>
-              <p className="text-sm text-slate-400">Set a new password for your account.</p>
+              <h2 className="text-lg font-semibold text-gray-900">Password</h2>
+              <p className="text-sm text-gray-500">Set a new password for your account.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm text-slate-300">Current password</label>
+              <div className="space-y-1">
+                <label htmlFor="currentPassword" className="text-sm font-medium text-gray-700">Current password</label>
                 <input
-                  className="w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-slate-100"
+                  id="currentPassword"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm text-slate-300">New password</label>
+              <div className="space-y-1">
+                <label htmlFor="newPassword" className="text-sm font-medium text-gray-700">New password</label>
                 <input
-                  className="w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-slate-100"
+                  id="newPassword"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
+                  minLength={8}
                 />
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="submit"
-                disabled={saving === "password"}
-                className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
-              >
-                {saving === "password" ? "Updating..." : "Update password"}
-              </button>
-              {localMessage && <span className="text-sm text-emerald-300">{localMessage}</span>}
-              {localError && <span className="text-sm text-rose-300">{localError}</span>}
-            </div>
+            <button
+              type="submit"
+              disabled={saving === "password"}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving === "password" ? "Updating..." : "Update password"}
+            </button>
           </form>
         </div>
       )}

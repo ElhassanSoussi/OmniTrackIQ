@@ -38,14 +38,13 @@ export default function DashboardPage() {
       ];
     }
 
-    // Type assertion after null check
     const data: MetricsSummary = summary;
     
     return [
-      { label: "Revenue", value: formatCurrency((summary as MetricsSummary).revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
-      { label: "Ad Spend", value: formatCurrency((summary as MetricsSummary).spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
-      { label: "ROAS", value: `${(summary as MetricsSummary).roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
-      { label: "Orders", value: formatNumber((summary as MetricsSummary).orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
+      { label: "Revenue", value: formatCurrency(data.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
+      { label: "Ad Spend", value: formatCurrency(data.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
+      { label: "ROAS", value: `${data.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
+      { label: "Orders", value: formatNumber(data.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
     ];
   }, [summary]);
 
@@ -124,41 +123,42 @@ export default function DashboardPage() {
   const hasNoLiveData = summary ? (summary as MetricsSummary).revenue === 0 && (summary as MetricsSummary).spend === 0 && (summary as MetricsSummary).orders === 0 : false;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <DashboardSection
         title="Performance overview"
-        description="Unified view of revenue, spend, and ROAS across every channel. Data updates continuously."
+        description="Unified view of revenue, spend, and ROAS across every channel."
         actions={<DateRangeToggle value={range} onChange={setRange} />}
       >
         <div className="flex flex-col gap-6">
           {hasNoLiveData && (
-            <div className="rounded-2xl border border-amber-800/50 bg-amber-900/20 px-4 py-3 text-sm text-amber-100">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
-              <a href="/dashboard/integrations" className="ml-2 font-semibold text-amber-200 underline">
+              <a href="/integrations" className="ml-2 font-semibold text-amber-900 underline hover:text-amber-700">
                 Connect integrations
               </a>
             </div>
           )}
-          <div className="grid gap-4 rounded-2xl border border-slate-800/80 bg-slate-900/70 p-5 shadow-inner shadow-black/20 md:flex md:items-center md:justify-between">
-            <div className="space-y-1.5">
-              <div className="text-sm font-semibold text-white">Account health</div>
-              <p className="text-sm text-slate-400">
+          
+          <div className="grid gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:flex md:items-center md:justify-between">
+            <div className="space-y-1">
+              <div className="text-sm font-semibold text-gray-900">Account health</div>
+              <p className="text-sm text-gray-500">
                 ROAS above target; TikTok prospecting is accelerating and Google brand remains most efficient.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full bg-emerald-500/15 px-3 py-1 font-semibold text-emerald-200">Healthy</span>
-              <span className="rounded-full border border-slate-800 px-3 py-1 font-semibold text-slate-300">
+              <span className="rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700">Healthy</span>
+              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600">
                 {range === "7d" ? "Last 7 days" : range === "30d" ? "Last 30 days" : "Last 90 days"}
               </span>
-              <span className="rounded-full border border-slate-800 px-3 py-1 font-semibold text-slate-300">
+              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600">
                 Blended CAC $27.4
               </span>
             </div>
           </div>
 
           {summaryError ? (
-            <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
           ) : (
@@ -176,14 +176,14 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             {campaignsError ? (
-              <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 Failed to load campaigns: {formatErrorMessage(campaignsErr)}
               </div>
             ) : (
               <CampaignsTable campaigns={topCampaigns} />
             )}
             {ordersError ? (
-              <div className="rounded-2xl border border-rose-800/50 bg-rose-900/30 p-4 text-sm text-rose-200">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 Failed to load orders: {formatErrorMessage(ordersErr)}
               </div>
             ) : (

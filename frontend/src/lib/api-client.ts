@@ -96,11 +96,26 @@ export async function apiFetch<T>(
 
     // Extract error message from various API response formats
     const detail = body?.detail;
-    const msg =
-      (typeof detail === "string" ? detail : null) ||
-      (typeof body?.message === "string" ? body.message : null) ||
-      (typeof body?.error === "string" ? body.error : null) ||
-      getHttpErrorMessage(res.status);
+    
+    // Handle Pydantic validation errors (array of {loc, msg, type})
+    let msg: string;
+    if (Array.isArray(detail)) {
+      // Parse validation error array into readable messages
+      const messages = detail
+        .map((err: { loc?: string[]; msg?: string }) => {
+          const field = err.loc?.slice(-1)[0] || "input";
+          const message = err.msg || "invalid";
+          return `${capitalizeFirst(field)}: ${message}`;
+        })
+        .join(". ");
+      msg = messages || getHttpErrorMessage(res.status);
+    } else {
+      msg =
+        (typeof detail === "string" ? detail : null) ||
+        (typeof body?.message === "string" ? body.message : null) ||
+        (typeof body?.error === "string" ? body.error : null) ||
+        getHttpErrorMessage(res.status);
+    }
 
     throw new Error(msg);
   }
@@ -141,6 +156,16 @@ function getHttpErrorMessage(status: number): string {
     default:
       return `Request failed (${status})`;
   }
+}
+
+/**
+ * Capitalize the first letter of a string
+ */
+function capitalizeFirst(str: string): string {
+  if (!str) return str;
+  // Convert snake_case to readable format
+  const readable = str.replace(/_/g, " ");
+  return readable.charAt(0).toUpperCase() + readable.slice(1);
 }
 
 export const API_URL = API_BASE_URL;

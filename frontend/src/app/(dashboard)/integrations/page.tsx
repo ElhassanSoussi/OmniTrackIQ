@@ -3,12 +3,12 @@
 import { useMemo } from "react";
 import { useIntegrations, IntegrationItem } from "@/hooks/useIntegrations";
 
-const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; description: string }> = {
-  facebook: { title: "Facebook Ads", description: "Sync ad spend, campaigns, and conversions from Meta." },
-  google_ads: { title: "Google Ads", description: "Import search and shopping performance automatically." },
-  tiktok: { title: "TikTok Ads", description: "Bring in spend, clicks, and conversions from TikTok." },
-  shopify: { title: "Shopify", description: "Stream orders and revenue to power attribution." },
-  ga4: { title: "GA4", description: "Connect Google Analytics 4 for web analytics alignment." },
+const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; description: string; icon: string }> = {
+  facebook: { title: "Facebook Ads", description: "Sync ad spend, campaigns, and conversions from Meta.", icon: "📘" },
+  google_ads: { title: "Google Ads", description: "Import search and shopping performance automatically.", icon: "🔍" },
+  tiktok: { title: "TikTok Ads", description: "Bring in spend, clicks, and conversions from TikTok.", icon: "🎵" },
+  shopify: { title: "Shopify", description: "Stream orders and revenue to power attribution.", icon: "🛒" },
+  ga4: { title: "GA4", description: "Connect Google Analytics 4 for web analytics alignment.", icon: "📊" },
 };
 
 export default function IntegrationsPage() {
@@ -18,14 +18,29 @@ export default function IntegrationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-xl font-semibold text-white">Integrations</h1>
-        <p className="text-sm text-slate-400">Connect your ad platforms and storefront to stream live performance data.</p>
+      <div className="space-y-1">
+        <h1 className="text-xl font-semibold text-gray-900">Integrations</h1>
+        <p className="text-sm text-gray-500">Connect your ad platforms and storefront to stream live performance data.</p>
       </div>
 
-      {isLoading && <div className="text-slate-400">Loading integrations...</div>}
-      {isError && <div className="rounded-lg border border-rose-800/50 bg-rose-900/30 px-4 py-3 text-sm text-rose-200">Failed to load integrations: {error?.message}</div>}
-      {actionError && <div className="rounded-lg border border-amber-800/50 bg-amber-900/30 px-4 py-3 text-sm text-amber-100">{actionError}</div>}
+      {isLoading && (
+        <div className="flex items-center gap-2 text-gray-500">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+          Loading integrations...
+        </div>
+      )}
+      
+      {isError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Failed to load integrations: {error?.message}
+        </div>
+      )}
+      
+      {actionError && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {actionError}
+        </div>
+      )}
 
       {!isLoading && (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -37,39 +52,48 @@ export default function IntegrationsPage() {
             return (
               <div
                 key={card.platform}
-                className="flex h-full flex-col justify-between rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-inner shadow-black/10"
+                className="flex h-full flex-col justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-lg font-semibold text-white">{card.title}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{card.icon}</span>
+                      <span className="text-lg font-semibold text-gray-900">{card.title}</span>
+                    </div>
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         isConnected
-                          ? "bg-emerald-500/20 text-emerald-200"
+                          ? "bg-emerald-100 text-emerald-700"
                           : isComingSoon
-                          ? "bg-slate-800 text-slate-300"
-                          : "bg-amber-500/20 text-amber-100"
+                          ? "bg-gray-100 text-gray-600"
+                          : "bg-amber-100 text-amber-700"
                       }`}
                     >
                       {isConnected ? "Connected" : isComingSoon ? "Coming soon" : "Not connected"}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-400">{card.description}</p>
+                  <p className="text-sm text-gray-500">{card.description}</p>
                   {card.account_name && (
-                    <div className="rounded-md border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-300">
-                      Linked account: {card.account_name}
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
+                      Linked account: <span className="font-medium text-gray-900">{card.account_name}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
-                    {card.connected_at ? `Connected on ${new Date(card.connected_at).toLocaleDateString()}` : "OAuth opens in a new tab"}
+                <div className="mt-5 flex items-center justify-between">
+                  <div className="text-xs text-gray-400">
+                    {card.connected_at ? `Connected ${new Date(card.connected_at).toLocaleDateString()}` : "OAuth opens in new tab"}
                   </div>
                   <button
                     disabled={isConnected || isComingSoon || isPending}
                     onClick={() => connect(card.platform)}
-                    className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                      isConnected
+                        ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                        : isComingSoon
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+                    }`}
                   >
                     {isConnected ? "Connected" : isPending ? "Connecting..." : "Connect"}
                   </button>

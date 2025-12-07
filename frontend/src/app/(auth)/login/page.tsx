@@ -1,8 +1,22 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+
+// Client-side validation helpers
+function validateEmail(email: string): string | null {
+  if (!email.trim()) return "Email is required";
+  const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  if (!emailRegex.test(email)) return "Please enter a valid email address";
+  return null;
+}
+
+function validatePassword(password: string): string | null {
+  if (!password) return "Password is required";
+  return null;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,6 +43,19 @@ export default function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    
+    // Client-side validation
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+    
+    if (emailError || passwordError) {
+      setFieldErrors({
+        email: emailError || undefined,
+        password: passwordError || undefined,
+      });
+      return;
+    }
+    
     setFieldErrors({});
     setSubmitting(true);
 
@@ -44,38 +71,61 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-8">
-        <h1 className="text-2xl font-semibold">Log in</h1>
-        <div className="space-y-2">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
+          <p className="text-sm text-gray-500">Sign in to your account</p>
+        </div>
+        
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <input
-            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-            placeholder="Email"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            }`}
+            placeholder="you@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
-          {fieldErrors.email && <div className="text-sm text-rose-400">{fieldErrors.email}</div>}
+          {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
         </div>
-        <div className="space-y-2">
+        
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Password</label>
           <input
-            className="w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2"
-            placeholder="Password"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            }`}
+            placeholder="Enter your password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
-          {fieldErrors.password && <div className="text-sm text-rose-400">{fieldErrors.password}</div>}
+          {fieldErrors.password && <p className="text-sm text-red-600">{fieldErrors.password}</p>}
         </div>
-        {fieldErrors.form && <div className="text-sm text-rose-400">{fieldErrors.form}</div>}
+        
+        {fieldErrors.form && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {fieldErrors.form}
+          </div>
+        )}
+        
         <button
+          type="submit"
           disabled={isBusy}
-          className="w-full rounded-md bg-emerald-500 py-2 font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-emerald-500/60"
+          className="w-full rounded-lg bg-emerald-600 py-2.5 font-semibold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isBusy ? "Signing in..." : "Continue"}
+          {isBusy ? "Signing in..." : "Sign in"}
         </button>
+        
+        <p className="text-center text-sm text-gray-500">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-medium text-emerald-600 hover:text-emerald-700">
+            Sign up
+          </Link>
+        </p>
       </form>
     </main>
   );

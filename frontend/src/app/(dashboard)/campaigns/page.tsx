@@ -40,8 +40,17 @@ export default function CampaignsPage() {
       description="Normalized spend, conversions, and ROAS across every channel."
       actions={<DateRangeToggle value={range} onChange={setRange} />}
     >
-      {isLoading && <div className="text-slate-400">Loading...</div>}
-      {isError && <div className="text-sm text-rose-400">Failed to load campaigns: {error instanceof Error ? error.message : "Unknown error"}</div>}
+      {isLoading && (
+        <div className="flex items-center gap-2 text-gray-500">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+          Loading campaigns...
+        </div>
+      )}
+      {isError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Failed to load campaigns: {error instanceof Error ? error.message : "Unknown error"}
+        </div>
+      )}
       {!isLoading && !isError && <CampaignsTable campaigns={campaigns} />}
     </DashboardSection>
   );

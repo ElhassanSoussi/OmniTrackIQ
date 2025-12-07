@@ -16,38 +16,40 @@ export default function CampaignsTable({ campaigns = fallbackCampaigns }: { camp
   const hasRows = campaigns.length > 0;
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 shadow-inner shadow-black/20">
-      <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3 text-sm font-semibold text-slate-100">
-        <span>Campaigns</span>
-        <span className="text-xs text-slate-500">{hasRows ? `${campaigns.length} shown` : "No data"}</span>
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+        <span className="text-sm font-semibold text-gray-900">Campaigns</span>
+        <span className="text-xs text-gray-500">{hasRows ? `${campaigns.length} shown` : "No data"}</span>
       </div>
       {hasRows ? (
-        <table className="w-full text-sm text-slate-200">
-          <thead className="text-left text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Campaign</th>
-              <th className="px-4 py-3">Platform</th>
-              <th className="px-4 py-3">Spend</th>
-              <th className="px-4 py-3">ROAS</th>
-              <th className="px-4 py-3">Clicks</th>
-              <th className="px-4 py-3">Conversions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {campaigns.map((row) => (
-              <tr key={row.name} className="border-t border-slate-800">
-                <td className="px-4 py-3">{row.name}</td>
-                <td className="px-4 py-3 capitalize">{row.platform.replace("_", " ")}</td>
-                <td className="px-4 py-3">{row.spend}</td>
-                <td className="px-4 py-3">{row.roas || "—"}</td>
-                <td className="px-4 py-3">{row.clicks}</td>
-                <td className="px-4 py-3">{row.conversions}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-gray-100 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="px-5 py-3">Campaign</th>
+                <th className="px-5 py-3">Platform</th>
+                <th className="px-5 py-3">Spend</th>
+                <th className="px-5 py-3">ROAS</th>
+                <th className="px-5 py-3">Clicks</th>
+                <th className="px-5 py-3">Conv.</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-gray-700">
+              {campaigns.map((row) => (
+                <tr key={row.name} className="border-t border-gray-50 hover:bg-gray-50">
+                  <td className="px-5 py-3 font-medium text-gray-900">{row.name}</td>
+                  <td className="px-5 py-3 capitalize">{row.platform.replace("_", " ")}</td>
+                  <td className="px-5 py-3">{row.spend}</td>
+                  <td className="px-5 py-3 font-medium text-emerald-600">{row.roas || "—"}</td>
+                  <td className="px-5 py-3">{row.clicks.toLocaleString()}</td>
+                  <td className="px-5 py-3">{row.conversions.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
-        <div className="px-4 py-8 text-sm text-slate-400">No campaigns yet.</div>
+        <div className="px-5 py-8 text-center text-sm text-gray-500">No campaigns yet.</div>
       )}
     </div>
   );
