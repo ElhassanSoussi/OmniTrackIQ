@@ -6,6 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 import { getDateRange, DateRangeValue } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import { MetricTooltip } from "@/components/ui/metric-tooltip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 
 interface Campaign {
   campaign_id: string;
@@ -80,6 +83,9 @@ export default function CampaignsAnalyticsPage() {
     queryKey: ["top-clicks", from, to],
     queryFn: () => apiFetch(`/metrics/top-performers?from=${from}&to=${to}&metric=clicks&limit=5`) as Promise<TopPerformer[]>,
   });
+
+  const { data: sampleDataStats } = useSampleDataStats();
+  const generateSampleData = useGenerateSampleData();
 
   // Filter and sort campaigns
   const filteredCampaigns = useMemo(() => {
@@ -197,31 +203,41 @@ export default function CampaignsAnalyticsPage() {
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-sm font-medium text-gray-500">Total Spend</p>
+          <MetricTooltip metric="spend">
+            <p className="text-sm font-medium text-gray-500">Total Spend</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {campaignsLoading ? "..." : formatCurrency(summary.totalSpend)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-sm font-medium text-gray-500">Total Clicks</p>
+          <MetricTooltip metric="clicks">
+            <p className="text-sm font-medium text-gray-500">Total Clicks</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {campaignsLoading ? "..." : formatNumber(summary.totalClicks)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-sm font-medium text-gray-500">Conversions</p>
+          <MetricTooltip metric="conversions">
+            <p className="text-sm font-medium text-gray-500">Conversions</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {campaignsLoading ? "..." : formatNumber(summary.totalConversions)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-sm font-medium text-gray-500">Avg CPC</p>
+          <MetricTooltip metric="cpc">
+            <p className="text-sm font-medium text-gray-500">Avg CPC</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {campaignsLoading ? "..." : formatCurrency(summary.avgCPC)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-sm font-medium text-gray-500">Avg CPA</p>
+          <MetricTooltip metric="cpa">
+            <p className="text-sm font-medium text-gray-500">Avg CPA</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {campaignsLoading ? "..." : formatCurrency(summary.avgCPA)}
           </p>
@@ -421,19 +437,16 @@ export default function CampaignsAnalyticsPage() {
               </tbody>
             </table>
           ) : (
-            <div className="p-12 text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <p className="mt-4 text-gray-600">No campaigns found</p>
-              <p className="mt-1 text-sm text-gray-500">
-                {search ? "Try adjusting your search or filters" : "Connect ad platforms to see campaign data"}
-              </p>
-              {!search && (
-                <Link href="/integrations" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
-                  Connect Integrations
-                </Link>
-              )}
+            <div className="p-6">
+              <EmptyState
+                icon="campaigns"
+                title={search ? "No campaigns match your search" : "No campaigns found"}
+                description={search ? "Try adjusting your search or filters" : "Connect ad platforms to see campaign data, or generate sample data to explore."}
+                actionLabel={search ? undefined : "Connect Integrations"}
+                actionHref={search ? undefined : "/integrations"}
+                secondaryActionLabel={!search && !sampleDataStats?.has_sample_data ? "Generate Sample Data" : undefined}
+                onAction={!search && !sampleDataStats?.has_sample_data ? () => generateSampleData.mutate() : undefined}
+              />
             </div>
           )}
         </div>

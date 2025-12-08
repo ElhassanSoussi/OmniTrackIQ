@@ -6,6 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 import { getDateRange, DateRangeValue } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import { MetricTooltip } from "@/components/ui/metric-tooltip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 
 interface PlatformData {
   platform: string;
@@ -62,6 +65,9 @@ export default function AcquisitionPage() {
     queryKey: ["daily-clicks", from, to],
     queryFn: () => apiFetch(`/metrics/daily?from=${from}&to=${to}&metrics=clicks&metrics=impressions&metrics=conversions`) as Promise<DailyData[]>,
   });
+
+  const { data: sampleDataStats } = useSampleDataStats();
+  const generateSampleData = useGenerateSampleData();
 
   // Calculate totals and averages
   const totals = useMemo(() => {

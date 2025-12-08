@@ -6,6 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 import { getDateRange, DateRangeValue } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import { MetricTooltip } from "@/components/ui/metric-tooltip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 
 interface Order {
   id: string;
@@ -87,6 +90,9 @@ export default function RevenueAnalyticsPage() {
     queryKey: ["daily-revenue", from, to],
     queryFn: () => apiFetch(`/metrics/daily?from=${from}&to=${to}&metrics=revenue&metrics=orders&metrics=spend&metrics=roas`) as Promise<DailyData[]>,
   });
+
+  const { data: sampleDataStats } = useSampleDataStats();
+  const generateSampleData = useGenerateSampleData();
 
   // Calculate revenue by source
   const revenueBySource = useMemo(() => {

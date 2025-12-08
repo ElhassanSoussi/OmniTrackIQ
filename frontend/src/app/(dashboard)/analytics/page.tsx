@@ -6,6 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 import { getDateRange, DateRangeValue } from "@/lib/date-range";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import { MetricTooltip } from "@/components/ui/metric-tooltip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 
 interface PlatformBreakdown {
   platform: string;
@@ -72,6 +75,9 @@ export default function AnalyticsPage() {
     queryFn: () => apiFetch(`/metrics/daily?from=${from}&to=${to}&metrics=spend&metrics=revenue&metrics=roas`) as Promise<DailyData[]>,
   });
 
+  const { data: sampleDataStats } = useSampleDataStats();
+  const generateSampleData = useGenerateSampleData();
+
   const totalSpend = useMemo(() => {
     if (!platformData) return 0;
     return platformData.reduce((sum, p) => sum + p.spend, 0);
@@ -118,25 +124,33 @@ export default function AnalyticsPage() {
       {/* Quick Stats */}
       <div className="mb-8 grid gap-4 md:grid-cols-4">
         <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <p className="text-sm font-medium text-gray-500">Total Spend</p>
+          <MetricTooltip metric="spend">
+            <p className="text-sm font-medium text-gray-500">Total Spend</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {platformLoading ? "..." : formatCurrency(totalSpend)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <p className="text-sm font-medium text-gray-500">Total Clicks</p>
+          <MetricTooltip metric="clicks">
+            <p className="text-sm font-medium text-gray-500">Total Clicks</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {platformLoading ? "..." : formatNumber(totalClicks)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <p className="text-sm font-medium text-gray-500">Conversions</p>
+          <MetricTooltip metric="conversions">
+            <p className="text-sm font-medium text-gray-500">Conversions</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {platformLoading ? "..." : formatNumber(totalConversions)}
           </p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <p className="text-sm font-medium text-gray-500">Avg CPC</p>
+          <MetricTooltip metric="cpc">
+            <p className="text-sm font-medium text-gray-500">Avg CPC</p>
+          </MetricTooltip>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {platformLoading ? "..." : formatCurrency(totalClicks > 0 ? totalSpend / totalClicks : 0)}
           </p>
@@ -182,10 +196,15 @@ export default function AnalyticsPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-6 rounded-lg bg-gray-50 p-8 text-center text-gray-500">
-              <p>No platform data available</p>
-              <p className="mt-1 text-sm">Connect integrations to see breakdown</p>
-            </div>
+            <EmptyState
+              icon="chart"
+              title="No platform data available"
+              description="Connect ad platforms to see spend breakdown by channel."
+              actionLabel="Connect Integrations"
+              actionHref="/integrations"
+              secondaryActionLabel={!sampleDataStats?.has_sample_data ? "Generate Sample Data" : undefined}
+              onAction={!sampleDataStats?.has_sample_data ? () => generateSampleData.mutate() : undefined}
+            />
           )}
         </div>
 
@@ -224,10 +243,13 @@ export default function AnalyticsPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-6 rounded-lg bg-gray-50 p-8 text-center text-gray-500">
-              <p>No campaign data available</p>
-              <p className="mt-1 text-sm">Data will appear once synced</p>
-            </div>
+            <EmptyState
+              icon="campaigns"
+              title="No campaign data available"
+              description="Data will appear once your ad platforms are connected and synced."
+              actionLabel="Connect Integrations"
+              actionHref="/integrations"
+            />
           )}
         </div>
       </div>
@@ -272,9 +294,13 @@ export default function AnalyticsPage() {
             </div>
           </div>
         ) : (
-          <div className="mt-6 h-48 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500">
-            <p>No daily data available</p>
-          </div>
+          <EmptyState
+            icon="chart"
+            title="No daily data available"
+            description="Connect your ad platforms to see performance trends over time."
+            actionLabel="Connect Integrations"
+            actionHref="/integrations"
+          />
         )}
       </div>
 
