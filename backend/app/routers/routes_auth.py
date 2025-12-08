@@ -44,21 +44,39 @@ SOCIAL_OAUTH_CONFIG = {
 }
 
 
-@router.post("/signup", response_model=TokenResponse)
+@router.post("/signup", response_model=TokenResponse, summary="Create new account")
 @limiter.limit(get_auth_rate_limit())
 def signup(request: Request, body: SignupRequest, db: Session = Depends(get_db)):
+    """
+    Create a new user account and return a JWT access token.
+    
+    - **email**: Valid email address (will be used for login)
+    - **password**: Minimum 8 characters
+    - **account_name**: Company or organization name
+    
+    Returns a JWT token that should be included in subsequent requests as:
+    `Authorization: Bearer <token>`
+    """
     token = auth_service.signup(db, body.email, body.password, body.account_name)
     return TokenResponse(access_token=token)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, summary="Login to existing account")
 @limiter.limit(get_auth_rate_limit())
 def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
+    """
+    Authenticate with email and password to receive a JWT access token.
+    
+    - **email**: Your registered email address
+    - **password**: Your account password
+    
+    Returns a JWT token valid for 24 hours.
+    """
     token = auth_service.login(db, body.email, body.password)
     return TokenResponse(access_token=token)
 
 
-@router.post("/logout")
+@router.post("/logout", summary="Logout current session")
 @limiter.limit(get_auth_rate_limit())
 def logout(request: Request):
     """
@@ -69,8 +87,13 @@ def logout(request: Request):
     return {"message": "Logged out successfully"}
 
 
-@router.get("/me", response_model=UserInfo)
+@router.get("/me", response_model=UserInfo, summary="Get current user info")
 def me(current_user: User = Depends(get_current_user)):
+    """
+    Get the currently authenticated user's profile information.
+    
+    Requires a valid JWT token in the Authorization header.
+    """
     return UserInfo(
         id=current_user.id, 
         email=current_user.email, 

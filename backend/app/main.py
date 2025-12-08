@@ -52,9 +52,107 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="OmniTrackIQ API",
-    description="Marketing analytics platform for e-commerce",
+    description="""
+## OmniTrackIQ - Enterprise Marketing Analytics Platform
+
+OmniTrackIQ is a comprehensive B2B SaaS marketing analytics platform for e-commerce brands.
+
+### Features
+
+* **Multi-platform Ad Tracking** - Connect Facebook, Google, TikTok, and more
+* **Multi-touch Attribution** - 5 attribution models (first touch, last touch, linear, time decay, position based)
+* **Cohort Analysis** - Customer retention heatmaps and revenue cohorts  
+* **Custom Report Builder** - Build reports with 12 metrics and 6 dimensions
+* **Funnel Visualization** - Track conversion from impressions to purchase
+* **Anomaly Detection** - AI-powered detection of metric anomalies
+* **Scheduled Reports** - Email reports on your schedule (daily, weekly, monthly)
+* **Real-time Dashboards** - Live metrics with customizable views
+
+### Authentication
+
+All API endpoints (except health checks) require JWT Bearer token authentication.
+
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+### Rate Limits
+
+- Authentication endpoints: 5 requests/minute
+- Data endpoints: 100 requests/minute  
+- Export endpoints: 10 requests/minute
+
+### Support
+
+For API support, contact: api-support@omnitrackiq.com
+""",
     version=os.getenv("APP_VERSION", "1.0.0"),
     lifespan=lifespan,
+    openapi_tags=[
+        {
+            "name": "Health",
+            "description": "Health check and system status endpoints",
+        },
+        {
+            "name": "Authentication", 
+            "description": "User authentication, signup, login, and session management",
+        },
+        {
+            "name": "Metrics",
+            "description": "Core analytics metrics - revenue, spend, ROAS, campaigns, and orders",
+        },
+        {
+            "name": "Attribution",
+            "description": "Multi-touch attribution analysis with 5 models",
+        },
+        {
+            "name": "Cohorts",
+            "description": "Customer cohort analysis and retention tracking",
+        },
+        {
+            "name": "Funnel",
+            "description": "Conversion funnel visualization and analysis",
+        },
+        {
+            "name": "Anomalies",
+            "description": "AI-powered anomaly detection in marketing metrics",
+        },
+        {
+            "name": "Custom Reports",
+            "description": "Create, manage, and execute custom analytics reports",
+        },
+        {
+            "name": "Integrations",
+            "description": "Connect ad platforms (Facebook, Google, TikTok, etc.)",
+        },
+        {
+            "name": "Scheduled Reports",
+            "description": "Schedule automated email reports",
+        },
+        {
+            "name": "Saved Views",
+            "description": "Save and manage dashboard view configurations",
+        },
+        {
+            "name": "Team",
+            "description": "Team management and user invitations",
+        },
+        {
+            "name": "Billing",
+            "description": "Subscription and payment management via Stripe",
+        },
+        {
+            "name": "Jobs",
+            "description": "Background job status and management",
+        },
+        {
+            "name": "Sample Data",
+            "description": "Generate sample data for testing and demos",
+        },
+    ],
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 # Add rate limiter
@@ -130,19 +228,19 @@ app.add_middleware(
 BASE_URL = settings.FRONTEND_URL
 
 # Include routers
-app.include_router(routes_health.router, prefix="/health", tags=["health"])
-app.include_router(routes_auth.router, prefix="/auth", tags=["auth"])
-app.include_router(routes_billing.router, prefix="/billing", tags=["billing"])
-app.include_router(routes_integrations.router, prefix="/integrations", tags=["integrations"])
-app.include_router(routes_metrics.router, prefix="/metrics", tags=["metrics"])
-app.include_router(routes_team.router, prefix="/team", tags=["team"])
-app.include_router(routes_saved_views.router, prefix="/saved-views", tags=["saved-views"])
-app.include_router(routes_sample_data.router, prefix="/sample-data", tags=["sample-data"])
-app.include_router(routes_scheduled_reports.router, prefix="/scheduled-reports", tags=["scheduled-reports"])
-app.include_router(routes_jobs.router, prefix="/jobs", tags=["jobs"])
-app.include_router(routes_custom_reports.router, prefix="/custom-reports", tags=["custom-reports"])
-app.include_router(routes_funnel.router, prefix="/funnel", tags=["funnel"])
-app.include_router(routes_anomaly.router, prefix="/anomalies", tags=["anomalies"])
+app.include_router(routes_health.router, prefix="/health", tags=["Health"])
+app.include_router(routes_auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(routes_billing.router, prefix="/billing", tags=["Billing"])
+app.include_router(routes_integrations.router, prefix="/integrations", tags=["Integrations"])
+app.include_router(routes_metrics.router, prefix="/metrics", tags=["Metrics"])
+app.include_router(routes_team.router, prefix="/team", tags=["Team"])
+app.include_router(routes_saved_views.router, prefix="/saved-views", tags=["Saved Views"])
+app.include_router(routes_sample_data.router, prefix="/sample-data", tags=["Sample Data"])
+app.include_router(routes_scheduled_reports.router, prefix="/scheduled-reports", tags=["Scheduled Reports"])
+app.include_router(routes_jobs.router, prefix="/jobs", tags=["Jobs"])
+app.include_router(routes_custom_reports.router, prefix="/custom-reports", tags=["Custom Reports"])
+app.include_router(routes_funnel.router, prefix="/funnel", tags=["Funnel"])
+app.include_router(routes_anomaly.router, prefix="/anomalies", tags=["Anomalies"])
 
 
 # Root endpoint
