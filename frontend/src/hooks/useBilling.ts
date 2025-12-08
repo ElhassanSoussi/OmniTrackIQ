@@ -6,16 +6,23 @@ import { useQuery } from '@tanstack/react-query';
 // Backend response structure from /billing/me
 interface BillingPlan {
   plan: string | null;
+  plan_name: string;
   status: string;
   renewal: string | null; // ISO datetime string
+  features: string[];
+  can_upgrade: boolean;
+  can_cancel: boolean;
 }
 
 // Frontend billing info structure
 export interface BillingInfo {
   plan: string | null;
+  plan_name: string | null;
   status: string | null;
-  nextPaymentDate: string | null;
-  subscriptionId: string | null;
+  renewal: string | null;
+  features: string[];
+  can_upgrade: boolean;
+  can_cancel: boolean;
 }
 
 export interface UseBillingResult {
@@ -24,6 +31,8 @@ export interface UseBillingResult {
   error: string | null;
   createCheckout: (plan: string) => Promise<void>;
   openPortal: () => Promise<void>;
+  cancelSubscription: () => Promise<void>;
+  reactivateSubscription: () => Promise<void>;
   reload: () => void;
 }
 
@@ -32,7 +41,6 @@ export function useBilling(): UseBillingResult {
     data,
     refetch,
     isLoading,
-    isError,
     error,
   } = useQuery<BillingPlan | undefined>({
     queryKey: ['billing'],
@@ -47,9 +55,12 @@ export function useBilling(): UseBillingResult {
   const billing: BillingInfo | null = data
     ? {
         plan: data.plan,
+        plan_name: data.plan_name,
         status: data.status,
-        nextPaymentDate: data.renewal,
-        subscriptionId: null, // Not provided by backend currently
+        renewal: data.renewal,
+        features: data.features || [],
+        can_upgrade: data.can_upgrade ?? true,
+        can_cancel: data.can_cancel ?? false,
       }
     : null;
 
@@ -80,12 +91,28 @@ export function useBilling(): UseBillingResult {
     window.location.href = result.url;
   }
 
+  async function cancelSubscription() {
+    await apiFetch('/billing/cancel', {
+      method: 'POST',
+    });
+    refetch();
+  }
+
+  async function reactivateSubscription() {
+    await apiFetch('/billing/reactivate', {
+      method: 'POST',
+    });
+    refetch();
+  }
+
   return {
     billing,
     loading: isLoading,
     error: error ? (error as Error).message : null,
     createCheckout,
     openPortal,
+    cancelSubscription,
+    reactivateSubscription,
     reload: refetch,
   };
 }
