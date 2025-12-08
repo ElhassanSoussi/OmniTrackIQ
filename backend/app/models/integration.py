@@ -16,8 +16,9 @@ class Integration(Base):
 
     access_token = Column(Text, nullable=True)
     refresh_token = Column(Text, nullable=True)
-    expires_at = Column(DateTime(timezone=True), nullable=True)
+    token_expires_at = Column(DateTime(timezone=True), nullable=True)
     config_json = Column(Text, nullable=True)
+    extra_data = Column(Text, nullable=True)  # Store additional OAuth response data
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(

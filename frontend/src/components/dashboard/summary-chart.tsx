@@ -24,20 +24,20 @@ export default function SummaryChart({ data }: { data?: SummaryPoint[] }) {
   const showRevenue = dataset.some((d) => d.revenue !== undefined);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 transition-colors duration-200">
       <div className="mb-4 flex items-center justify-between">
         <div className="space-y-1">
-          <div className="text-sm font-semibold text-gray-900">{showRevenue ? "Revenue vs Spend" : "Spend trend"}</div>
-          <div className="text-xs text-gray-500">{data?.length ? "Live data" : "Sample data"}</div>
+          <div className="text-sm font-semibold text-gray-900 dark:text-white">{showRevenue ? "Revenue vs Spend" : "Spend trend"}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">{data?.length ? "Live data" : "Sample data"}</div>
         </div>
         <div className="flex items-center gap-4 text-xs">
           {showRevenue && (
-            <div className="flex items-center gap-1.5 text-gray-600">
+            <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden />
               Revenue
             </div>
           )}
-          <div className="flex items-center gap-1.5 text-gray-600">
+          <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
             <span className="h-2.5 w-2.5 rounded-full bg-blue-500" aria-hidden />
             Spend
           </div>
@@ -62,7 +62,7 @@ export default function SummaryChart({ data }: { data?: SummaryPoint[] }) {
                   style={{ "--bar-height": `${spendHeight}%`, height: "var(--bar-height)" } as React.CSSProperties}
                 />
               </div>
-              <div className="text-xs text-gray-500">{point.label}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{point.label}</div>
             </div>
           );
         })}

@@ -16,10 +16,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
-          <p className="text-sm text-gray-500">Loading...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     );
@@ -27,10 +27,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center shadow-sm">
-          <div className="text-lg font-semibold text-gray-900">Authentication error</div>
-          <div className="mt-2 text-sm text-gray-500">{error}</div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="text-lg font-semibold text-gray-900 dark:text-white">Authentication error</div>
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">{error}</div>
           <div className="mt-5 flex items-center justify-center gap-3">
             <a
               href="/login"
@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </a>
             <button
               onClick={() => refresh()}
-              className="inline-flex rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              className="inline-flex rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Retry
             </button>
@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <Sidebar />
       <div className="flex flex-1 flex-col">
         <Topbar />

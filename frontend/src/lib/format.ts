@@ -13,6 +13,11 @@ export function formatNumber(value: number | string | null | undefined) {
   return num.toLocaleString("en-US");
 }
 
+export function formatPercent(value: number | string | null | undefined, decimals = 1) {
+  const num = Number(value || 0);
+  return `${num.toFixed(decimals)}%`;
+}
+
 /**
  * Safely formats an error into a human-readable string.
  * Handles Error objects, strings, and unknown error types.

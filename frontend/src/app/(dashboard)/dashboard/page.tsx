@@ -176,7 +176,7 @@ export default function DashboardPage() {
             <select
               value={channelFilter}
               onChange={(e) => setChannelFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               aria-label="Filter by channel"
             >
               {CHANNEL_OPTIONS.map((opt) => (
@@ -189,11 +189,11 @@ export default function DashboardPage() {
       >
         <div className="flex flex-col gap-6">
           {hasNoLiveData && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
-                  <a href="/integrations" className="ml-2 font-semibold text-amber-900 underline hover:text-amber-700">
+                  <a href="/integrations" className="ml-2 font-semibold text-amber-900 underline hover:text-amber-700 dark:text-amber-200 dark:hover:text-amber-100">
                     Connect integrations
                   </a>
                 </div>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
           )}
 
           {sampleDataStats?.has_sample_data && (
-            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <span className="font-semibold">Demo mode:</span> You&apos;re viewing sample data ({sampleDataStats.ad_spend_records} ad records, {sampleDataStats.order_records} orders).
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                 <button
                   onClick={() => deleteSampleData.mutate()}
                   disabled={deleteSampleData.isPending}
-                  className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm transition hover:bg-blue-50 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm transition hover:bg-blue-50 disabled:opacity-50 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
                 >
                   {deleteSampleData.isPending ? "Removing..." : "Remove Sample Data"}
                 </button>
@@ -238,26 +238,26 @@ export default function DashboardPage() {
             </div>
           )}
           
-          <div className="grid gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:flex md:items-center md:justify-between">
+          <div className="grid gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:flex md:items-center md:justify-between dark:border-gray-800 dark:bg-gray-900">
             <div className="space-y-1">
-              <div className="text-sm font-semibold text-gray-900">Account health</div>
-              <p className="text-sm text-gray-500">
+              <div className="text-sm font-semibold text-gray-900 dark:text-white">Account health</div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 ROAS above target; TikTok prospecting is accelerating and Google brand remains most efficient.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700">Healthy</span>
-              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600">
+              <span className="rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Healthy</span>
+              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
                 {range === "7d" ? "Last 7 days" : range === "30d" ? "Last 30 days" : "Last 90 days"}
               </span>
-              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600">
+              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
                 Blended CAC $27.4
               </span>
             </div>
           </div>
 
           {summaryError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
               Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
           ) : (
@@ -277,14 +277,14 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             {campaignsError ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
                 Failed to load campaigns: {formatErrorMessage(campaignsErr)}
               </div>
             ) : (
               <CampaignsTable campaigns={topCampaigns} />
             )}
             {ordersError ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
                 Failed to load orders: {formatErrorMessage(ordersErr)}
               </div>
             ) : (

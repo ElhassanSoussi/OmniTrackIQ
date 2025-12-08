@@ -7,6 +7,8 @@ from app.models.daily_metrics import DailyMetrics
 from app.models.subscription import Subscription
 from app.models.team_invite import TeamInvite, InviteStatus
 from app.models.saved_view import SavedView, ViewType
+from app.models.scheduled_report import ScheduledReport, ReportFrequency, ReportType
+from app.models.custom_report import CustomReport, VisualizationType
 
 __all__ = [
     "User",
@@ -22,4 +24,9 @@ __all__ = [
     "InviteStatus",
     "SavedView",
     "ViewType",
+    "ScheduledReport",
+    "ReportFrequency",
+    "ReportType",
+    "CustomReport",
+    "VisualizationType",
 ]

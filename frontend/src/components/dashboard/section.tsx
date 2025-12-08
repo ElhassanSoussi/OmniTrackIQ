@@ -15,8 +15,8 @@ export function DashboardSection({ title, description, actions, children, classN
         {(title || description || actions) && (
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
-              {title && <h2 className="text-xl font-semibold text-gray-900">{title}</h2>}
-              {description && <p className="text-sm text-gray-500">{description}</p>}
+              {title && <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>}
+              {description && <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>}
             </div>
             {actions}
           </div>

@@ -72,53 +72,53 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
-          <p className="text-sm text-gray-500">Sign in to your account</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Welcome back</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Sign in to your account</p>
         </div>
 
         {/* Social Login Buttons */}
         <SocialLoginButtons mode="login" />
         
         <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
           <input
             id="email"
-            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-              fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white dark:placeholder:text-gray-500 ${
+              fieldErrors.email ? "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20" : "border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800"
             }`}
             placeholder="you@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
+          {fieldErrors.email && <p className="text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
         </div>
         
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
-            <Link href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700">
+            <label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            <Link href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
               Forgot password?
             </Link>
           </div>
           <input
             id="password"
-            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-              fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white dark:placeholder:text-gray-500 ${
+              fieldErrors.password ? "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20" : "border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800"
             }`}
             placeholder="Enter your password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {fieldErrors.password && <p className="text-sm text-red-600">{fieldErrors.password}</p>}
+          {fieldErrors.password && <p className="text-sm text-red-600 dark:text-red-400">{fieldErrors.password}</p>}
         </div>
         
         {fieldErrors.form && (
-          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
             {fieldErrors.form}
           </div>
         )}
@@ -131,9 +131,9 @@ export default function LoginPage() {
           {isBusy ? "Signing in..." : "Sign in"}
         </button>
         
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-emerald-600 hover:text-emerald-700">
+          <Link href="/signup" className="font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
             Sign up
           </Link>
         </p>

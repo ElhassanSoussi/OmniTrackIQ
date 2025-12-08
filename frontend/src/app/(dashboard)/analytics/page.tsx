@@ -113,6 +113,12 @@ export default function AnalyticsPage() {
             <option value="90d">Last 90 days</option>
           </select>
           <Link
+            href="/analytics/reports"
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
+          >
+            Custom Reports
+          </Link>
+          <Link
             href="/dashboard"
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
           >

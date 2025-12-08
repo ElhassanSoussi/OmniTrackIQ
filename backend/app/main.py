@@ -10,7 +10,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
-from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data
+from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports
 from app.security.rate_limit import limiter
 
 # Configure structured logging
@@ -29,7 +29,24 @@ async def lifespan(app: FastAPI):
     logger.info("OmniTrackIQ API starting up...")
     logger.info(f"Environment: {os.getenv('ENVIRONMENT', 'production')}")
     logger.info(f"Log level: {LOG_LEVEL}")
+    
+    # Start background job scheduler
+    from app.jobs.scheduler import start_scheduler, shutdown_scheduler
+    try:
+        start_scheduler()
+        logger.info("Background job scheduler started")
+    except Exception as e:
+        logger.error(f"Failed to start scheduler: {e}")
+    
     yield
+    
+    # Shutdown scheduler
+    try:
+        shutdown_scheduler()
+        logger.info("Background job scheduler stopped")
+    except Exception as e:
+        logger.error(f"Error stopping scheduler: {e}")
+    
     logger.info("OmniTrackIQ API shutting down...")
 
 
@@ -121,6 +138,9 @@ app.include_router(routes_metrics.router, prefix="/metrics", tags=["metrics"])
 app.include_router(routes_team.router, prefix="/team", tags=["team"])
 app.include_router(routes_saved_views.router, prefix="/saved-views", tags=["saved-views"])
 app.include_router(routes_sample_data.router, prefix="/sample-data", tags=["sample-data"])
+app.include_router(routes_scheduled_reports.router, prefix="/scheduled-reports", tags=["scheduled-reports"])
+app.include_router(routes_jobs.router, prefix="/jobs", tags=["jobs"])
+app.include_router(routes_custom_reports.router, prefix="/custom-reports", tags=["custom-reports"])
 
 
 # Root endpoint

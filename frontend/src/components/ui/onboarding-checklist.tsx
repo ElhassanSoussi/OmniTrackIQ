@@ -79,18 +79,18 @@ export function OnboardingChecklist({
   }
   
   return (
-    <div className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white shadow-sm">
+    <div className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white shadow-sm dark:border-emerald-800 dark:from-emerald-900/20 dark:to-gray-900">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-            <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <svg className="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {completedCount} of {totalCount} completed
             </p>
           </div>
@@ -98,7 +98,7 @@ export function OnboardingChecklist({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
             aria-label={isExpanded ? "Collapse" : "Expand"}
           >
             <svg className={`h-5 w-5 transition-transform ${isExpanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +107,7 @@ export function OnboardingChecklist({
           </button>
           <button
             onClick={handleDismiss}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
             aria-label="Dismiss"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ export function OnboardingChecklist({
       
       {/* Progress bar */}
       <div className="px-4 pb-2">
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+        <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
           <div
             className="h-full bg-emerald-500 transition-all duration-500"
             style={{ width: `${progress}%` }}
@@ -129,7 +129,7 @@ export function OnboardingChecklist({
       
       {/* Steps */}
       {isExpanded && (
-        <div className="border-t border-emerald-100 px-4 py-3">
+        <div className="border-t border-emerald-100 px-4 py-3 dark:border-emerald-800">
           <div className="space-y-2">
             {steps.map((step, index) => (
               <Link
@@ -137,8 +137,8 @@ export function OnboardingChecklist({
                 href={step.href}
                 className={`flex items-center gap-3 rounded-lg p-3 transition ${
                   step.completed
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-white hover:bg-gray-50"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                    : "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
                 }`}
               >
                 {/* Step number or check */}
@@ -146,7 +146,7 @@ export function OnboardingChecklist({
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
                     step.completed
                       ? "bg-emerald-500 text-white"
-                      : "border-2 border-gray-300 text-gray-500"
+                      : "border-2 border-gray-300 text-gray-500 dark:border-gray-600 dark:text-gray-400"
                   }`}
                 >
                   {step.completed ? (
@@ -159,16 +159,16 @@ export function OnboardingChecklist({
                 </div>
                 
                 {/* Icon */}
-                <div className={`${step.completed ? "text-emerald-600" : "text-gray-400"}`}>
+                <div className={`${step.completed ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400"}`}>
                   {STEP_ICONS[step.icon]}
                 </div>
                 
                 {/* Text */}
                 <div className="flex-1">
-                  <p className={`font-medium ${step.completed ? "text-emerald-700" : "text-gray-900"}`}>
+                  <p className={`font-medium ${step.completed ? "text-emerald-700 dark:text-emerald-400" : "text-gray-900 dark:text-white"}`}>
                     {step.title}
                   </p>
-                  <p className={`text-sm ${step.completed ? "text-emerald-600" : "text-gray-500"}`}>
+                  <p className={`text-sm ${step.completed ? "text-emerald-600 dark:text-emerald-500" : "text-gray-500 dark:text-gray-400"}`}>
                     {step.description}
                   </p>
                 </div>
@@ -184,13 +184,13 @@ export function OnboardingChecklist({
           </div>
           
           {/* Help text */}
-          <p className="mt-4 text-center text-xs text-gray-500">
+          <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             Need help? Check our{" "}
-            <a href="/docs" className="text-emerald-600 hover:underline">
+            <a href="/docs" className="text-emerald-600 hover:underline dark:text-emerald-400">
               documentation
             </a>{" "}
             or{" "}
-            <a href="mailto:support@omnitrackiq.com" className="text-emerald-600 hover:underline">
+            <a href="mailto:support@omnitrackiq.com" className="text-emerald-600 hover:underline dark:text-emerald-400">
               contact support
             </a>
           </p>
