@@ -5,7 +5,7 @@ function formatDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
-export function getDateRange(range: DateRangeValue) {
+export function getDateRange(range: DateRangeValue | string) {
   const to = new Date();
   const from = new Date();
   const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;

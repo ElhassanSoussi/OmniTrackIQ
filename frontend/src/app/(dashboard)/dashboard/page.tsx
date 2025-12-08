@@ -11,12 +11,15 @@ import {
   OrdersTable,
   SummaryChart,
 } from "@/components/dashboard";
+import { OnboardingChecklist } from "@/components/ui/onboarding-checklist";
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
 import { MetricsDailyPoint, MetricsSummary, useMetrics } from "@/hooks/useMetrics";
 import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
 import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { useSampleDataStats, useGenerateSampleData, useDeleteSampleData } from "@/hooks/useSampleData";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
 
@@ -27,6 +30,10 @@ export default function DashboardPage() {
   const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to);
   const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
   const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
+  const { steps: onboardingSteps, isComplete: onboardingComplete } = useOnboarding();
+  const { data: sampleDataStats } = useSampleDataStats();
+  const generateSampleData = useGenerateSampleData();
+  const deleteSampleData = useDeleteSampleData();
 
   const kpis: KPIItem[] = useMemo(() => {
     if (!summary) {
@@ -124,6 +131,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Onboarding Checklist - shown until complete */}
+      {!onboardingComplete && (
+        <OnboardingChecklist steps={onboardingSteps} />
+      )}
+      
       <DashboardSection
         title="Performance overview"
         description="Unified view of revenue, spend, and ROAS across every channel."
@@ -132,10 +144,51 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-6">
           {hasNoLiveData && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
-              <a href="/integrations" className="ml-2 font-semibold text-amber-900 underline hover:text-amber-700">
-                Connect integrations
-              </a>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
+                  <a href="/integrations" className="ml-2 font-semibold text-amber-900 underline hover:text-amber-700">
+                    Connect integrations
+                  </a>
+                </div>
+                {!sampleDataStats?.has_sample_data && (
+                  <button
+                    onClick={() => generateSampleData.mutate()}
+                    disabled={generateSampleData.isPending}
+                    className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-50"
+                  >
+                    {generateSampleData.isPending ? (
+                      <>
+                        <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Generating...
+                      </>
+                    ) : (
+                      "Generate Sample Data"
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {sampleDataStats?.has_sample_data && (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span className="font-semibold">Demo mode:</span> You&apos;re viewing sample data ({sampleDataStats.ad_spend_records} ad records, {sampleDataStats.order_records} orders).
+                  Connect real integrations or remove demo data.
+                </div>
+                <button
+                  onClick={() => deleteSampleData.mutate()}
+                  disabled={deleteSampleData.isPending}
+                  className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm transition hover:bg-blue-50 disabled:opacity-50"
+                >
+                  {deleteSampleData.isPending ? "Removing..." : "Remove Sample Data"}
+                </button>
+              </div>
             </div>
           )}
           
