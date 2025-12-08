@@ -113,6 +113,12 @@ export default function AnalyticsPage() {
             <option value="90d">Last 90 days</option>
           </select>
           <Link
+            href="/analytics/funnel"
+            className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50"
+          >
+            Funnel Analysis
+          </Link>
+          <Link
             href="/analytics/reports"
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
           >
