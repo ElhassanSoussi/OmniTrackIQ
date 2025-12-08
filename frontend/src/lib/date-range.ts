@@ -1,4 +1,5 @@
-import { DateRangeValue } from "@/components/dashboard";
+
+export type DateRangeValue = "7d" | "30d" | "90d";
 
 function formatDate(d: Date) {
   return d.toISOString().slice(0, 10);

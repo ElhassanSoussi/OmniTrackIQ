@@ -6,6 +6,7 @@ from app.models.order import Order
 from app.models.daily_metrics import DailyMetrics
 from app.models.subscription import Subscription
 from app.models.team_invite import TeamInvite, InviteStatus
+from app.models.saved_view import SavedView, ViewType
 
 __all__ = [
     "User",
@@ -19,4 +20,6 @@ __all__ = [
     "Subscription",
     "TeamInvite",
     "InviteStatus",
+    "SavedView",
+    "ViewType",
 ]

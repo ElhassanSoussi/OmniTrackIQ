@@ -10,7 +10,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
-from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team
+from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views
 from app.security.rate_limit import limiter
 
 # Configure structured logging
@@ -119,6 +119,7 @@ app.include_router(routes_billing.router, prefix="/billing", tags=["billing"])
 app.include_router(routes_integrations.router, prefix="/integrations", tags=["integrations"])
 app.include_router(routes_metrics.router, prefix="/metrics", tags=["metrics"])
 app.include_router(routes_team.router, prefix="/team", tags=["team"])
+app.include_router(routes_saved_views.router, prefix="/saved-views", tags=["saved-views"])
 
 
 # Root endpoint
