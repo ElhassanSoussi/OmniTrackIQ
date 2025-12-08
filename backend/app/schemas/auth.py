@@ -52,3 +52,5 @@ class UserInfo(BaseModel):
     id: str
     email: str
     account_id: str
+    role: str
+    name: str | None = None

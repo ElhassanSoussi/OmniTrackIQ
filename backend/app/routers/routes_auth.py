@@ -1,7 +1,7 @@
 import urllib.parse
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.routers.deps import get_current_user, get_db
@@ -9,6 +9,7 @@ from app.models.user import User
 from app.schemas.auth import LoginRequest, SignupRequest, TokenResponse, UserInfo
 from app.services import auth_service
 from app.config import settings
+from app.security.rate_limit import limiter, get_auth_rate_limit
 
 router = APIRouter()
 
@@ -44,19 +45,22 @@ SOCIAL_OAUTH_CONFIG = {
 
 
 @router.post("/signup", response_model=TokenResponse)
-def signup(body: SignupRequest, db: Session = Depends(get_db)):
+@limiter.limit(get_auth_rate_limit())
+def signup(request: Request, body: SignupRequest, db: Session = Depends(get_db)):
     token = auth_service.signup(db, body.email, body.password, body.account_name)
     return TokenResponse(access_token=token)
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(body: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit(get_auth_rate_limit())
+def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
     token = auth_service.login(db, body.email, body.password)
     return TokenResponse(access_token=token)
 
 
 @router.post("/logout")
-def logout():
+@limiter.limit(get_auth_rate_limit())
+def logout(request: Request):
     """
     Logout endpoint. Since we use JWT tokens stored client-side,
     the actual logout happens on the client by removing the token.
@@ -67,11 +71,18 @@ def logout():
 
 @router.get("/me", response_model=UserInfo)
 def me(current_user: User = Depends(get_current_user)):
-    return UserInfo(id=current_user.id, email=current_user.email, account_id=current_user.account_id)
+    return UserInfo(
+        id=current_user.id, 
+        email=current_user.email, 
+        account_id=current_user.account_id,
+        role=current_user.role.value if current_user.role else "member",
+        name=current_user.name
+    )
 
 
 @router.get("/{provider}/login")
-def social_login(provider: str, mode: Optional[str] = "login"):
+@limiter.limit(get_auth_rate_limit())
+def social_login(request: Request, provider: str, mode: Optional[str] = "login"):
     """
     Initiate OAuth flow for social login/signup.
     Redirects user to the provider's authorization page.
@@ -118,7 +129,8 @@ def social_login(provider: str, mode: Optional[str] = "login"):
 
 
 @router.get("/{provider}/callback")
-def social_callback(provider: str, code: str, state: Optional[str] = None, db: Session = Depends(get_db)):
+@limiter.limit(get_auth_rate_limit())
+def social_callback(request: Request, provider: str, code: str, state: Optional[str] = None, db: Session = Depends(get_db)):
     """
     Handle OAuth callback from provider.
     Exchange code for tokens and create/login user.
