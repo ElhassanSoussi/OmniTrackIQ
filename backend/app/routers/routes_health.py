@@ -68,6 +68,7 @@ def status(db: Session = Depends(get_db)):
     Useful for debugging and monitoring dashboards.
     """
     from app.services.cache_service import cache
+    from app.services.websocket_service import manager as ws_manager
     
     now = datetime.now(timezone.utc)
     uptime_seconds = (now - APP_START_TIME).total_seconds()
@@ -82,6 +83,9 @@ def status(db: Session = Depends(get_db)):
     # Check cache
     cache_stats = cache.get_stats()
     cache_status = "healthy" if cache_stats.get("enabled") else "disabled"
+    
+    # Get WebSocket stats
+    ws_stats = ws_manager.get_stats()
     
     # Check integrations configuration
     integrations = [
@@ -112,10 +116,12 @@ def status(db: Session = Depends(get_db)):
         "checks": {
             "database": db_status,
             "cache": cache_status,
+            "websocket": f"{ws_stats['total_connections']} connections",
             "integrations": f"{configured_integrations}/{len(integrations)} configured",
             "social_auth": f"{configured_social}/{len(social_auth)} configured",
         },
         "cache": cache_stats,
+        "websocket": ws_stats,
         "integrations": integrations,
         "social_auth": social_auth,
     }
