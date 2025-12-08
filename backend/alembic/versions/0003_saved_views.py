@@ -1,7 +1,7 @@
 """Add saved views table
 
-Revision ID: 0003
-Revises: 0002
+Revision ID: 0003_saved_views
+Revises: 0002_multi_tenant
 Create Date: 2025-01-05
 
 """
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0003'
-down_revision: Union[str, None] = '0002'
+revision: str = '0003_saved_views'
+down_revision: Union[str, None] = '0002_multi_tenant'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
