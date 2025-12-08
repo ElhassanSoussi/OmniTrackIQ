@@ -7,3 +7,5 @@ export { default as KPICard } from "./kpi-card";
 export { default as SummaryChart } from "./summary-chart";
 export { default as CampaignsTable } from "./campaigns-table";
 export { default as OrdersTable } from "./orders-table";
+export { default as ChannelTable } from "./channel-table";
+export type { ChannelRow } from "./channel-table";

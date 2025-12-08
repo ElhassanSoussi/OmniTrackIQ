@@ -410,8 +410,15 @@ export default function CampaignsAnalyticsPage() {
                 {filteredCampaigns.map((campaign) => (
                   <tr key={campaign.campaign_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{campaign.campaign_name}</p>
-                      <p className="text-xs text-gray-500 truncate max-w-[200px]">{campaign.campaign_id}</p>
+                      <Link 
+                        href={`/analytics/campaigns/${encodeURIComponent(campaign.campaign_id)}`}
+                        className="group"
+                      >
+                        <p className="font-medium text-gray-900 group-hover:text-emerald-600 transition-colors">
+                          {campaign.campaign_name}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{campaign.campaign_id}</p>
+                      </Link>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PLATFORM_COLORS[campaign.platform]?.badge || "bg-gray-100 text-gray-700"}`}>

@@ -1,11 +1,29 @@
 from datetime import date
 from typing import Tuple, Optional, List
+from collections import defaultdict
 
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 
 from app.models.ad_spend import AdSpend
 from app.models.order import Order
+
+# Platform display names
+PLATFORM_LABELS = {
+    "facebook": "Facebook Ads",
+    "google_ads": "Google Ads",
+    "tiktok": "TikTok Ads",
+    "snapchat": "Snapchat Ads",
+    "pinterest": "Pinterest",
+    "linkedin": "LinkedIn Ads",
+    "shopify": "Shopify",
+    "ga4": "GA4",
+}
+
+
+def get_platform_label(platform: str) -> str:
+    """Get display label for a platform."""
+    return PLATFORM_LABELS.get(platform, platform.replace("_", " ").title())
 
 
 def get_summary(
@@ -342,15 +360,428 @@ def get_top_performers(
     
     rows = query.limit(limit).all()
     
-    return [
-        {
+    results = []
+    for i, r in enumerate(rows):
+        spend = float(r.spend)
+        clicks = int(r.clicks)
+        conversions = int(r.conversions or 0)
+        
+        results.append({
             "rank": i + 1,
             "campaign_id": r.external_campaign_id,
             "campaign_name": r.campaign_name or "Untitled Campaign",
             "platform": r.platform,
+            "platform_label": get_platform_label(r.platform),
+            "spend": spend,
+            "clicks": clicks,
+            "conversions": conversions,
+            "cpc": round(spend / clicks, 2) if clicks > 0 else 0,
+            "cpa": round(spend / conversions, 2) if conversions > 0 else 0,
+        })
+    
+    return results
+
+
+def get_timeseries(
+    db: Session,
+    account_id: str,
+    date_from: date,
+    date_to: date,
+    platform: Optional[str] = None,
+    group_by_channel: bool = False,
+    metrics: List[str] = ["spend", "revenue", "roas"],
+):
+    """
+    Get timeseries data with optional channel breakdown.
+    
+    Returns aggregated daily metrics, optionally grouped by platform.
+    """
+    # Get daily ad spend data
+    spend_q = db.query(
+        AdSpend.date,
+        AdSpend.platform,
+        func.sum(AdSpend.cost).label("spend"),
+        func.sum(AdSpend.clicks).label("clicks"),
+        func.sum(AdSpend.impressions).label("impressions"),
+        func.sum(AdSpend.conversions).label("conversions"),
+    ).filter(
+        AdSpend.account_id == account_id,
+        AdSpend.date.between(date_from, date_to)
+    )
+    
+    if platform:
+        spend_q = spend_q.filter(AdSpend.platform == platform)
+    
+    spend_q = spend_q.group_by(AdSpend.date, AdSpend.platform).order_by(AdSpend.date)
+    spend_rows = spend_q.all()
+    
+    # Get daily revenue data
+    revenue_q = db.query(
+        func.date(Order.date_time).label("date"),
+        func.sum(Order.total_amount).label("revenue"),
+        func.count(Order.id).label("orders"),
+    ).filter(
+        Order.account_id == account_id,
+        Order.date_time.between(date_from, date_to)
+    ).group_by(func.date(Order.date_time))
+    revenue_rows = revenue_q.all()
+    
+    # Build revenue lookup by date
+    revenue_by_date = {
+        str(r.date): {"revenue": float(r.revenue), "orders": int(r.orders)}
+        for r in revenue_rows
+    }
+    
+    # Aggregate data
+    if group_by_channel:
+        # Group by platform
+        by_channel: dict[str, dict[str, dict]] = defaultdict(dict)
+        
+        for r in spend_rows:
+            date_str = str(r.date)
+            platform_key = r.platform
+            
+            rev_data = revenue_by_date.get(date_str, {"revenue": 0, "orders": 0})
+            spend = float(r.spend)
+            revenue = rev_data["revenue"]
+            
+            data_point = {"date": date_str}
+            if "spend" in metrics:
+                data_point["spend"] = spend
+            if "revenue" in metrics:
+                data_point["revenue"] = revenue
+            if "roas" in metrics:
+                data_point["roas"] = round(revenue / spend, 2) if spend > 0 else 0
+            if "clicks" in metrics:
+                data_point["clicks"] = int(r.clicks)
+            if "impressions" in metrics:
+                data_point["impressions"] = int(r.impressions)
+            if "conversions" in metrics:
+                data_point["conversions"] = int(r.conversions or 0)
+            if "orders" in metrics:
+                data_point["orders"] = rev_data["orders"]
+            
+            by_channel[platform_key][date_str] = data_point
+        
+        # Convert to list format
+        channel_data = {
+            p: list(dates.values())
+            for p, dates in by_channel.items()
+        }
+        
+        # Also compute aggregate timeseries
+        agg_by_date: dict[str, dict] = defaultdict(lambda: {
+            "spend": 0, "revenue": 0, "clicks": 0, "impressions": 0, "conversions": 0, "orders": 0
+        })
+        
+        for r in spend_rows:
+            date_str = str(r.date)
+            agg_by_date[date_str]["spend"] += float(r.spend)
+            agg_by_date[date_str]["clicks"] += int(r.clicks)
+            agg_by_date[date_str]["impressions"] += int(r.impressions)
+            agg_by_date[date_str]["conversions"] += int(r.conversions or 0)
+        
+        for date_str, rev_data in revenue_by_date.items():
+            agg_by_date[date_str]["revenue"] += rev_data["revenue"]
+            agg_by_date[date_str]["orders"] += rev_data["orders"]
+        
+        aggregate = []
+        for date_str in sorted(agg_by_date.keys()):
+            d = agg_by_date[date_str]
+            data_point = {"date": date_str}
+            if "spend" in metrics:
+                data_point["spend"] = d["spend"]
+            if "revenue" in metrics:
+                data_point["revenue"] = d["revenue"]
+            if "roas" in metrics:
+                data_point["roas"] = round(d["revenue"] / d["spend"], 2) if d["spend"] > 0 else 0
+            if "clicks" in metrics:
+                data_point["clicks"] = d["clicks"]
+            if "impressions" in metrics:
+                data_point["impressions"] = d["impressions"]
+            if "conversions" in metrics:
+                data_point["conversions"] = d["conversions"]
+            if "orders" in metrics:
+                data_point["orders"] = d["orders"]
+            aggregate.append(data_point)
+        
+        return {"data": aggregate, "by_channel": channel_data}
+    
+    else:
+        # Simple aggregate
+        agg_by_date: dict[str, dict] = defaultdict(lambda: {
+            "spend": 0, "clicks": 0, "impressions": 0, "conversions": 0
+        })
+        
+        for r in spend_rows:
+            date_str = str(r.date)
+            agg_by_date[date_str]["spend"] += float(r.spend)
+            agg_by_date[date_str]["clicks"] += int(r.clicks)
+            agg_by_date[date_str]["impressions"] += int(r.impressions)
+            agg_by_date[date_str]["conversions"] += int(r.conversions or 0)
+        
+        result = []
+        for date_str in sorted(agg_by_date.keys()):
+            d = agg_by_date[date_str]
+            rev_data = revenue_by_date.get(date_str, {"revenue": 0, "orders": 0})
+            
+            data_point = {"date": date_str}
+            if "spend" in metrics:
+                data_point["spend"] = d["spend"]
+            if "revenue" in metrics:
+                data_point["revenue"] = rev_data["revenue"]
+            if "roas" in metrics:
+                data_point["roas"] = round(rev_data["revenue"] / d["spend"], 2) if d["spend"] > 0 else 0
+            if "clicks" in metrics:
+                data_point["clicks"] = d["clicks"]
+            if "impressions" in metrics:
+                data_point["impressions"] = d["impressions"]
+            if "conversions" in metrics:
+                data_point["conversions"] = d["conversions"]
+            if "orders" in metrics:
+                data_point["orders"] = rev_data["orders"]
+            result.append(data_point)
+        
+        return {"data": result, "by_channel": None}
+
+
+def get_channel_breakdown(
+    db: Session,
+    account_id: str,
+    date_from: date,
+    date_to: date,
+):
+    """
+    Get comprehensive metrics breakdown by channel.
+    
+    Includes spend, revenue attribution, and computed metrics.
+    """
+    # Get spend by platform
+    spend_rows = (
+        db.query(
+            AdSpend.platform,
+            func.sum(AdSpend.cost).label("spend"),
+            func.sum(AdSpend.impressions).label("impressions"),
+            func.sum(AdSpend.clicks).label("clicks"),
+            func.sum(AdSpend.conversions).label("conversions"),
+        )
+        .filter(AdSpend.account_id == account_id, AdSpend.date.between(date_from, date_to))
+        .group_by(AdSpend.platform)
+        .all()
+    )
+    
+    # Get orders by utm_source for attribution
+    orders_by_source = (
+        db.query(
+            Order.utm_source,
+            func.sum(Order.total_amount).label("revenue"),
+            func.count(Order.id).label("orders"),
+        )
+        .filter(Order.account_id == account_id, Order.date_time.between(date_from, date_to))
+        .group_by(Order.utm_source)
+        .all()
+    )
+    
+    # Map utm_source to platform
+    source_to_platform = {
+        "facebook": "facebook",
+        "fb": "facebook",
+        "meta": "facebook",
+        "google": "google_ads",
+        "google_ads": "google_ads",
+        "adwords": "google_ads",
+        "tiktok": "tiktok",
+        "shopify": "shopify",
+        "direct": "direct",
+        "organic": "organic",
+    }
+    
+    revenue_by_platform: dict[str, dict] = defaultdict(lambda: {"revenue": 0, "orders": 0})
+    for row in orders_by_source:
+        source = (row.utm_source or "direct").lower()
+        platform = source_to_platform.get(source, "other")
+        revenue_by_platform[platform]["revenue"] += float(row.revenue)
+        revenue_by_platform[platform]["orders"] += int(row.orders)
+    
+    # Calculate totals
+    total_spend = sum(float(r.spend) for r in spend_rows) or 1
+    total_revenue = sum(d["revenue"] for d in revenue_by_platform.values())
+    
+    # Build channel metrics
+    channels = []
+    for r in spend_rows:
+        platform = r.platform
+        spend = float(r.spend)
+        impressions = int(r.impressions)
+        clicks = int(r.clicks)
+        conversions = int(r.conversions or 0)
+        
+        rev_data = revenue_by_platform.get(platform, {"revenue": 0, "orders": 0})
+        revenue = rev_data["revenue"]
+        orders = rev_data["orders"]
+        
+        channels.append({
+            "platform": platform,
+            "platform_label": get_platform_label(platform),
+            "spend": spend,
+            "spend_percentage": round(spend / total_spend * 100, 1),
+            "revenue": revenue,
+            "roas": round(revenue / spend, 2) if spend > 0 else 0,
+            "impressions": impressions,
+            "clicks": clicks,
+            "conversions": conversions,
+            "orders": orders,
+            "ctr": round((clicks / impressions * 100) if impressions > 0 else 0, 2),
+            "cpc": round(spend / clicks if clicks > 0 else 0, 2),
+            "cpa": round(spend / conversions if conversions > 0 else 0, 2),
+        })
+    
+    # Sort by spend descending
+    channels.sort(key=lambda x: x["spend"], reverse=True)
+    
+    return {
+        "channels": channels,
+        "total_spend": total_spend,
+        "total_revenue": total_revenue,
+    }
+
+
+def get_campaign_detail(
+    db: Session,
+    account_id: str,
+    campaign_id: str,
+    date_from: date,
+    date_to: date,
+):
+    """
+    Get detailed metrics for a single campaign including daily breakdown.
+    """
+    # Get campaign summary
+    summary_row = (
+        db.query(
+            AdSpend.external_campaign_id,
+            AdSpend.campaign_name,
+            AdSpend.platform,
+            func.sum(AdSpend.cost).label("spend"),
+            func.sum(AdSpend.impressions).label("impressions"),
+            func.sum(AdSpend.clicks).label("clicks"),
+            func.sum(AdSpend.conversions).label("conversions"),
+        )
+        .filter(
+            AdSpend.account_id == account_id,
+            AdSpend.external_campaign_id == campaign_id,
+            AdSpend.date.between(date_from, date_to),
+        )
+        .group_by(AdSpend.external_campaign_id, AdSpend.campaign_name, AdSpend.platform)
+        .first()
+    )
+    
+    if not summary_row:
+        return None
+    
+    spend = float(summary_row.spend)
+    clicks = int(summary_row.clicks)
+    impressions = int(summary_row.impressions)
+    conversions = int(summary_row.conversions or 0)
+    
+    summary = {
+        "campaign_id": campaign_id,
+        "campaign_name": summary_row.campaign_name or "Untitled Campaign",
+        "platform": summary_row.platform,
+        "platform_label": get_platform_label(summary_row.platform),
+        "spend": spend,
+        "revenue": 0,  # TODO: Attribution
+        "roas": 0,
+        "impressions": impressions,
+        "clicks": clicks,
+        "conversions": conversions,
+        "ctr": round((clicks / impressions * 100) if impressions > 0 else 0, 2),
+        "cpc": round(spend / clicks if clicks > 0 else 0, 2),
+        "cpa": round(spend / conversions if conversions > 0 else 0, 2),
+        "status": "active",
+    }
+    
+    # Get daily breakdown
+    daily_rows = (
+        db.query(
+            AdSpend.date,
+            func.sum(AdSpend.cost).label("spend"),
+            func.sum(AdSpend.impressions).label("impressions"),
+            func.sum(AdSpend.clicks).label("clicks"),
+            func.sum(AdSpend.conversions).label("conversions"),
+        )
+        .filter(
+            AdSpend.account_id == account_id,
+            AdSpend.external_campaign_id == campaign_id,
+            AdSpend.date.between(date_from, date_to),
+        )
+        .group_by(AdSpend.date)
+        .order_by(AdSpend.date)
+        .all()
+    )
+    
+    daily = [
+        {
+            "date": str(r.date),
             "spend": float(r.spend),
+            "impressions": int(r.impressions),
             "clicks": int(r.clicks),
             "conversions": int(r.conversions or 0),
         }
-        for i, r in enumerate(rows)
+        for r in daily_rows
     ]
+    
+    return {
+        "campaign_id": campaign_id,
+        "campaign_name": summary_row.campaign_name or "Untitled Campaign",
+        "platform": summary_row.platform,
+        "summary": summary,
+        "daily": daily,
+    }
+
+
+def get_orders_summary(
+    db: Session,
+    account_id: str,
+    date_from: date,
+    date_to: date,
+):
+    """
+    Get orders summary with attribution breakdown.
+    """
+    # Overall stats
+    total_row = (
+        db.query(
+            func.count(Order.id).label("total_orders"),
+            func.sum(Order.total_amount).label("total_revenue"),
+        )
+        .filter(Order.account_id == account_id, Order.date_time.between(date_from, date_to))
+        .first()
+    )
+    
+    total_orders = int(total_row.total_orders) if total_row.total_orders else 0
+    total_revenue = float(total_row.total_revenue) if total_row.total_revenue else 0
+    aov = round(total_revenue / total_orders, 2) if total_orders > 0 else 0
+    
+    # By source
+    source_rows = (
+        db.query(
+            Order.utm_source,
+            func.count(Order.id).label("orders"),
+            func.sum(Order.total_amount).label("revenue"),
+        )
+        .filter(Order.account_id == account_id, Order.date_time.between(date_from, date_to))
+        .group_by(Order.utm_source)
+        .all()
+    )
+    
+    orders_by_source = {(r.utm_source or "direct"): int(r.orders) for r in source_rows}
+    revenue_by_source = {(r.utm_source or "direct"): float(r.revenue) for r in source_rows}
+    
+    return {
+        "total_orders": total_orders,
+        "total_revenue": total_revenue,
+        "aov": aov,
+        "orders_by_source": orders_by_source,
+        "revenue_by_source": revenue_by_source,
+    }

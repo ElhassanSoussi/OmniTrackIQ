@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   CampaignsTable,
+  ChannelTable,
   DashboardSection,
   DateRangeToggle,
   DateRangeValue,
@@ -15,7 +16,7 @@ import { OnboardingChecklist } from "@/components/ui/onboarding-checklist";
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { MetricsDailyPoint, MetricsSummary, useMetrics } from "@/hooks/useMetrics";
+import { MetricsDailyPoint, MetricsSummary, useMetrics, useChannelBreakdown } from "@/hooks/useMetrics";
 import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
 import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
 import { useOnboarding } from "@/hooks/useOnboarding";
@@ -23,11 +24,21 @@ import { useSampleDataStats, useGenerateSampleData, useDeleteSampleData } from "
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
 
+const CHANNEL_OPTIONS = [
+  { value: "", label: "All channels" },
+  { value: "facebook", label: "Facebook Ads" },
+  { value: "google_ads", label: "Google Ads" },
+  { value: "tiktok", label: "TikTok Ads" },
+  { value: "shopify", label: "Shopify" },
+];
+
 export default function DashboardPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
+  const [channelFilter, setChannelFilter] = useState<string>("");
   const { from, to } = getDateRange(range);
 
-  const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to);
+  const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to, channelFilter || undefined);
+  const { data: channelData } = useChannelBreakdown(from, to);
   const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
   const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
   const { steps: onboardingSteps, isComplete: onboardingComplete } = useOnboarding();
@@ -42,16 +53,22 @@ export default function DashboardPage() {
         { label: "Ad Spend", value: "$32,400", subtext: "Across channels", trend: "+6% vs last period", tone: "negative" },
         { label: "ROAS", value: "3.8x", subtext: "Target 3.0x", trend: "+0.4x vs last period", tone: "positive" },
         { label: "Orders", value: "2,340", subtext: "Avg $53 AOV", trend: "+12% vs last period", tone: "positive" },
+        { label: "CPA", value: "$27.40", subtext: "Target $30", trend: "-8% vs last period", tone: "positive" },
+        { label: "AOV", value: "$53.08", subtext: "Avg order value", trend: "+5% vs last period", tone: "positive" },
       ];
     }
 
     const data: MetricsSummary = summary;
+    const roasTone = data.roas >= 3 ? "positive" : data.roas >= 2 ? "neutral" : "negative";
+    const cpaTone = data.cpa <= 30 ? "positive" : data.cpa <= 50 ? "neutral" : "negative";
     
     return [
       { label: "Revenue", value: formatCurrency(data.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
       { label: "Ad Spend", value: formatCurrency(data.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
-      { label: "ROAS", value: `${data.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: "neutral" },
-      { label: "Orders", value: formatNumber(data.orders), subtext: "Orders in range", trend: "Live", tone: "positive" },
+      { label: "ROAS", value: `${data.roas.toFixed(2)}x`, subtext: "Target 3.0x", trend: "Live", tone: roasTone },
+      { label: "Orders", value: formatNumber(data.orders), subtext: `AOV ${formatCurrency(data.aov)}`, trend: "Live", tone: "positive" },
+      { label: "CPA", value: formatCurrency(data.cpa), subtext: "Cost per acquisition", trend: "Live", tone: cpaTone },
+      { label: "Profit", value: formatCurrency(data.profit), subtext: "Revenue - Spend", trend: "Live", tone: data.profit > 0 ? "positive" : "negative" },
     ];
   }, [summary]);
 
@@ -60,10 +77,25 @@ export default function DashboardPage() {
       return (summary as MetricsSummary).daily!.map((d: MetricsDailyPoint) => ({
         label: d.date,
         spend: Number(d.spend || 0),
+        revenue: Number(d.revenue || 0),
       }));
     }
     return undefined;
   }, [summary]);
+
+  // Channel performance data for table
+  const channelPerformance = useMemo(() => {
+    if (!channelData?.channels?.length) return null;
+    return channelData.channels.map((c) => ({
+      platform: c.platform,
+      platform_label: c.platform_label,
+      spend: c.spend,
+      revenue: c.revenue,
+      roas: c.roas,
+      orders: c.orders,
+      cpc: c.cpc,
+    }));
+  }, [channelData]);
 
   const topCampaigns: CampaignRow[] = useMemo(() => {
     if (!campaignsData || !Array.isArray(campaignsData) || campaignsData.length === 0) {
@@ -105,9 +137,9 @@ export default function DashboardPage() {
       ? Array.isArray(ordersData[1])
         ? ordersData[1]
         : ordersData
-      : (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.items ||
-        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.orders ||
-        (ordersData as Exclude<OrdersResponse, OrderRecord[] | [unknown, OrderRecord[]]>)?.results ||
+      : (ordersData as Record<string, unknown>)?.items ||
+        (ordersData as Record<string, unknown>)?.orders ||
+        (ordersData as Record<string, unknown>)?.results ||
         []) as OrderRecord[];
 
     if (!rawOrders.length) return [];
@@ -139,7 +171,21 @@ export default function DashboardPage() {
       <DashboardSection
         title="Performance overview"
         description="Unified view of revenue, spend, and ROAS across every channel."
-        actions={<DateRangeToggle value={range} onChange={setRange} />}
+        actions={
+          <div className="flex items-center gap-3">
+            <select
+              value={channelFilter}
+              onChange={(e) => setChannelFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              aria-label="Filter by channel"
+            >
+              {CHANNEL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <DateRangeToggle value={range} onChange={setRange} />
+          </div>
+        }
       >
         <div className="flex flex-col gap-6">
           {hasNoLiveData && (
@@ -220,11 +266,13 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
             <SummaryChart data={chartData} />
-            <div className="grid gap-4">
-              <InsightCard title="Budget shift" description="Shift +10% to TikTok Prospecting and +5% to Google Brand for efficient growth." badge="Recommendation" />
-              <InsightCard title="Alerting" description="CPA drift detected on FB - Retargeting. Alert sent to Slack #growth." badge="Alert" />
-              <InsightCard title="Attribution" description="Shopify and GA4 aligned at 98% for last 7 days; variance within tolerance." badge="Data quality" />
-            </div>
+            <ChannelTable channels={channelPerformance ?? undefined} />
+          </div>
+
+          <div className="grid gap-4">
+            <InsightCard title="Budget shift" description="Shift +10% to TikTok Prospecting and +5% to Google Brand for efficient growth." badge="Recommendation" />
+            <InsightCard title="Alerting" description="CPA drift detected on FB - Retargeting. Alert sent to Slack #growth." badge="Alert" />
+            <InsightCard title="Attribution" description="Shopify and GA4 aligned at 98% for last 7 days; variance within tolerance." badge="Data quality" />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
