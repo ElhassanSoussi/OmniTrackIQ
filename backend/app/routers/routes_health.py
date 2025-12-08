@@ -67,6 +67,8 @@ def status(db: Session = Depends(get_db)):
     Detailed status page with version, uptime, and integration status.
     Useful for debugging and monitoring dashboards.
     """
+    from app.services.cache_service import cache
+    
     now = datetime.now(timezone.utc)
     uptime_seconds = (now - APP_START_TIME).total_seconds()
     
@@ -76,6 +78,10 @@ def status(db: Session = Depends(get_db)):
         db.execute(text("SELECT 1"))
     except Exception:
         db_status = "unhealthy"
+    
+    # Check cache
+    cache_stats = cache.get_stats()
+    cache_status = "healthy" if cache_stats.get("enabled") else "disabled"
     
     # Check integrations configuration
     integrations = [
@@ -105,9 +111,11 @@ def status(db: Session = Depends(get_db)):
         "timestamp": now.isoformat(),
         "checks": {
             "database": db_status,
+            "cache": cache_status,
             "integrations": f"{configured_integrations}/{len(integrations)} configured",
             "social_auth": f"{configured_social}/{len(social_auth)} configured",
         },
+        "cache": cache_stats,
         "integrations": integrations,
         "social_auth": social_auth,
     }
