@@ -12,6 +12,7 @@ const links = [
   { href: "/analytics/attribution", label: "Attribution" },
   { href: "/analytics/cohorts", label: "Cohorts" },
   { href: "/analytics/funnel", label: "Funnel" },
+  { href: "/analytics/anomalies", label: "Anomalies" },
   { href: "/analytics/reports", label: "Reports" },
   { href: "/integrations", label: "Integrations" },
   { href: "/billing", label: "Billing" },

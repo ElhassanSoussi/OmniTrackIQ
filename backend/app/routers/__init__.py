@@ -1,5 +1,6 @@
 """API routers package."""
 from app.routers import (
+    routes_anomaly,
     routes_auth,
     routes_billing,
     routes_custom_reports,
@@ -15,6 +16,7 @@ from app.routers import (
 )
 
 __all__ = [
+    "routes_anomaly",
     "routes_auth",
     "routes_billing",
     "routes_custom_reports",
