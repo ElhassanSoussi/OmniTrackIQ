@@ -1,6 +1,6 @@
 """Add scheduled reports table
 
-Revision ID: 0004
+Revision ID: 0004_scheduled_reports
 Revises: 0003_saved_views
 Create Date: 2025-12-07
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0004'
+revision: str = '0004_scheduled_reports'
 down_revision: Union[str, None] = '0003_saved_views'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
