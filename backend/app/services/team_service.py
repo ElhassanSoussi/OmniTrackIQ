@@ -1,6 +1,7 @@
 """
 Team management service.
 """
+import logging
 import secrets
 from datetime import datetime, timedelta
 from typing import List, Optional
@@ -14,6 +15,9 @@ from app.models.team_invite import TeamInvite, InviteStatus
 from app.security.password import hash_password
 from app.security.jwt import create_access_token
 from app.security.rbac import get_plan_limit
+from app.services.notification_service import send_team_invite_notification
+
+logger = logging.getLogger(__name__)
 
 
 def get_team_members(db: Session, account_id: str) -> List[User]:
@@ -166,7 +170,19 @@ def create_invite(
     db.commit()
     db.refresh(invite)
     
-    # TODO: Send invite email
+    # Send invite email
+    try:
+        send_team_invite_notification(
+            db=db,
+            inviter_name=invited_by.name,
+            inviter_email=invited_by.email,
+            invitee_email=email,
+            account_name=account.name if account else "OmniTrackIQ",
+            invite_token=token,
+            role=role.value
+        )
+    except Exception as e:
+        logger.warning(f"Failed to send invite email to {email}: {e}")
     
     return invite
 

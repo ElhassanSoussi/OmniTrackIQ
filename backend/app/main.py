@@ -10,7 +10,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
-from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports, routes_funnel, routes_anomaly
+from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports, routes_funnel, routes_anomaly, routes_notifications
 from app.routers import routes_websocket
 from app.security.rate_limit import limiter
 
@@ -154,6 +154,10 @@ For API support, contact: api-support@omnitrackiq.com
             "name": "WebSocket",
             "description": "Real-time updates via WebSocket connections",
         },
+        {
+            "name": "Notifications",
+            "description": "Notification preferences and in-app alerts",
+        },
     ],
     docs_url="/docs",
     redoc_url="/redoc",
@@ -246,6 +250,7 @@ app.include_router(routes_jobs.router, prefix="/jobs", tags=["Jobs"])
 app.include_router(routes_custom_reports.router, prefix="/custom-reports", tags=["Custom Reports"])
 app.include_router(routes_funnel.router, prefix="/funnel", tags=["Funnel"])
 app.include_router(routes_anomaly.router, prefix="/anomalies", tags=["Anomalies"])
+app.include_router(routes_notifications.router, prefix="/notifications", tags=["Notifications"])
 app.include_router(routes_websocket.router, tags=["WebSocket"])
 
 

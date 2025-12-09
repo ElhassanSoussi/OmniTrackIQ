@@ -29,3 +29,14 @@ class User(Base):
     last_login_at = Column(DateTime(timezone=True), nullable=True)
 
     account = relationship("Account", backref="users")
+    notification_preferences = relationship(
+        "NotificationPreference",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+    notification_logs = relationship(
+        "NotificationLog",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )

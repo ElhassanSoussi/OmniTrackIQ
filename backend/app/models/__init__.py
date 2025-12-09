@@ -10,6 +10,12 @@ from app.models.team_invite import TeamInvite, InviteStatus
 from app.models.saved_view import SavedView, ViewType
 from app.models.scheduled_report import ScheduledReport, ReportFrequency, ReportType
 from app.models.custom_report import CustomReport, VisualizationType
+from app.models.notification_preference import (
+    NotificationPreference,
+    NotificationLog,
+    NotificationChannel,
+    AlertType,
+)
 
 __all__ = [
     "User",
@@ -33,4 +39,8 @@ __all__ = [
     "ReportType",
     "CustomReport",
     "VisualizationType",
+    "NotificationPreference",
+    "NotificationLog",
+    "NotificationChannel",
+    "AlertType",
 ]
