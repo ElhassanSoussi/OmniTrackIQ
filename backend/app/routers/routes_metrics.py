@@ -102,6 +102,25 @@ def channels(
     return get_channel_breakdown(db, user.account_id, from_date, to_date)
 
 
+# Alias endpoint for /metrics/by-channel (per original spec)
+@router.get("/by-channel", response_model=ChannelBreakdownResponse)
+def by_channel(
+    from_date: Optional[date] = Query(None, alias="from"),
+    to_date: Optional[date] = Query(None, alias="to"),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_account_user),
+):
+    """
+    Get metrics breakdown by channel/platform (alias for /channels).
+    
+    Returns spend, revenue, ROAS, and engagement metrics per channel.
+    """
+    if not from_date:
+        to_date = date.today()
+        from_date = to_date - timedelta(days=30)
+    return get_channel_breakdown(db, user.account_id, from_date, to_date)
+
+
 @router.get("/campaigns", response_model=List[CampaignPerformance])
 def campaigns(
     from_date: Optional[date] = Query(None, alias="from"),
@@ -114,6 +133,28 @@ def campaigns(
 ):
     """
     Get campaign performance data.
+    
+    Returns list of campaigns with metrics, filterable by platform.
+    """
+    if not from_date:
+        to_date = date.today()
+        from_date = to_date - timedelta(days=7)
+    return get_campaigns(db, user.account_id, from_date, to_date, platform, sort_by, limit)
+
+
+# Alias endpoint for /metrics/by-campaign (per original spec)
+@router.get("/by-campaign", response_model=List[CampaignPerformance])
+def by_campaign(
+    from_date: Optional[date] = Query(None, alias="from"),
+    to_date: Optional[date] = Query(None, alias="to"),
+    platform: Optional[str] = Query(None, description="Filter by platform"),
+    sort_by: Optional[str] = Query("spend", description="Sort by: spend, roas, clicks, conversions"),
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_account_user),
+):
+    """
+    Get campaign performance data (alias for /campaigns).
     
     Returns list of campaigns with metrics, filterable by platform.
     """

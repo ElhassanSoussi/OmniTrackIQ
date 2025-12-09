@@ -194,6 +194,22 @@ class TestMetricsChannels:
             assert "platform_label" in channel
             assert "spend" in channel
             assert "spend_percentage" in channel
+            
+    def test_by_channel_alias(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test /by-channel alias endpoint works same as /channels."""
+        response = client.get(
+            "/metrics/by-channel",
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "channels" in data
+        assert "total_spend" in data
 
 
 class TestMetricsCampaigns:
@@ -305,6 +321,21 @@ class TestMetricsCampaigns:
             headers=auth_headers,
         )
         assert response.status_code == 404
+        
+    def test_by_campaign_alias(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test /by-campaign alias endpoint works same as /campaigns."""
+        response = client.get(
+            "/metrics/by-campaign",
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
 
 
 class TestMetricsOrders:
