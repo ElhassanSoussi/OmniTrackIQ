@@ -1,48 +1,83 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://omnitrackiq.com"),
+  title: {
+    default: "OmniTrackIQ - Marketing Analytics & Attribution for E-commerce",
+    template: "%s | OmniTrackIQ",
+  },
+  description: "Unified marketing analytics platform for e-commerce brands. Track ROAS, attribution, and ad performance across Facebook, Google, TikTok, and Shopify in one dashboard.",
+  keywords: ["marketing analytics", "ROAS tracking", "e-commerce analytics", "attribution", "ad tracking", "Facebook ads", "Google ads", "TikTok ads", "Shopify analytics"],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "OmniTrackIQ",
+    title: "OmniTrackIQ - Marketing Analytics & Attribution for E-commerce",
+    description: "Unified marketing analytics platform for e-commerce brands. Track ROAS, attribution, and ad performance in one dashboard.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OmniTrackIQ - Marketing Analytics & Attribution for E-commerce",
+    description: "Unified marketing analytics platform for e-commerce brands.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const navLinks = [
+  { href: "/product", label: "Product" },
   { href: "/solutions", label: "Solutions" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/platforms", label: "Integrations" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/resources", label: "Resources" },
-  { href: "/about", label: "About" },
 ];
 
 const footerLinks = {
   product: [
-    { href: "/solutions", label: "Solutions" },
-    { href: "/pricing", label: "Pricing" },
+    { href: "/product", label: "Features" },
     { href: "/platforms", label: "Integrations" },
-    { href: "/changelog", label: "Changelog" },
+    { href: "/pricing", label: "Pricing" },
+    { href: "/security", label: "Security" },
   ],
-  company: [
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
-    { href: "/careers", label: "Careers" },
-    { href: "/blog", label: "Blog" },
+  solutions: [
+    { href: "/solutions", label: "For E-commerce Brands" },
+    { href: "/solutions#agencies", label: "For Agencies" },
+    { href: "/solutions#growth-teams", label: "For Growth Teams" },
   ],
   resources: [
-    { href: "/docs", label: "Documentation" },
-    { href: "/help", label: "Help Center" },
+    { href: "/resources/blog", label: "Blog" },
+    { href: "/resources/case-studies", label: "Case Studies" },
+    { href: "/resources", label: "Guides" },
+    { href: "/contact", label: "Contact Sales" },
+  ],
+  company: [
+    { href: "/about", label: "About Us" },
+    { href: "/contact", label: "Contact" },
+    { href: "/security", label: "Security" },
     { href: "/status", label: "Status" },
-    { href: "/api", label: "API" },
   ],
   legal: [
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
-    { href: "/security", label: "Security" },
+    { href: "/privacy", label: "Privacy Policy" },
+    { href: "/terms", label: "Terms of Service" },
   ],
 };
 
 function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-10">
-          <Link href="/" className="text-xl font-bold text-gray-900">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
+            <svg className="h-8 w-8 text-emerald-600" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="currentColor" />
+              <path d="M8 16L14 22L24 10" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             OmniTrackIQ
           </Link>
-          <div className="hidden items-center gap-8 md:flex">
+          <div className="hidden items-center gap-8 lg:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -54,12 +89,18 @@ function Header() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
+            className="hidden text-sm font-medium text-gray-600 transition hover:text-gray-900 sm:block"
           >
             Sign in
+          </Link>
+          <Link
+            href="/contact"
+            className="hidden rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:block"
+          >
+            Book a demo
           </Link>
           <Link
             href="/signup"

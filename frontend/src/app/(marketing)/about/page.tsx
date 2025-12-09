@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Section, SectionHeading } from "@/components/marketing";
+
+export const metadata: Metadata = {
+  title: "About - OmniTrackIQ",
+  description: "Learn about OmniTrackIQ, the marketing analytics platform built for e-commerce teams who need trustworthy, actionable data.",
+  openGraph: {
+    title: "About - OmniTrackIQ",
+    description: "The marketing analytics platform built for e-commerce teams who need trustworthy data.",
+  },
+};
 
 const values = [
   {

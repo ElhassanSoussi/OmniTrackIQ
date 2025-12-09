@@ -1,5 +1,37 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Section, SectionHeading } from "@/components/marketing";
+
+export const metadata: Metadata = {
+  title: "Resources - Guides, Blog, and Case Studies",
+  description: "Learn about marketing analytics with guides, tutorials, blog posts, and customer case studies from OmniTrackIQ.",
+};
+
+// Resource hub categories
+const resourceCategories = [
+  {
+    title: "Blog",
+    description: "Marketing analytics insights, attribution strategies, and e-commerce growth tips.",
+    href: "/resources/blog",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+      </svg>
+    ),
+    count: "6 articles",
+  },
+  {
+    title: "Case Studies",
+    description: "See how e-commerce brands use OmniTrackIQ to improve their marketing performance.",
+    href: "/resources/case-studies",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+      </svg>
+    ),
+    count: "4 stories",
+  },
+];
 
 const resources = [
   {
@@ -98,6 +130,29 @@ export default function ResourcesPage() {
           subtitle="Guides, tutorials, and best practices to help you get the most out of your marketing analytics."
           align="center"
         />
+
+        {/* Resource Hub Cards */}
+        <div className="mx-auto mt-12 grid max-w-2xl gap-6 md:grid-cols-2">
+          {resourceCategories.map((category) => (
+            <Link
+              key={category.title}
+              href={category.href}
+              className="group rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition hover:border-emerald-200 hover:shadow-md"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-100">
+                {category.icon}
+              </div>
+              <h3 className="mt-4 text-xl font-semibold text-gray-900">{category.title}</h3>
+              <p className="mt-2 text-gray-600">{category.description}</p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-sm text-gray-500">{category.count}</span>
+                <span className="text-sm font-medium text-emerald-600 group-hover:underline">
+                  Browse →
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </Section>
 
       {resources.map((section) => (

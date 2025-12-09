@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Section, SectionHeading, FeatureCard } from "@/components/marketing";
+
+export const metadata: Metadata = {
+  title: "Solutions - OmniTrackIQ",
+  description: "Marketing analytics solutions for DTC brands, e-commerce agencies, and growth teams. Track ROAS, attribution, and performance across all channels.",
+  openGraph: {
+    title: "Solutions - OmniTrackIQ",
+    description: "Marketing analytics solutions for DTC brands, e-commerce agencies, and growth teams.",
+  },
+};
 
 const useCases = [
   {

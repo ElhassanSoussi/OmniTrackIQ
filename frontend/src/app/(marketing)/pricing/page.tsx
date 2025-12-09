@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Section, SectionHeading } from "@/components/marketing";
+
+export const metadata: Metadata = {
+  title: "Pricing - OmniTrackIQ",
+  description: "Simple, transparent pricing for marketing analytics. Start with a 14-day free trial. Plans for growing brands, scaling teams, and agencies.",
+  openGraph: {
+    title: "Pricing - OmniTrackIQ",
+    description: "Simple, transparent pricing for marketing analytics. Start with a 14-day free trial.",
+  },
+};
 
 const plans = [
   { 

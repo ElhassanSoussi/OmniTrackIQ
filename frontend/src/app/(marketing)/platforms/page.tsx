@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Section, SectionHeading } from "@/components/marketing";
+
+export const metadata: Metadata = {
+  title: "Integrations - Connect Your Marketing Stack",
+  description: "Connect Facebook Ads, Google Ads, TikTok Ads, Shopify, and GA4 to OmniTrackIQ. Native integrations that sync your marketing data in minutes.",
+};
 
 const integrations = [
   {

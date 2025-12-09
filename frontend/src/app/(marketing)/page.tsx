@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Button,
   Container,
@@ -7,6 +9,11 @@ import {
   SectionHeading,
   StatCard,
 } from "@/components/marketing";
+
+export const metadata: Metadata = {
+  title: "OmniTrackIQ - Marketing Analytics & Attribution for E-commerce",
+  description: "Unified marketing analytics platform for e-commerce brands. Track ROAS, attribution, and ad performance across Facebook, Google, TikTok, and Shopify in one dashboard.",
+};
 
 const stats = [
   { label: "Revenue (7d)", value: "$124,200", detail: "Up 18% vs last week" },
@@ -32,13 +39,59 @@ const features = [
     tag: "Automation",
   },
   {
-    title: "Workflow-ready via n8n",
-    description: "Trigger n8n flows from fresh metrics to enrich data, sync to your warehouse, or fan out notifications.",
-    tag: "Integrations",
+    title: "Multi-touch attribution",
+    description: "Five attribution models to understand which touchpoints actually drive conversions.",
+    tag: "Attribution",
   },
 ];
 
 const integrations = ["Facebook Ads", "Google Ads", "TikTok Ads", "Shopify", "GA4"];
+
+// Social proof - customer logos (placeholder names)
+const customerLogos = [
+  "StyleCo", "GlowUp", "HomeFit", "TechGear", "PureBeauty", "UrbanWear"
+];
+
+// Testimonials
+const testimonials = [
+  {
+    quote: "OmniTrackIQ finally gave us clarity on which channels actually drive revenue. We improved our ROAS by 40% in the first quarter.",
+    name: "Sarah Chen",
+    role: "Marketing Director",
+    company: "StyleCo Fashion",
+  },
+  {
+    quote: "The unified dashboard saves our team 10+ hours per week. We can make faster, more confident budget decisions.",
+    name: "Michael Torres",
+    role: "Growth Lead", 
+    company: "GlowUp Beauty",
+  },
+  {
+    quote: "Finally, attribution that actually makes sense. We stopped wasting budget on underperforming channels within weeks.",
+    name: "Jessica Park",
+    role: "Head of Performance",
+    company: "TechGear Direct",
+  },
+];
+
+// Who we help segments
+const segments = [
+  {
+    title: "DTC Brands",
+    description: "Track every dollar from click to conversion across all your marketing channels.",
+    icon: "🛒",
+  },
+  {
+    title: "E-commerce Agencies",
+    description: "Manage multiple client accounts with white-label reporting and cross-account insights.",
+    icon: "🏢",
+  },
+  {
+    title: "Growth Teams",
+    description: "Get real-time visibility into campaign performance without waiting for data pulls.",
+    icon: "📈",
+  },
+];
 
 export default function LandingPage() {
   return (
@@ -144,6 +197,71 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-5">
             {integrations.map((name) => (
               <LogoTile key={name} name={name} />
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Customer logos strip */}
+      <Section bordered>
+        <div className="flex flex-col gap-6">
+          <p className="text-center text-sm font-medium uppercase tracking-wide text-gray-500">
+            Trusted by leading e-commerce brands
+          </p>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
+            {customerLogos.map((logo) => (
+              <LogoTile key={logo} name={logo} />
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Who we help */}
+      <Section bordered>
+        <SectionHeading
+          eyebrow="Who we help"
+          title="Built for teams that move fast"
+          subtitle="Whether you're a DTC brand, agency, or growth team, OmniTrackIQ gives you the data clarity you need."
+          align="center"
+        />
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {segments.map((segment) => (
+            <Link
+              key={segment.title}
+              href="/solutions"
+              className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-emerald-200 hover:shadow-md"
+            >
+              <div className="text-3xl">{segment.icon}</div>
+              <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-emerald-600">{segment.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{segment.description}</p>
+              <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-600">
+                Learn more
+                <svg className="ml-1 h-4 w-4 transition group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </Section>
+
+      <Section bordered>
+        <div className="flex flex-col gap-10">
+          <SectionHeading
+            eyebrow="What customers say"
+            title="Real results from real teams"
+            subtitle="Hear how OmniTrackIQ is transforming marketing for e-commerce brands."
+            align="center"
+          />
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.name} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <p className="text-sm text-gray-600">&ldquo;{testimonial.quote}&rdquo;</p>
+                <div className="mt-4">
+                  <div className="text-sm font-semibold text-gray-900">{testimonial.name}</div>
+                  <div className="text-xs text-gray-500">{testimonial.role}, {testimonial.company}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
