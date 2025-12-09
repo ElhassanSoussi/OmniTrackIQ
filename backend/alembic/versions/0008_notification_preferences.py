@@ -1,7 +1,7 @@
 """Add notification preferences and logs tables
 
-Revision ID: 0008
-Revises: 0007
+Revision ID: 0008_notification_preferences
+Revises: 0007_enhance_subscriptions
 Create Date: 2024-12-08 12:00:00.000000
 
 """
@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = '0008'
-down_revision = '0007'
+revision = '0008_notification_preferences'
+down_revision = '0007_enhance_subscriptions'
 branch_labels = None
 depends_on = None
 

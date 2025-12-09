@@ -1,7 +1,7 @@
 """Add onboarding fields to accounts table
 
-Revision ID: 0009
-Revises: 0008
+Revision ID: 0009_onboarding_fields
+Revises: 0008_notification_preferences
 Create Date: 2024-12-08 14:00:00.000000
 
 """
@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = '0009'
-down_revision = '0008'
+revision = '0009_onboarding_fields'
+down_revision = '0008_notification_preferences'
 branch_labels = None
 depends_on = None
 
