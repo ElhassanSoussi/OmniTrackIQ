@@ -1,31 +1,243 @@
-## OmniTrackIQ Monorepo
+# OmniTrackIQ
 
-Stack: Next.js (App Router, TypeScript, Tailwind, React Query) frontend, FastAPI + SQLAlchemy/Alembic backend, PostgreSQL, n8n for ETL/alerts, and Stripe for billing.
+**Unified marketing analytics & attribution for e-commerce brands and agencies.**
 
-### Structure
-- `frontend/` — Next.js app (marketing, auth, dashboard).
-- `backend/` — FastAPI service (auth, metrics, integrations, billing).
-- `n8n-flows/` — Exported n8n workflow JSON files.
-- `.env.example` — Shared env template; copy to `.env` or per-app envs.
+OmniTrackIQ is a SaaS platform that connects all your marketing data—Facebook Ads, Google Ads, TikTok Ads, Shopify, and GA4—into a single dashboard. Stop juggling spreadsheets and ad platform UIs. Get real-time ROAS, unified attribution, and actionable insights to scale your marketing confidently.
 
-### Backend — local setup
-1) **Env vars:** From repo root run `cp .env.example backend/.env` and fill required values (`DATABASE_URL`, `JWT_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`). Provider OAuth keys are optional. Update `BACKEND_CORS_ORIGINS` if your frontend runs on a different domain/port.
-2) **Database:** Start Postgres (e.g., `postgresql://user:password@localhost:5432/omnitrackiq`). Ensure the same URL is in `backend/.env`.
-3) **Install:** `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
-4) **Migrate:** `alembic upgrade head` (uses `DATABASE_URL`).
-5) **Run API:** `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`. CORS allows `http://localhost:3000` by default.
+---
 
-### Backend — Render deployment
-- **Build command:** `pip install -r backend/requirements.txt && alembic upgrade head`
-- **Start command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+## ✨ Features
 
-### Frontend — local setup
-1) **Env vars:** In `frontend/.env.local` set `NEXT_PUBLIC_API_URL=http://localhost:8000`.
-2) **Install:** `cd frontend && npm install` (no lockfile present; npm assumed).
-3) **Run dev server:** `npm run dev` (Next.js on port 3000). For production: `npm run build` then `npm run start`; lint with `npm run lint`.
+### Dashboards & Analytics
+- **Overview Dashboard**: Real-time KPIs (revenue, ad spend, ROAS, orders, CAC) with date range filters
+- **Campaigns**: Drill-down by platform, campaign, ad set, and ad with performance metrics
+- **Orders**: Revenue attribution, order-level insights, and customer acquisition data
+- **Anomaly Detection**: Automatic alerts when metrics deviate from normal patterns
 
-### n8n flows — local setup
-1) **Run n8n (Docker example):** `docker run -it --rm -p 5678:5678 -v $(pwd)/n8n-data:/home/node/.n8n n8nio/n8n`. Point it to your Postgres if needed (set env vars like `DB_POSTGRESDB_HOST`, `DB_POSTGRESDB_DATABASE`, etc.).
-2) **Credentials:** In the n8n UI, configure Postgres credentials plus any platform OAuth keys (Stripe webhook secret, Facebook/Google Ads/TikTok/Shopify/GA4) matching `.env`.
-3) **Flows:** Import/export workflows via the n8n UI. Save exported JSON files under `n8n-flows/` (currently empty) so they stay versioned.
-4) **TODO:** Add a docker-compose snippet for n8n + Postgres and document required env vars for shared credentials.
+### Integrations
+- **Facebook Ads**: Campaign, ad set, and conversion data from Meta Ads Manager
+- **Google Ads**: Search, Shopping, and Display campaign metrics
+- **TikTok Ads**: Campaign performance and creative insights
+- **Shopify**: Real-time order sync, revenue tracking, and customer data
+- **Google Analytics 4**: Session data, event tracking, and behavior insights
+- **n8n Workflows**: Extensible automation for custom data pipelines
+
+### Billing & Subscriptions
+- **Stripe Integration**: Secure checkout, subscription management, and billing portal
+- **Plans**: Starter ($49/mo), Pro ($149/mo), Agency ($399/mo)
+- **Free Trial**: 14-day trial on all plans
+
+### Onboarding
+- **Guided Setup**: Step-by-step workspace creation, integration connection, and dashboard tour
+- **Checklist Banner**: Progress tracking until onboarding is complete
+
+### Multi-Tenancy & Security
+- **Workspace Isolation**: All data scoped by workspace (account)
+- **Role-Based Access**: Owner, Admin, Member roles (team invites supported)
+- **Secure Auth**: JWT-based authentication with bcrypt password hashing
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS, React Query |
+| **Backend** | FastAPI, SQLAlchemy, Alembic, PostgreSQL |
+| **Billing** | Stripe (Checkout, Subscriptions, Webhooks) |
+| **ETL/Automation** | n8n workflows |
+| **Deployment** | Render (frontend + backend), PostgreSQL on Render |
+
+---
+
+## 🏗 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        OmniTrackIQ                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐      REST API      ┌──────────────┐          │
+│  │   Next.js    │ ─────────────────► │   FastAPI    │          │
+│  │   Frontend   │                    │   Backend    │          │
+│  └──────────────┘                    └──────┬───────┘          │
+│         │                                   │                   │
+│         │                                   ▼                   │
+│         │                            ┌──────────────┐          │
+│         │                            │  PostgreSQL  │          │
+│         │                            │   Database   │          │
+│         │                            └──────────────┘          │
+│         │                                   ▲                   │
+│         │                                   │                   │
+│         │    ┌──────────────────────────────┤                   │
+│         │    │                              │                   │
+│         │    ▼                              │                   │
+│  ┌──────────────┐                    ┌──────────────┐          │
+│  │    Stripe    │                    │     n8n      │          │
+│  │   Payments   │                    │  Workflows   │          │
+│  └──────────────┘                    └──────────────┘          │
+│                                             │                   │
+│                                             ▼                   │
+│                                 ┌─────────────────────┐        │
+│                                 │   Ad Platforms      │        │
+│                                 │  (FB, Google, TikTok│        │
+│                                 │   Shopify, GA4)     │        │
+│                                 └─────────────────────┘        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Data Flow:**
+1. Users interact with the Next.js frontend
+2. Frontend calls FastAPI backend via REST API
+3. Backend stores all data in PostgreSQL, scoped by workspace
+4. n8n workflows sync data from ad platforms and Shopify
+5. Stripe handles billing and subscription webhooks
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js**: 20.x (see `frontend/.nvmrc`)
+- **Python**: 3.11+
+- **PostgreSQL**: 14+
+
+### Backend Setup
+
+```bash
+cd backend
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables
+cp .env.example .env
+# Edit .env with your DATABASE_URL, JWT_SECRET_KEY, Stripe keys, etc.
+
+# Run database migrations
+alembic upgrade head
+
+# Start development server
+uvicorn app.main:app --reload --port 8000
+```
+
+### Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Set environment variables
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+
+# Start development server
+npm run dev
+```
+
+The app will be available at `http://localhost:3000`.
+
+👉 **See [docs/SETUP.md](docs/SETUP.md) for complete setup instructions including environment variables and third-party integrations.**
+
+---
+
+## 📦 Deployment
+
+OmniTrackIQ is deployed on **Render** with:
+- **Frontend**: Static Site or Web Service (Node 20.x)
+- **Backend**: Web Service (Python 3.11)
+- **Database**: Render PostgreSQL
+
+### Quick Deploy
+
+1. Push to `main` branch
+2. Render auto-deploys both services
+3. Migrations run automatically via build command
+
+👉 **See [docs/SETUP.md](docs/SETUP.md) for detailed Render configuration.**
+
+---
+
+## 🔒 Security & Privacy
+
+- **Workspace Isolation**: All analytics, billing, and user data is scoped by workspace
+- **Authentication**: JWT tokens with 24-hour expiry, bcrypt password hashing
+- **Data in Transit**: TLS/HTTPS required in production
+- **Secrets Management**: All secrets via environment variables, never in repo
+- **Access Control**: Role-based permissions (Owner, Admin, Member)
+
+👉 **See [docs/SECURITY.md](docs/SECURITY.md) for security details.**
+
+---
+
+## 📋 Roadmap
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 1 | ✅ Complete | Deep analytics (overview, campaigns, orders, attribution) |
+| Phase 2 | ✅ Complete | Stripe billing (subscriptions, checkout, portal) |
+| Phase 3 | ✅ Complete | Guided onboarding flow |
+| Phase 4 | ✅ Complete | Professional marketing site |
+| Phase 5 | 🔜 Planned | Advanced attribution models, AI insights |
+
+👉 **See [docs/ROADMAP.md](docs/ROADMAP.md) for the full roadmap.**
+
+---
+
+## 📁 Repository Structure
+
+```
+omnitrackiq/
+├── frontend/           # Next.js 14 app (marketing, auth, dashboard)
+│   ├── src/
+│   │   ├── app/        # App Router pages
+│   │   ├── components/ # React components
+│   │   ├── contexts/   # React contexts (auth, theme)
+│   │   ├── hooks/      # Custom React hooks
+│   │   └── lib/        # Utilities, API client
+│   └── ...
+├── backend/            # FastAPI service
+│   ├── app/
+│   │   ├── routers/    # API route handlers
+│   │   ├── models/     # SQLAlchemy models
+│   │   ├── schemas/    # Pydantic schemas
+│   │   ├── services/   # Business logic
+│   │   └── security/   # Auth utilities
+│   ├── alembic/        # Database migrations
+│   └── ...
+├── n8n-flows/          # Exported n8n workflow JSON files
+├── docs/               # Documentation
+│   ├── SETUP.md        # Setup guide
+│   ├── ROADMAP.md      # Product roadmap
+│   └── SECURITY.md     # Security documentation
+└── README.md           # This file
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📧 Support
+
+- **Email**: support@omnitrackiq.com
+- **Documentation**: [docs.omnitrackiq.com](https://docs.omnitrackiq.com)
+
+---
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
