@@ -11,6 +11,8 @@ import {
   KPIGrid,
   OrdersTable,
   SummaryChart,
+  WidgetContainer,
+  DashboardToolbar,
 } from "@/components/dashboard";
 import { OnboardingChecklist } from "@/components/ui/onboarding-checklist";
 import { KPIItem } from "@/components/dashboard/kpi-grid";
@@ -21,6 +23,7 @@ import { CampaignMetrics, useCampaigns } from "@/hooks/useCampaigns";
 import { OrderRecord, OrdersResponse, useOrders } from "@/hooks/useOrders";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useSampleDataStats, useGenerateSampleData, useDeleteSampleData } from "@/hooks/useSampleData";
+import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
 
@@ -45,6 +48,20 @@ export default function DashboardPage() {
   const { data: sampleDataStats } = useSampleDataStats();
   const generateSampleData = useGenerateSampleData();
   const deleteSampleData = useDeleteSampleData();
+
+  // Dashboard customization
+  const {
+    widgets,
+    visibleWidgets,
+    isEditing,
+    setIsEditing,
+    moveWidget,
+    toggleWidget,
+    resizeWidget,
+    resetLayout,
+  } = useDashboardLayout();
+
+  const hiddenWidgets = widgets.filter((w) => !w.visible);
 
   const kpis: KPIItem[] = useMemo(() => {
     if (!summary) {
@@ -161,8 +178,11 @@ export default function DashboardPage() {
 
   const hasNoLiveData = summary ? (summary as MetricsSummary).revenue === 0 && (summary as MetricsSummary).spend === 0 && (summary as MetricsSummary).orders === 0 : false;
 
+  // Helper to get widget index in visible widgets
+  const getWidgetIndex = (widgetId: string) => visibleWidgets.findIndex((w) => w.id === widgetId);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Onboarding Checklist - shown until complete */}
       {!onboardingComplete && (
         <OnboardingChecklist steps={onboardingSteps} />
@@ -172,11 +192,11 @@ export default function DashboardPage() {
         title="Performance overview"
         description="Unified view of revenue, spend, and ROAS across every channel."
         actions={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <select
               value={channelFilter}
               onChange={(e) => setChannelFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className="rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               aria-label="Filter by channel"
             >
               {CHANNEL_OPTIONS.map((opt) => (
@@ -184,10 +204,29 @@ export default function DashboardPage() {
               ))}
             </select>
             <DateRangeToggle value={range} onChange={setRange} />
+            <DashboardToolbar
+              isEditing={isEditing}
+              onToggleEdit={() => setIsEditing(!isEditing)}
+              onReset={resetLayout}
+              hiddenWidgets={hiddenWidgets}
+              onShowWidget={toggleWidget}
+            />
           </div>
         }
       >
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
+          {/* Edit mode hint */}
+          {isEditing && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span><strong>Customization mode:</strong> Drag widgets to reorder, resize them, or hide ones you don&apos;t need. Click &quot;Done&quot; when finished.</span>
+              </div>
+            </div>
+          )}
+
           {hasNoLiveData && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -261,13 +300,48 @@ export default function DashboardPage() {
               Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
           ) : (
-            <KPIGrid items={kpis} />
+            visibleWidgets.find((w) => w.id === "kpis") && (
+              <WidgetContainer
+                widget={visibleWidgets.find((w) => w.id === "kpis")!}
+                isEditing={isEditing}
+                index={getWidgetIndex("kpis")}
+                onMove={moveWidget}
+                onResize={resizeWidget}
+                onToggle={toggleWidget}
+              >
+                <div className="p-4 sm:p-5">
+                  <KPIGrid items={kpis} />
+                </div>
+              </WidgetContainer>
+            )
           )}
 
-          <div className="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
-            <SummaryChart data={chartData} />
-            <ChannelTable channels={channelPerformance ?? undefined} />
-          </div>
+          {visibleWidgets.find((w) => w.id === "revenue-chart") && (
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.6fr,1fr]">
+              <WidgetContainer
+                widget={visibleWidgets.find((w) => w.id === "revenue-chart")!}
+                isEditing={isEditing}
+                index={getWidgetIndex("revenue-chart")}
+                onMove={moveWidget}
+                onResize={resizeWidget}
+                onToggle={toggleWidget}
+              >
+                <SummaryChart data={chartData} />
+              </WidgetContainer>
+              {visibleWidgets.find((w) => w.id === "channel-breakdown") && (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "channel-breakdown")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("channel-breakdown")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <ChannelTable channels={channelPerformance ?? undefined} />
+                </WidgetContainer>
+              )}
+            </div>
+          )}
 
           <div className="grid gap-4">
             <InsightCard title="Budget shift" description="Shift +10% to TikTok Prospecting and +5% to Google Brand for efficient growth." badge="Recommendation" />
@@ -275,20 +349,42 @@ export default function DashboardPage() {
             <InsightCard title="Attribution" description="Shopify and GA4 aligned at 98% for last 7 days; variance within tolerance." badge="Data quality" />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            {campaignsError ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
-                Failed to load campaigns: {formatErrorMessage(campaignsErr)}
-              </div>
-            ) : (
-              <CampaignsTable campaigns={topCampaigns} />
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+            {visibleWidgets.find((w) => w.id === "campaigns-table") && (
+              campaignsError ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                  Failed to load campaigns: {formatErrorMessage(campaignsErr)}
+                </div>
+              ) : (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("campaigns-table")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <CampaignsTable campaigns={topCampaigns} />
+                </WidgetContainer>
+              )
             )}
-            {ordersError ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
-                Failed to load orders: {formatErrorMessage(ordersErr)}
-              </div>
-            ) : (
-              <OrdersTable orders={recentOrders} />
+            {visibleWidgets.find((w) => w.id === "orders-table") && (
+              ordersError ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                  Failed to load orders: {formatErrorMessage(ordersErr)}
+                </div>
+              ) : (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "orders-table")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("orders-table")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <OrdersTable orders={recentOrders} />
+                </WidgetContainer>
+              )
             )}
           </div>
         </div>

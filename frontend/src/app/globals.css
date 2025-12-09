@@ -6,11 +6,124 @@
   body {
     @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Improve touch targets on mobile */
+  @media (max-width: 768px) {
+    button, a, input, select, textarea {
+      min-height: 44px;
+    }
+  }
+}
+
+@layer components {
+  /* Card component with responsive padding */
+  .card {
+    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl;
+    @apply p-4 sm:p-5 lg:p-6;
+  }
+
+  /* Responsive section spacing */
+  .section {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  /* Mobile-first grid system */
+  .responsive-grid {
+    @apply grid grid-cols-1 gap-3 sm:gap-4;
+    @apply sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* KPI grid optimized for mobile */
+  .kpi-grid {
+    @apply grid grid-cols-2 gap-2 sm:gap-3;
+    @apply md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6;
+  }
+
+  /* Table container with horizontal scroll on mobile */
+  .table-container {
+    @apply w-full overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
+    @apply rounded-xl border border-gray-200 dark:border-gray-800;
+  }
+
+  /* Responsive form inputs */
+  .form-input {
+    @apply w-full rounded-lg border border-gray-300 dark:border-gray-600;
+    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-white;
+    @apply px-3 py-2.5 sm:py-2 text-sm;
+    @apply focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500;
+  }
+
+  /* Primary button with touch-friendly sizing */
+  .btn-primary {
+    @apply inline-flex items-center justify-center;
+    @apply rounded-lg bg-emerald-600 px-4 py-2.5 sm:py-2;
+    @apply text-sm font-semibold text-white;
+    @apply transition hover:bg-emerald-700 active:bg-emerald-800;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center;
+    @apply rounded-lg border border-gray-300 dark:border-gray-600;
+    @apply bg-white dark:bg-gray-800 px-4 py-2.5 sm:py-2;
+    @apply text-sm font-semibold text-gray-700 dark:text-gray-300;
+    @apply transition hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100;
+  }
+
+  /* Icon button for mobile */
+  .btn-icon {
+    @apply inline-flex items-center justify-center;
+    @apply rounded-lg p-2.5 sm:p-2;
+    @apply text-gray-500 hover:text-gray-700 hover:bg-gray-100;
+    @apply dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800;
+    @apply transition;
   }
 }
 
 @layer utilities {
   .dark-card {
     @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area padding for mobile devices with notches */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Truncate text with ellipsis */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Touch-friendly tap highlight color */
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
   }
 }

@@ -81,7 +81,25 @@ export function DateRangeToggle({
 
   return (
     <div className="relative" ref={pickerRef}>
-      <div className="inline-flex items-center rounded-lg border border-gray-200 bg-white p-1 text-sm font-medium shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      {/* Mobile: Dropdown select */}
+      <div className="sm:hidden">
+        <select
+          value={value}
+          onChange={(e) => handleRangeClick(e.target.value as DateRangeValue)}
+          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        >
+          {ranges.map((range) => (
+            <option key={range.value} value={range.value}>
+              {range.value === "custom" && value === "custom" && formatDateDisplay()
+                ? formatDateDisplay()
+                : range.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop: Button group */}
+      <div className="hidden sm:inline-flex items-center rounded-lg border border-gray-200 bg-white p-1 text-sm font-medium shadow-sm dark:border-gray-700 dark:bg-gray-800">
         {ranges.map((range) => {
           const active = value === range.value;
           const isCustomActive = range.value === "custom" && value === "custom";
@@ -105,7 +123,7 @@ export function DateRangeToggle({
 
       {/* Custom Date Picker Dropdown */}
       {showCustomPicker && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:translate-y-0 sm:mt-2 w-auto sm:w-80 rounded-xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Custom Date Range</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">Select start and end dates</p>
