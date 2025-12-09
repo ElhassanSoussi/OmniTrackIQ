@@ -18,6 +18,8 @@ export interface OrderRecord {
   utm_campaign?: string;
   utmCampaign?: string;
   utm_medium?: string;
+  attributed_channel?: string;
+  attributed_campaign?: string;
 }
 
 export interface OrdersResponseData {
@@ -44,16 +46,47 @@ export type OrdersResponse =
   | [unknown, OrderRecord[]]
   | undefined;
 
+/** Daily orders data point */
+export interface OrdersDailyPoint {
+  date: string;
+  orders: number;
+  revenue: number;
+}
+
+/** Enhanced orders summary with daily timeseries */
 export interface OrdersSummary {
   total_orders: number;
   total_revenue: number;
   aov: number;
   orders_by_source: Record<string, number>;
   revenue_by_source: Record<string, number>;
+  daily?: OrdersDailyPoint[];
+}
+
+/** Order item for paginated list */
+export interface OrderListItem {
+  id: string;
+  external_order_id: string;
+  date_time: string;
+  total_amount: number;
+  currency: string;
+  utm_source?: string;
+  utm_campaign?: string;
+  source_platform: string;
+  attributed_channel: string;
+  attributed_campaign?: string;
+}
+
+/** Paginated orders list response */
+export interface OrdersListResponse {
+  items: OrderListItem[];
+  total_count: number;
+  page: number;
+  page_size: number;
 }
 
 /**
- * Fetch orders list with pagination
+ * Fetch orders list with pagination (legacy endpoint)
  */
 export function useOrders(from: string, to: string, options?: { utm_source?: string; limit?: number }) {
   const params = new URLSearchParams({ from, to });
@@ -81,6 +114,36 @@ export function useOrdersSummary(from: string, to: string) {
     queryFn: async () => {
       const result = await apiFetch<OrdersSummary>(`/metrics/orders/summary?from=${from}&to=${to}`);
       return result as OrdersSummary;
+    },
+    retry: false,
+  });
+}
+
+/**
+ * Fetch paginated orders list with search and filtering
+ */
+export function useOrdersList(
+  from: string,
+  to: string,
+  options?: {
+    channel?: string;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+  }
+) {
+  const params = new URLSearchParams({ from, to });
+  if (options?.channel) params.set("channel", options.channel);
+  if (options?.search) params.set("search", options.search);
+  if (options?.page) params.set("page", String(options.page));
+  if (options?.pageSize) params.set("page_size", String(options.pageSize));
+
+  return useQuery<OrdersListResponse>({
+    queryKey: ["orders-list", from, to, options?.channel, options?.search, options?.page, options?.pageSize],
+    enabled: Boolean(from && to),
+    queryFn: async () => {
+      const result = await apiFetch<OrdersListResponse>(`/metrics/orders/list?${params}`);
+      return result as OrdersListResponse;
     },
     retry: false,
   });

@@ -778,10 +778,211 @@ def get_orders_summary(
     orders_by_source = {(r.utm_source or "direct"): int(r.orders) for r in source_rows}
     revenue_by_source = {(r.utm_source or "direct"): float(r.revenue) for r in source_rows}
     
+    # Daily timeseries for chart
+    daily_rows = (
+        db.query(
+            func.date(Order.date_time).label("date"),
+            func.count(Order.id).label("orders"),
+            func.sum(Order.total_amount).label("revenue"),
+        )
+        .filter(Order.account_id == account_id, Order.date_time.between(date_from, date_to))
+        .group_by(func.date(Order.date_time))
+        .order_by(func.date(Order.date_time))
+        .all()
+    )
+    
+    daily = [
+        {
+            "date": str(r.date),
+            "orders": int(r.orders),
+            "revenue": float(r.revenue),
+        }
+        for r in daily_rows
+    ]
+    
     return {
         "total_orders": total_orders,
         "total_revenue": total_revenue,
         "aov": aov,
         "orders_by_source": orders_by_source,
         "revenue_by_source": revenue_by_source,
+        "daily": daily,
+    }
+
+
+def get_campaign_timeseries(
+    db: Session,
+    account_id: str,
+    campaign_id: str,
+    date_from: date,
+    date_to: date,
+):
+    """
+    Get daily timeseries data for a specific campaign.
+    
+    Returns daily metrics including spend, clicks, impressions, and conversions.
+    """
+    daily_rows = (
+        db.query(
+            AdSpend.date,
+            func.sum(AdSpend.cost).label("spend"),
+            func.sum(AdSpend.impressions).label("impressions"),
+            func.sum(AdSpend.clicks).label("clicks"),
+            func.sum(AdSpend.conversions).label("conversions"),
+        )
+        .filter(
+            AdSpend.account_id == account_id,
+            AdSpend.external_campaign_id == campaign_id,
+            AdSpend.date.between(date_from, date_to),
+        )
+        .group_by(AdSpend.date)
+        .order_by(AdSpend.date)
+        .all()
+    )
+    
+    data = []
+    for r in daily_rows:
+        spend = float(r.spend)
+        clicks = int(r.clicks)
+        impressions = int(r.impressions)
+        conversions = int(r.conversions or 0)
+        
+        data.append({
+            "date": str(r.date),
+            "spend": spend,
+            "revenue": 0,  # TODO: Campaign-level revenue attribution
+            "roas": 0,
+            "clicks": clicks,
+            "impressions": impressions,
+            "conversions": conversions,
+            "orders": 0,
+        })
+    
+    return {"data": data}
+
+
+def get_campaign_summary_single(
+    db: Session,
+    account_id: str,
+    campaign_id: str,
+    date_from: date,
+    date_to: date,
+):
+    """
+    Get summary metrics for a single campaign.
+    
+    Returns aggregated metrics for the campaign over the date range.
+    """
+    summary_row = (
+        db.query(
+            AdSpend.external_campaign_id,
+            AdSpend.campaign_name,
+            AdSpend.platform,
+            func.sum(AdSpend.cost).label("spend"),
+            func.sum(AdSpend.impressions).label("impressions"),
+            func.sum(AdSpend.clicks).label("clicks"),
+            func.sum(AdSpend.conversions).label("conversions"),
+        )
+        .filter(
+            AdSpend.account_id == account_id,
+            AdSpend.external_campaign_id == campaign_id,
+            AdSpend.date.between(date_from, date_to),
+        )
+        .group_by(AdSpend.external_campaign_id, AdSpend.campaign_name, AdSpend.platform)
+        .first()
+    )
+    
+    if not summary_row:
+        return None
+    
+    spend = float(summary_row.spend)
+    clicks = int(summary_row.clicks)
+    impressions = int(summary_row.impressions)
+    conversions = int(summary_row.conversions or 0)
+    
+    # Calculate derived metrics safely
+    ctr = round((clicks / impressions * 100) if impressions > 0 else 0, 2)
+    cpc = round(spend / clicks if clicks > 0 else 0, 2)
+    cpa = round(spend / conversions if conversions > 0 else 0, 2)
+    
+    return {
+        "campaign_id": campaign_id,
+        "campaign_name": summary_row.campaign_name or "Untitled Campaign",
+        "platform": summary_row.platform,
+        "platform_label": get_platform_label(summary_row.platform),
+        "spend": spend,
+        "revenue": 0,  # TODO: Campaign revenue attribution
+        "roas": 0,
+        "profit": -spend,  # Without revenue, profit is negative spend
+        "impressions": impressions,
+        "clicks": clicks,
+        "conversions": conversions,
+        "orders": 0,
+        "ctr": ctr,
+        "cpc": cpc,
+        "cpa": cpa,
+        "aov": 0,
+    }
+
+
+def get_orders_list(
+    db: Session,
+    account_id: str,
+    date_from: date,
+    date_to: date,
+    channel: Optional[str] = None,
+    search: Optional[str] = None,
+    page: int = 1,
+    page_size: int = 50,
+) -> dict:
+    """
+    Get paginated orders list with filtering and search.
+    
+    Supports filtering by channel (utm_source) and search by order ID or customer.
+    """
+    query = db.query(Order).filter(
+        Order.account_id == account_id,
+        Order.date_time.between(date_from, date_to)
+    )
+    
+    # Filter by channel/utm_source
+    if channel:
+        query = query.filter(Order.utm_source == channel)
+    
+    # Search by order ID or external order ID
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            (Order.external_order_id.ilike(search_term)) |
+            (Order.id.ilike(search_term))
+        )
+    
+    # Get total count
+    total_count = query.count()
+    
+    # Paginate
+    offset = (page - 1) * page_size
+    rows = query.order_by(Order.date_time.desc()).offset(offset).limit(page_size).all()
+    
+    items = [
+        {
+            "id": o.id,
+            "external_order_id": o.external_order_id,
+            "date_time": o.date_time.isoformat(),
+            "total_amount": float(o.total_amount),
+            "currency": o.currency,
+            "utm_source": o.utm_source,
+            "utm_campaign": o.utm_campaign,
+            "source_platform": o.source_platform,
+            "attributed_channel": o.utm_source or "direct",
+            "attributed_campaign": o.utm_campaign,
+        }
+        for o in rows
+    ]
+    
+    return {
+        "items": items,
+        "total_count": total_count,
+        "page": page,
+        "page_size": page_size,
     }

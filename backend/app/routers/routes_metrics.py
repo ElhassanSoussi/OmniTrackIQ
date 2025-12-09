@@ -15,6 +15,10 @@ from app.schemas.metrics import (
     OrdersResponse,
     OrdersSummary,
     TopPerformerItem,
+    OrdersListResponse,
+    OrdersSummaryEnhanced,
+    CampaignSummaryResponse,
+    CampaignTimeseriesResponse,
 )
 from app.services.metrics_service import (
     get_campaigns, 
@@ -27,6 +31,9 @@ from app.services.metrics_service import (
     get_channel_breakdown,
     get_campaign_detail,
     get_orders_summary,
+    get_campaign_timeseries,
+    get_campaign_summary_single,
+    get_orders_list,
 )
 from app.services.attribution_service import (
     AttributionModel,
@@ -190,6 +197,89 @@ def campaign_detail(
     return result
 
 
+@router.get("/campaigns/{campaign_id}/timeseries", response_model=CampaignTimeseriesResponse)
+def campaign_timeseries(
+    campaign_id: str,
+    from_date: Optional[date] = Query(None, alias="from"),
+    to_date: Optional[date] = Query(None, alias="to"),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_account_user),
+):
+    """
+    Get daily timeseries data for a specific campaign.
+    
+    Returns daily metrics for charts: spend, clicks, impressions, conversions.
+    """
+    if not from_date:
+        to_date = date.today()
+        from_date = to_date - timedelta(days=30)
+    
+    return get_campaign_timeseries(db, user.account_id, campaign_id, from_date, to_date)
+
+
+@router.get("/campaigns/{campaign_id}/summary", response_model=CampaignSummaryResponse)
+def campaign_summary(
+    campaign_id: str,
+    from_date: Optional[date] = Query(None, alias="from"),
+    to_date: Optional[date] = Query(None, alias="to"),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_account_user),
+):
+    """
+    Get aggregated summary metrics for a single campaign.
+    
+    Returns KPIs like spend, ROAS, CPA for the selected date range.
+    """
+    if not from_date:
+        to_date = date.today()
+        from_date = to_date - timedelta(days=30)
+    
+    result = get_campaign_summary_single(db, user.account_id, campaign_id, from_date, to_date)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Campaign {campaign_id} not found"
+        )
+    return result
+
+
+@router.get("/campaign-timeseries", response_model=CampaignTimeseriesResponse)
+def campaign_timeseries_by_name(
+    campaign_name: str = Query(..., description="Campaign name to filter by"),
+    channel: Optional[str] = Query(None, description="Filter by channel/platform"),
+    from_date: Optional[date] = Query(None, alias="from"),
+    to_date: Optional[date] = Query(None, alias="to"),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_account_user),
+):
+    """
+    Get daily timeseries data for a campaign by name.
+    
+    Alternative endpoint that accepts campaign_name instead of campaign_id.
+    """
+    if not from_date:
+        to_date = date.today()
+        from_date = to_date - timedelta(days=30)
+    
+    # Find campaign by name
+    from app.models.ad_spend import AdSpend
+    campaign_query = db.query(AdSpend.external_campaign_id).filter(
+        AdSpend.account_id == user.account_id,
+        AdSpend.campaign_name == campaign_name,
+    )
+    if channel:
+        campaign_query = campaign_query.filter(AdSpend.platform == channel)
+    
+    campaign = campaign_query.first()
+    if not campaign:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Campaign '{campaign_name}' not found"
+        )
+    
+    return get_campaign_timeseries(db, user.account_id, campaign.external_campaign_id, from_date, to_date)
+
+
 @router.get("/orders")
 def orders(
     from_date: Optional[date] = Query(None, alias="from"),
@@ -241,6 +331,29 @@ def orders_summary_endpoint(
         to_date = date.today()
         from_date = to_date - timedelta(days=30)
     return get_orders_summary(db, user.account_id, from_date, to_date)
+
+
+@router.get("/orders/list", response_model=OrdersListResponse)
+def orders_list_endpoint(
+    from_date: Optional[date] = Query(None, alias="from"),
+    to_date: Optional[date] = Query(None, alias="to"),
+    channel: Optional[str] = Query(None, description="Filter by channel/utm_source"),
+    search: Optional[str] = Query(None, description="Search by order ID or customer"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(50, ge=1, le=200, description="Items per page"),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_account_user),
+):
+    """
+    Get paginated orders list with filtering and search.
+    
+    Supports filtering by channel (utm_source) and search by order ID.
+    Returns paginated list with total count for pagination controls.
+    """
+    if not from_date:
+        to_date = date.today()
+        from_date = to_date - timedelta(days=30)
+    return get_orders_list(db, user.account_id, from_date, to_date, channel, search, page, page_size)
 
 
 @router.get("/breakdown/platform")

@@ -2,25 +2,26 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { DashboardSection, DateRangeToggle, DateRangeValue, OrdersTable, KPICard } from "@/components/dashboard";
+import { DashboardSection, DateRangeToggle, DateRangeValue, OrdersTable } from "@/components/dashboard";
 import { EmptyState } from "@/components/ui/empty-state";
 import { MetricTooltip } from "@/components/ui/metric-tooltip";
+import { TableSkeleton } from "@/components/ui/loading-skeleton";
 import { OrderRow } from "@/components/dashboard/orders-table";
-import { OrderRecord, OrdersResponse, useOrders, useOrdersSummary } from "@/hooks/useOrders";
+import { useOrdersSummary, useOrdersList, OrderListItem } from "@/hooks/useOrders";
 import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
 
 const SOURCE_COLORS: Record<string, string> = {
-  facebook: "bg-blue-100 text-blue-700",
-  fb: "bg-blue-100 text-blue-700",
-  google: "bg-red-100 text-red-700",
-  tiktok: "bg-gray-100 text-gray-700",
-  snapchat: "bg-yellow-100 text-yellow-700",
-  pinterest: "bg-red-100 text-red-600",
-  email: "bg-orange-100 text-orange-700",
-  organic: "bg-green-100 text-green-700",
-  direct: "bg-purple-100 text-purple-700",
+  facebook: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  fb: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  google: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  tiktok: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+  snapchat: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  pinterest: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+  email: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  organic: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  direct: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
 };
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -38,40 +39,38 @@ const SOURCE_LABELS: Record<string, string> = {
 export default function OrdersPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
   const [sourceFilter, setSourceFilter] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 25;
+  
   const { from, to } = getDateRange(range);
   
-  const { data, isLoading, isError, error } = useOrders(from, to, { 
-    utm_source: sourceFilter || undefined,
-    limit: 100 
+  // Use the new paginated orders list endpoint
+  const { data: ordersData, isLoading, isError, error } = useOrdersList(from, to, {
+    channel: sourceFilter || undefined,
+    search: searchQuery || undefined,
+    page: currentPage,
+    pageSize,
   });
+  
   const { data: summaryData, isLoading: summaryLoading } = useOrdersSummary(from, to);
   const { data: sampleDataStats } = useSampleDataStats();
   const generateSampleData = useGenerateSampleData();
 
-  const rawOrders = data
-    ? ((Array.isArray(data)
-        ? Array.isArray((data as unknown[])[1])
-          ? (data as unknown[])[1]
-          : data
-        : (data as { items?: OrderRecord[] }).items || 
-          (data as { orders?: OrderRecord[] }).orders || 
-          (data as { results?: OrderRecord[] }).results || 
-          []) as OrderRecord[])
-    : [];
+  const orders: OrderRow[] = useMemo(() => {
+    if (!ordersData?.items) return [];
+    return ordersData.items.map((o: OrderListItem) => ({
+      id: o.external_order_id || o.id,
+      date: o.date_time ? new Date(o.date_time).toLocaleString() : "",
+      amount: formatCurrency(o.total_amount, o.currency || "USD"),
+      source: o.source_platform || "unknown",
+      utm_source: o.utm_source || o.attributed_channel,
+      utm_campaign: o.utm_campaign || o.attributed_campaign,
+    }));
+  }, [ordersData]);
 
-  const orders: OrderRow[] = rawOrders.map((o: OrderRecord) => {
-    const amount = formatCurrency(o.total_amount ?? o.amount, o.currency || "USD");
-    const id = o.external_order_id || o.id || "—";
-    const date = o.date_time ? new Date(o.date_time).toLocaleString() : o.date || "";
-    return {
-      id,
-      date,
-      amount,
-      source: o.source_platform || o.source || "unknown",
-      utm_source: o.utm_source || o.utmSource,
-      utm_campaign: o.utm_campaign || o.utmCampaign,
-    };
-  });
+  // Pagination info
+  const totalPages = ordersData ? Math.ceil(ordersData.total_count / pageSize) : 0;
 
   // Get available sources for filter
   const availableSources = useMemo(() => {
@@ -91,24 +90,48 @@ export default function OrdersPage() {
         revenue,
         orders: summaryData.orders_by_source[source] || 0,
         percentage: (revenue / totalRevenue) * 100,
-        color: SOURCE_COLORS[source.toLowerCase()] || "bg-gray-100 text-gray-700",
+        color: SOURCE_COLORS[source.toLowerCase()] || "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
       }))
       .sort((a, b) => b.revenue - a.revenue);
   }, [summaryData]);
 
-  const hasNoOrders = !isLoading && !isError && orders.length === 0;
+  // Daily data for mini-chart
+  const dailyData = useMemo(() => {
+    if (!summaryData?.daily) return [];
+    return summaryData.daily;
+  }, [summaryData]);
+
+  const hasNoOrders = !isLoading && !isError && orders.length === 0 && !searchQuery && !sourceFilter;
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = (value: string) => {
+    setSourceFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <DashboardSection
         title="Orders"
         description="Revenue attribution and order analytics with UTM tracking."
         actions={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Search order ID..."
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white w-40 sm:w-48"
+            />
             <select
               value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              onChange={(e) => handleFilterChange(e.target.value)}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               aria-label="Filter by source"
             >
               <option value="">All sources</option>
@@ -122,49 +145,84 @@ export default function OrdersPage() {
       >
         {/* KPI Summary */}
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
             <MetricTooltip metric="revenue">
-              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</p>
             </MetricTooltip>
-            <p className="mt-2 text-2xl font-bold text-emerald-600">
+            <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               {summaryLoading ? "..." : formatCurrency(summaryData?.total_revenue || 0)}
             </p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
             <MetricTooltip metric="orders">
-              <p className="text-sm font-medium text-gray-500">Total Orders</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Orders</p>
             </MetricTooltip>
-            <p className="mt-2 text-2xl font-bold text-gray-900">
+            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
               {summaryLoading ? "..." : formatNumber(summaryData?.total_orders || 0)}
             </p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
             <MetricTooltip metric="aov">
-              <p className="text-sm font-medium text-gray-500">Average Order Value</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Average Order Value</p>
             </MetricTooltip>
-            <p className="mt-2 text-2xl font-bold text-gray-900">
+            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
               {summaryLoading ? "..." : formatCurrency(summaryData?.aov || 0)}
             </p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
-            <p className="text-sm font-medium text-gray-500">Attribution Sources</p>
-            <p className="mt-2 text-2xl font-bold text-gray-900">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Attribution Sources</p>
+            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
               {summaryLoading ? "..." : availableSources.length}
             </p>
           </div>
         </div>
 
+        {/* Daily Mini-Chart */}
+        {dailyData.length > 0 && (
+          <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Orders Over Time</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Daily orders and revenue</p>
+              </div>
+            </div>
+            <div className="h-32 flex items-end justify-between gap-1">
+              {dailyData.slice(-21).map((point, idx) => {
+                const maxRevenue = Math.max(...dailyData.map(d => d.revenue)) || 1;
+                const height = (point.revenue / maxRevenue) * 100;
+                return (
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative">
+                    <div
+                      className="w-full bg-emerald-500 dark:bg-emerald-400 rounded-t transition-all hover:bg-emerald-600 dark:hover:bg-emerald-300 cursor-pointer"
+                      style={{ height: `${Math.max(height, 4)}%` }}
+                    />
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 truncate w-full text-center">
+                      {new Date(point.date).getDate()}
+                    </span>
+                    {/* Tooltip on hover */}
+                    <div className="absolute bottom-full mb-2 hidden group-hover:block z-10 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                      <div>{point.date}</div>
+                      <div>{formatNumber(point.orders)} orders</div>
+                      <div>{formatCurrency(point.revenue)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Attribution Breakdown */}
         {attributionData.length > 0 && (
-          <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+          <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-900">Revenue Attribution</h3>
-                <p className="text-sm text-gray-500">Last-touch attribution by source</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Revenue Attribution</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Last-touch attribution by source</p>
               </div>
               <Link 
                 href="/analytics/revenue" 
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium"
               >
                 View detailed analytics →
               </Link>
@@ -176,21 +234,21 @@ export default function OrdersPage() {
                     {item.label}
                   </span>
                   <div className="flex-1">
-                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                       <div
-                        className="h-full rounded-full bg-emerald-500 transition-all"
+                        className="h-full rounded-full bg-emerald-500 dark:bg-emerald-400 transition-all"
                         style={{ width: `${item.percentage}%` }}
                       />
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="font-medium text-gray-900 min-w-[80px] text-right">
+                    <span className="font-medium text-gray-900 dark:text-white min-w-[80px] text-right">
                       {formatCurrency(item.revenue)}
                     </span>
-                    <span className="text-gray-500 min-w-[60px] text-right">
+                    <span className="text-gray-500 dark:text-gray-400 min-w-[50px] text-right">
                       {item.percentage.toFixed(1)}%
                     </span>
-                    <span className="text-gray-500 min-w-[60px] text-right">
+                    <span className="text-gray-500 dark:text-gray-400 min-w-[70px] text-right">
                       {formatNumber(item.orders)} orders
                     </span>
                   </div>
@@ -201,18 +259,60 @@ export default function OrdersPage() {
         )}
 
         {/* Orders Table */}
-        {isLoading && (
-          <div className="flex items-center gap-2 text-gray-500">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
-            Loading orders...
-          </div>
-        )}
+        {isLoading && <TableSkeleton rows={5} />}
+        
         {isError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
             Failed to load orders: {formatErrorMessage(error)}
           </div>
         )}
-        {!isLoading && !isError && !hasNoOrders && <OrdersTable orders={orders} />}
+        
+        {!isLoading && !isError && orders.length > 0 && (
+          <>
+            <OrdersTable orders={orders} />
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, ordersData?.total_count || 0)} of {ordersData?.total_count || 0} orders
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        
+        {!isLoading && !isError && orders.length === 0 && (searchQuery || sourceFilter) && (
+          <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-gray-500 dark:text-gray-400">No orders found matching your filters.</p>
+            <button
+              onClick={() => { setSearchQuery(""); setSourceFilter(""); setCurrentPage(1); }}
+              className="mt-4 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 font-medium"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+        
         {hasNoOrders && (
           <EmptyState
             icon="orders"

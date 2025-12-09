@@ -151,6 +151,71 @@ class OrdersSummary(BaseModel):
     aov: float
     orders_by_source: dict[str, int]
     revenue_by_source: dict[str, float]
+    daily: Optional[List[DailyMetricsPoint]] = None
+
+
+class OrdersDailyPoint(BaseModel):
+    """Daily orders data point."""
+    date: str
+    orders: int
+    revenue: float
+
+
+class OrdersSummaryEnhanced(BaseModel):
+    """Enhanced summary statistics for orders with daily timeseries."""
+    total_orders: int
+    total_revenue: float
+    aov: float
+    orders_by_source: dict[str, int]
+    revenue_by_source: dict[str, float]
+    daily: List[OrdersDailyPoint] = []
+
+
+class OrderListItem(BaseModel):
+    """Order item for paginated list."""
+    id: str
+    external_order_id: str
+    date_time: str
+    total_amount: float
+    currency: str
+    utm_source: Optional[str] = None
+    utm_campaign: Optional[str] = None
+    source_platform: str
+    attributed_channel: str
+    attributed_campaign: Optional[str] = None
+
+
+class OrdersListResponse(BaseModel):
+    """Paginated orders list response."""
+    items: List[OrderListItem]
+    total_count: int
+    page: int
+    page_size: int
+
+
+class CampaignSummaryResponse(BaseModel):
+    """Single campaign summary metrics."""
+    campaign_id: str
+    campaign_name: str
+    platform: str
+    platform_label: str = ""
+    spend: float = 0
+    revenue: float = 0
+    roas: float = 0
+    profit: float = 0
+    impressions: int = 0
+    clicks: int = 0
+    conversions: int = 0
+    orders: int = 0
+    ctr: float = 0
+    cpc: float = 0
+    cpa: float = 0
+    aov: float = 0
+
+
+class CampaignTimeseriesResponse(BaseModel):
+    """Campaign timeseries data response."""
+    data: List[TimeseriesDataPoint]
 
 
 class TopPerformerItem(BaseModel):
