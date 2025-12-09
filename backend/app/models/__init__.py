@@ -1,9 +1,10 @@
 from app.models.user import User, UserRole
 from app.models.account import Account, AccountPlan
 from app.models.integration import Integration
+from app.models.ad_account import AdAccount, AdAccountStatus
 from app.models.ad_spend import AdSpend
 from app.models.order import Order
-from app.models.daily_metrics import DailyMetrics
+from app.models.daily_metrics import DailyMetrics, Channel
 from app.models.subscription import Subscription
 from app.models.team_invite import TeamInvite, InviteStatus
 from app.models.saved_view import SavedView, ViewType
@@ -16,9 +17,12 @@ __all__ = [
     "Account",
     "AccountPlan",
     "Integration",
+    "AdAccount",
+    "AdAccountStatus",
     "AdSpend",
     "Order",
     "DailyMetrics",
+    "Channel",
     "Subscription",
     "TeamInvite",
     "InviteStatus",

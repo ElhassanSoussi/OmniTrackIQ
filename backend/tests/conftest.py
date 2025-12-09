@@ -173,3 +173,64 @@ def sample_orders(db: Session, test_account: Account) -> list[Order]:
     
     db.commit()
     return orders
+
+
+@pytest.fixture
+def sample_daily_metrics(db: Session, test_account: Account) -> list:
+    """Create sample DailyMetrics data."""
+    from app.models.daily_metrics import DailyMetrics, Channel
+    
+    metrics = []
+    channels = [Channel.FACEBOOK, Channel.GOOGLE_ADS, Channel.TIKTOK]
+    
+    for i in range(30):
+        metric_date = datetime.utcnow().date() - timedelta(days=i)
+        for channel in channels:
+            metric = DailyMetrics(
+                account_id=test_account.id,
+                date=metric_date,
+                channel=channel,
+                total_revenue=1000.0 + (i * 50),
+                total_orders=10 + i,
+                total_ad_spend=200.0 + (i * 20),
+                total_impressions=50000 + (i * 1000),
+                total_clicks=1500 + (i * 100),
+                total_conversions=50 + i,
+                roas=5.0,
+                profit=800.0 + (i * 30),
+            )
+            db.add(metric)
+            metrics.append(metric)
+    
+    db.commit()
+    return metrics
+
+
+@pytest.fixture
+def sample_ad_accounts(db: Session, test_account: Account) -> list:
+    """Create sample AdAccount data."""
+    from app.models.ad_account import AdAccount, AdAccountStatus
+    
+    ad_accounts = []
+    platforms = [
+        ("facebook", "act_123456789", "FB Ad Account"),
+        ("google_ads", "customers/987654321", "Google Ads Account"),
+        ("tiktok", "tt_112233445566", "TikTok Account"),
+    ]
+    
+    for platform, external_id, name in platforms:
+        ad_account = AdAccount(
+            account_id=test_account.id,
+            integration_id=None,
+            platform=platform,
+            external_id=external_id,
+            external_name=name,
+            name=name,
+            status=AdAccountStatus.ACTIVE,
+            currency="USD",
+        )
+        db.add(ad_account)
+        ad_accounts.append(ad_account)
+    
+    db.commit()
+    return ad_accounts
