@@ -114,7 +114,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
     onError,
   } = options;
 
-  const { token, isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   const wsRef = useRef<WebSocket | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -137,6 +138,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
   // Connect to WebSocket
   const connect = useCallback(() => {
+    // Get token from localStorage
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    
     if (!token || !isAuthenticated) {
       return;
     }
@@ -246,7 +250,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
     wsRef.current = ws;
   }, [
-    token,
     isAuthenticated,
     cleanUp,
     reconnect,
@@ -292,14 +295,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
   // Auto-connect on mount
   useEffect(() => {
-    if (autoConnect && isAuthenticated && token) {
+    if (autoConnect && isAuthenticated) {
       connect();
     }
 
     return () => {
       disconnect();
     };
-  }, [autoConnect, isAuthenticated, token, connect, disconnect]);
+  }, [autoConnect, isAuthenticated, connect, disconnect]);
 
   return {
     connectionState,
@@ -317,20 +320,23 @@ export function useWebSocketChannel<T extends WebSocketMessage>(
   channel: Channel,
   onMessage: (data: T) => void
 ) {
+  // Cast through unknown to satisfy TypeScript
+  const messageHandler = onMessage as unknown;
+  
   const callbacks = {
-    onMetricsUpdate: channel === "metrics" ? (onMessage as (data: MetricsUpdateMessage) => void) : undefined,
-    onNotification: channel === "notifications" ? (onMessage as (data: NotificationMessage) => void) : undefined,
-    onSyncStatus: channel === "sync_status" ? (onMessage as (data: SyncStatusMessage) => void) : undefined,
-    onAnomalyAlert: channel === "anomalies" ? (onMessage as (data: AnomalyAlertMessage) => void) : undefined,
+    onMetricsUpdate: channel === "metrics" ? (messageHandler as (data: MetricsUpdateMessage) => void) : undefined,
+    onNotification: channel === "notifications" ? (messageHandler as (data: NotificationMessage) => void) : undefined,
+    onSyncStatus: channel === "sync_status" ? (messageHandler as (data: SyncStatusMessage) => void) : undefined,
+    onAnomalyAlert: channel === "anomalies" ? (messageHandler as (data: AnomalyAlertMessage) => void) : undefined,
   };
 
-  const ws = useWebSocket(callbacks);
+  const { connectionState, subscribedChannels, subscribe, ...rest } = useWebSocket(callbacks);
 
   useEffect(() => {
-    if (ws.connectionState === "connected" && !ws.subscribedChannels.has(channel)) {
-      ws.subscribe(channel);
+    if (connectionState === "connected" && !subscribedChannels.has(channel)) {
+      subscribe(channel);
     }
-  }, [ws.connectionState, ws.subscribedChannels, channel, ws.subscribe]);
+  }, [connectionState, subscribedChannels, channel, subscribe]);
 
-  return ws;
+  return { connectionState, subscribedChannels, subscribe, ...rest };
 }
