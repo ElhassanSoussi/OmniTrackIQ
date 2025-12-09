@@ -15,6 +15,7 @@ import {
   DashboardToolbar,
 } from "@/components/dashboard";
 import { OnboardingChecklist } from "@/components/ui/onboarding-checklist";
+import { KPIGridSkeleton, ChartSkeleton, TableSkeleton } from "@/components/ui/loading-skeleton";
 import { KPIItem } from "@/components/dashboard/kpi-grid";
 import { CampaignRow } from "@/components/dashboard/campaigns-table";
 import { OrderRow } from "@/components/dashboard/orders-table";
@@ -40,10 +41,10 @@ export default function DashboardPage() {
   const [channelFilter, setChannelFilter] = useState<string>("");
   const { from, to } = getDateRange(range);
 
-  const { data: summary, isError: summaryError, error: summaryErr } = useMetrics(from, to, channelFilter || undefined);
-  const { data: channelData } = useChannelBreakdown(from, to);
-  const { data: campaignsData, isError: campaignsError, error: campaignsErr } = useCampaigns(from, to);
-  const { data: ordersData, isError: ordersError, error: ordersErr } = useOrders(from, to);
+  const { data: summary, isError: summaryError, error: summaryErr, isPending: summaryLoading } = useMetrics(from, to, channelFilter || undefined);
+  const { data: channelData, isPending: channelLoading } = useChannelBreakdown(from, to);
+  const { data: campaignsData, isError: campaignsError, error: campaignsErr, isPending: campaignsLoading } = useCampaigns(from, to);
+  const { data: ordersData, isError: ordersError, error: ordersErr, isPending: ordersLoading } = useOrders(from, to);
   const { steps: onboardingSteps, isComplete: onboardingComplete } = useOnboarding();
   const { data: sampleDataStats } = useSampleDataStats();
   const generateSampleData = useGenerateSampleData();
@@ -299,6 +300,21 @@ export default function DashboardPage() {
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
               Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
+          ) : summaryLoading ? (
+            visibleWidgets.find((w) => w.id === "kpis") && (
+              <WidgetContainer
+                widget={visibleWidgets.find((w) => w.id === "kpis")!}
+                isEditing={isEditing}
+                index={getWidgetIndex("kpis")}
+                onMove={moveWidget}
+                onResize={resizeWidget}
+                onToggle={toggleWidget}
+              >
+                <div className="p-4 sm:p-5">
+                  <KPIGridSkeleton />
+                </div>
+              </WidgetContainer>
+            )
           ) : (
             visibleWidgets.find((w) => w.id === "kpis") && (
               <WidgetContainer
@@ -326,7 +342,7 @@ export default function DashboardPage() {
                 onResize={resizeWidget}
                 onToggle={toggleWidget}
               >
-                <SummaryChart data={chartData} />
+                {summaryLoading ? <ChartSkeleton /> : <SummaryChart data={chartData} />}
               </WidgetContainer>
               {visibleWidgets.find((w) => w.id === "channel-breakdown") && (
                 <WidgetContainer
@@ -337,7 +353,7 @@ export default function DashboardPage() {
                   onResize={resizeWidget}
                   onToggle={toggleWidget}
                 >
-                  <ChannelTable channels={channelPerformance ?? undefined} />
+                  <ChannelTable channels={channelPerformance ?? undefined} isLoading={channelLoading} />
                 </WidgetContainer>
               )}
             </div>
@@ -355,6 +371,17 @@ export default function DashboardPage() {
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
                   Failed to load campaigns: {formatErrorMessage(campaignsErr)}
                 </div>
+              ) : campaignsLoading ? (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("campaigns-table")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <TableSkeleton rows={3} />
+                </WidgetContainer>
               ) : (
                 <WidgetContainer
                   widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
@@ -373,6 +400,17 @@ export default function DashboardPage() {
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
                   Failed to load orders: {formatErrorMessage(ordersErr)}
                 </div>
+              ) : ordersLoading ? (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "orders-table")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("orders-table")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <TableSkeleton rows={4} />
+                </WidgetContainer>
               ) : (
                 <WidgetContainer
                   widget={visibleWidgets.find((w) => w.id === "orders-table")!}
