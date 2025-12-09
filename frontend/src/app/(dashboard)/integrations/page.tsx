@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useIntegrations, IntegrationItem, IntegrationPlatform } from "@/hooks/useIntegrations";
+import { useBilling } from "@/hooks/useBilling";
+import { canAddMoreIntegrations, maxIntegrations, getUpgradeSuggestion } from "@/lib/plan";
 
 const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; description: string }> = {
   facebook: { title: "Facebook Ads", description: "Sync ad spend, campaigns, and conversions from Meta." },
@@ -14,9 +16,22 @@ const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; descri
 
 export default function IntegrationsPage() {
   const { integrations, connect, connecting, isLoading, isError, error, actionError } = useIntegrations();
+  const { billing } = useBilling();
   const [comingSoonPlatform, setComingSoonPlatform] = useState<IntegrationPlatform | null>(null);
 
   const cards = useMemo(() => integrations.map((i) => ({ ...i, ...PLATFORM_COPY[i.platform] })), [integrations]);
+  
+  // Calculate connected integrations count
+  const connectedCount = useMemo(() => 
+    integrations.filter((i) => i.status === "connected").length, 
+    [integrations]
+  );
+
+  // Check if user can add more integrations based on their plan
+  const currentPlan = billing?.plan || "free";
+  const canConnect = canAddMoreIntegrations(currentPlan, connectedCount);
+  const limit = maxIntegrations(currentPlan);
+  const upgradeSuggestion = getUpgradeSuggestion(currentPlan);
 
   async function handleConnect(platform: IntegrationPlatform) {
     setComingSoonPlatform(null);
@@ -69,16 +84,52 @@ export default function IntegrationsPage() {
         </div>
       )}
 
+      {/* Plan limit warning */}
+      {!canConnect && limit !== -1 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-900/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-medium text-amber-800 dark:text-amber-300">
+                Integration limit reached ({connectedCount}/{limit})
+              </span>
+              {upgradeSuggestion && (
+                <p className="mt-1 text-amber-700 dark:text-amber-400">
+                  {upgradeSuggestion.message}
+                </p>
+              )}
+            </div>
+            <Link 
+              href="/billing"
+              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition"
+            >
+              Upgrade Plan
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Current usage indicator */}
+      {limit !== -1 && (
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Using {connectedCount} of {limit} integration{limit !== 1 ? "s" : ""}
+        </div>
+      )}
+
       {!isLoading && (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {cards.map((card) => {
             const isConnected = card.status === "connected";
             const isPending = connecting === card.platform;
+            const isDisabledByLimit = !isConnected && !canConnect;
 
             return (
               <div
                 key={card.platform}
-                className="flex h-full flex-col justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow dark:border-gray-800 dark:bg-gray-900"
+                className={`flex h-full flex-col justify-between rounded-xl border bg-white p-5 shadow-sm transition-shadow dark:bg-gray-900 ${
+                  isDisabledByLimit 
+                    ? "border-gray-200 opacity-60 dark:border-gray-800" 
+                    : "border-gray-200 hover:shadow-md dark:border-gray-800"
+                }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -113,17 +164,26 @@ export default function IntegrationsPage() {
                   >
                     View details →
                   </Link>
-                  <button
-                    disabled={isConnected || isPending}
-                    onClick={() => handleConnect(card.platform)}
-                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                      isConnected
-                        ? "bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400"
-                        : "bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
-                    }`}
-                  >
-                    {isConnected ? "Connected" : isPending ? "Connecting..." : "Connect"}
-                  </button>
+                  {isDisabledByLimit ? (
+                    <span 
+                      className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400"
+                      title={upgradeSuggestion?.message || "Upgrade to connect more integrations"}
+                    >
+                      Upgrade to Connect
+                    </span>
+                  ) : (
+                    <button
+                      disabled={isConnected || isPending}
+                      onClick={() => handleConnect(card.platform)}
+                      className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                        isConnected
+                          ? "bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400"
+                          : "bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+                      }`}
+                    >
+                      {isConnected ? "Connected" : isPending ? "Connecting..." : "Connect"}
+                    </button>
+                  )}
                 </div>
               </div>
             );

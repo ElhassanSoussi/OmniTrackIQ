@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useBilling } from "@/hooks/useBilling";
+import { useBilling, SubscriptionStatus } from "@/hooks/useBilling";
 
 const PLANS = [
   {
@@ -12,8 +12,8 @@ const PLANS = [
     period: "forever",
     features: [
       "1 team member",
-      "2 integrations",
-      "30-day data retention",
+      "1 integration",
+      "7-day data retention",
       "Basic dashboard",
     ],
     cta: "Current Plan",
@@ -26,8 +26,8 @@ const PLANS = [
     period: "/month",
     features: [
       "3 team members",
-      "5 integrations",
-      "90-day data retention",
+      "3 integrations",
+      "30-day data retention",
       "Email reports",
       "Email support",
     ],
@@ -41,7 +41,7 @@ const PLANS = [
     period: "/month",
     features: [
       "10 team members",
-      "15 integrations",
+      "5 integrations",
       "1-year data retention",
       "Custom reports",
       "API access",
@@ -67,6 +67,44 @@ const PLANS = [
     highlighted: false,
   },
 ];
+
+// Helper to get status badge styling
+function getStatusBadgeStyle(status: SubscriptionStatus): string {
+  switch (status) {
+    case "active":
+      return "bg-emerald-100 text-emerald-700";
+    case "trialing":
+      return "bg-blue-100 text-blue-700";
+    case "past_due":
+      return "bg-amber-100 text-amber-700";
+    case "canceled":
+    case "incomplete":
+    case "incomplete_expired":
+      return "bg-gray-100 text-gray-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+}
+
+// Helper to get human-readable status
+function getStatusLabel(status: SubscriptionStatus): string {
+  switch (status) {
+    case "active":
+      return "Active";
+    case "trialing":
+      return "Trial";
+    case "past_due":
+      return "Past Due";
+    case "canceled":
+      return "Canceled";
+    case "incomplete":
+      return "Incomplete";
+    case "incomplete_expired":
+      return "Expired";
+    default:
+      return status;
+  }
+}
 
 export default function BillingPage() {
   const searchParams = useSearchParams();
@@ -129,6 +167,26 @@ export default function BillingPage() {
   const currentPlan = billing?.plan || "free";
   const isPlanActive = (planId: string) => currentPlan === planId && billing?.status === "active";
 
+  // Show not configured message if Stripe isn't set up
+  if (!loading && billing && !billing.billingConfigured) {
+    return (
+      <div className="p-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Billing & Plans</h1>
+          <p className="mt-1 text-gray-500">
+            Manage your subscription and billing details
+          </p>
+        </div>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
+          <h2 className="text-lg font-semibold text-amber-800">Billing Not Yet Configured</h2>
+          <p className="mt-2 text-amber-700">
+            Payment processing is not yet set up for this instance. Please contact support for assistance.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="p-8">
@@ -183,25 +241,24 @@ export default function BillingPage() {
                   Current Plan: {billing.plan_name || currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}
                 </h2>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    billing.status === "active"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : billing.status === "canceling"
-                      ? "bg-amber-100 text-amber-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusBadgeStyle(billing.status)}`}
                 >
-                  {billing.status === "canceling" ? "Canceling" : billing.status}
+                  {getStatusLabel(billing.status)}
                 </span>
               </div>
-              {billing.renewal && (
+              {billing.trialEnd && billing.status === "trialing" && (
                 <p className="mt-1 text-sm text-gray-500">
-                  {billing.status === "canceling" ? "Access until" : "Next billing date"}:{" "}
-                  {new Date(billing.renewal).toLocaleDateString()}
+                  Trial ends on: {new Date(billing.trialEnd).toLocaleDateString()}
+                </p>
+              )}
+              {billing.currentPeriodEnd && billing.status !== "trialing" && (
+                <p className="mt-1 text-sm text-gray-500">
+                  {billing.status === "canceled" ? "Access until" : "Next billing date"}:{" "}
+                  {new Date(billing.currentPeriodEnd).toLocaleDateString()}
                 </p>
               )}
             </div>
-            {currentPlan !== "free" && (
+            {billing.stripeCustomerPortalAvailable && (
               <button
                 onClick={handleManageBilling}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"

@@ -3,12 +3,38 @@
 import { apiFetch } from '@/lib/api-client';
 import { useQuery } from '@tanstack/react-query';
 
-// Backend response structure from /billing/me
+// Subscription status types matching backend
+export type SubscriptionStatus = 
+  | 'active' 
+  | 'trialing' 
+  | 'past_due' 
+  | 'canceled' 
+  | 'incomplete' 
+  | 'incomplete_expired' 
+  | 'none';
+
+export type PlanType = 'free' | 'starter' | 'pro' | 'agency' | 'enterprise';
+
+// Backend response structure from /billing/status
+interface BillingStatusResponse {
+  plan: PlanType;
+  status: SubscriptionStatus;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  trial_end: string | null;
+  stripe_customer_portal_available: boolean;
+  features: string[];
+  can_upgrade: boolean;
+  can_cancel: boolean;
+  billing_configured: boolean;
+}
+
+// Legacy backend response from /billing/me
 interface BillingPlan {
   plan: string | null;
   plan_name: string;
   status: string;
-  renewal: string | null; // ISO datetime string
+  renewal: string | null;
   features: string[];
   can_upgrade: boolean;
   can_cancel: boolean;
@@ -16,13 +42,17 @@ interface BillingPlan {
 
 // Frontend billing info structure
 export interface BillingInfo {
-  plan: string | null;
+  plan: PlanType;
   plan_name: string | null;
-  status: string | null;
-  renewal: string | null;
+  status: SubscriptionStatus;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  trialEnd: string | null;
+  stripeCustomerPortalAvailable: boolean;
   features: string[];
-  can_upgrade: boolean;
-  can_cancel: boolean;
+  canUpgrade: boolean;
+  canCancel: boolean;
+  billingConfigured: boolean;
 }
 
 export interface UseBillingResult {
@@ -42,11 +72,32 @@ export function useBilling(): UseBillingResult {
     refetch,
     isLoading,
     error,
-  } = useQuery<BillingPlan | undefined>({
-    queryKey: ['billing'],
+  } = useQuery<BillingStatusResponse | undefined>({
+    queryKey: ['billing-status'],
     queryFn: async () => {
-      const result = await apiFetch<BillingPlan>('/billing/me');
-      return result as BillingPlan;
+      // Try new endpoint first, fall back to legacy
+      try {
+        const result = await apiFetch<BillingStatusResponse>('/billing/status');
+        return result;
+      } catch {
+        // Fallback to legacy endpoint
+        const legacyResult = await apiFetch<BillingPlan>('/billing/me');
+        if (legacyResult) {
+          return {
+            plan: (legacyResult.plan || 'free') as PlanType,
+            status: (legacyResult.status || 'none') as SubscriptionStatus,
+            current_period_start: null,
+            current_period_end: legacyResult.renewal,
+            trial_end: null,
+            stripe_customer_portal_available: legacyResult.status !== 'none',
+            features: legacyResult.features || [],
+            can_upgrade: legacyResult.can_upgrade ?? true,
+            can_cancel: legacyResult.can_cancel ?? false,
+            billing_configured: true,
+          };
+        }
+        return undefined;
+      }
     },
     retry: false,
   });
@@ -55,12 +106,16 @@ export function useBilling(): UseBillingResult {
   const billing: BillingInfo | null = data
     ? {
         plan: data.plan,
-        plan_name: data.plan_name,
+        plan_name: getPlanDisplayName(data.plan),
         status: data.status,
-        renewal: data.renewal,
+        currentPeriodStart: data.current_period_start,
+        currentPeriodEnd: data.current_period_end,
+        trialEnd: data.trial_end,
+        stripeCustomerPortalAvailable: data.stripe_customer_portal_available,
         features: data.features || [],
-        can_upgrade: data.can_upgrade ?? true,
-        can_cancel: data.can_cancel ?? false,
+        canUpgrade: data.can_upgrade ?? true,
+        canCancel: data.can_cancel ?? false,
+        billingConfigured: data.billing_configured ?? true,
       }
     : null;
 
@@ -115,4 +170,16 @@ export function useBilling(): UseBillingResult {
     reactivateSubscription,
     reload: refetch,
   };
+}
+
+// Helper to get display name for plan
+function getPlanDisplayName(plan: string): string {
+  const names: Record<string, string> = {
+    free: 'Free',
+    starter: 'Starter',
+    pro: 'Pro',
+    agency: 'Agency',
+    enterprise: 'Enterprise',
+  };
+  return names[plan.toLowerCase()] ?? plan;
 }

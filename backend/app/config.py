@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     # Stripe
     STRIPE_SECRET_KEY: Optional[str] = None
     STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    STRIPE_PRICE_PRO: Optional[str] = None  # Price ID for Pro plan
+    STRIPE_PRICE_ENTERPRISE: Optional[str] = None  # Price ID for Enterprise plan
+    STRIPE_STARTER_PRICE_ID: Optional[str] = None  # Legacy: Price ID for Starter plan
+    STRIPE_PRO_PRICE_ID: Optional[str] = None  # Legacy alias
+    STRIPE_AGENCY_PRICE_ID: Optional[str] = None  # Legacy: Price ID for Agency plan
 
     # Frontend URL for CORS and redirects
     FRONTEND_URL: str = "https://omnitrackiq.com"

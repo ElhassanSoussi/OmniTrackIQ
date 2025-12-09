@@ -1,4 +1,4 @@
-import os
+import logging
 from datetime import datetime
 
 import stripe
@@ -9,10 +9,17 @@ from app.config import settings
 from app.models.account import Account, AccountPlan
 from app.models.subscription import Subscription
 from app.routers.deps import get_current_account_user, get_db
-from app.schemas.billing import CheckoutRequest, CheckoutResponse, PortalResponse, BillingInfoResponse, PlansResponse
+from app.schemas.billing import (
+    CheckoutRequest,
+    CheckoutResponse,
+    PortalResponse,
+    BillingInfoResponse,
+    BillingStatusResponse,
+    PlansResponse,
+)
 from app.services import billing_service
 
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -23,6 +30,7 @@ PLAN_USER_LIMITS = {
     "starter": 3,
     "pro": 10,
     "agency": -1,  # Unlimited
+    "enterprise": -1,  # Unlimited
 }
 
 
@@ -33,9 +41,58 @@ def get_plans():
     return PlansResponse(plans=plans)
 
 
+@router.get("/status", response_model=BillingStatusResponse)
+def get_billing_status(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_account_user),
+):
+    """
+    Get comprehensive billing status for the current workspace.
+    This is the primary endpoint for frontend billing display.
+    """
+    if not billing_service.is_stripe_configured():
+        return BillingStatusResponse(
+            plan="free",
+            status="none",
+            billing_configured=False,
+            features=billing_service.PLANS["free"]["features"],
+        )
+
+    sub = db.query(Subscription).filter(Subscription.account_id == current_user.account_id).first()
+    account = db.query(Account).filter(Account.id == current_user.account_id).first()
+
+    if not sub:
+        plan = account.plan.value if account else "free"
+        plan_info = billing_service.PLANS.get(plan, billing_service.PLANS["free"])
+        return BillingStatusResponse(
+            plan=plan,
+            status="none",
+            stripe_customer_portal_available=False,
+            features=plan_info.get("features", []),
+            can_upgrade=True,
+            can_cancel=False,
+            billing_configured=True,
+        )
+
+    plan_info = billing_service.PLANS.get(sub.plan, {})
+
+    return BillingStatusResponse(
+        plan=sub.plan,
+        status=sub.status,
+        current_period_start=sub.current_period_start.isoformat() if sub.current_period_start else None,
+        current_period_end=sub.current_period_end.isoformat() if sub.current_period_end else None,
+        trial_end=sub.trial_end.isoformat() if sub.trial_end else None,
+        stripe_customer_portal_available=bool(sub.stripe_customer_id),
+        features=plan_info.get("features", []),
+        can_upgrade=sub.plan not in ["agency", "enterprise"],
+        can_cancel=sub.status in ["active", "trialing"],
+        billing_configured=True,
+    )
+
+
 @router.get("/me", response_model=BillingInfoResponse)
 def billing_me(db: Session = Depends(get_db), current_user=Depends(get_current_account_user)):
-    """Get current billing/subscription status."""
+    """Get current billing/subscription status (legacy endpoint)."""
     sub = db.query(Subscription).filter(Subscription.account_id == current_user.account_id).first()
     account = db.query(Account).filter(Account.id == current_user.account_id).first()
     
@@ -96,79 +153,128 @@ async def stripe_webhook(
     db: Session = Depends(get_db),
     stripe_signature: str = Header(None, alias="Stripe-Signature"),
 ):
+    """
+    Handle Stripe webhook events.
+    Processes subscription lifecycle events to keep local state in sync.
+    """
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        logger.warning("STRIPE_WEBHOOK_SECRET not configured, skipping webhook verification")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Webhook not configured")
+
     payload = await request.body()
     try:
-        event = stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
+        event = stripe.Webhook.construct_event(
+            payload, stripe_signature, settings.STRIPE_WEBHOOK_SECRET
+        )
     except stripe.error.SignatureVerificationError:
+        logger.warning("Invalid Stripe webhook signature")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid signature")
-    except Exception:
+    except Exception as e:
+        logger.error(f"Webhook payload error: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid payload")
 
-    if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-        metadata = session.get("metadata") or {}
-        account_id = metadata.get("account_id")
-        plan = metadata.get("plan")
-        subscription_id = session.get("subscription")
-        customer_id = session.get("customer")
+    event_type = event["type"]
+    logger.info(f"Processing Stripe webhook: {event_type}")
 
-        if not all([account_id, plan, subscription_id, customer_id]):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing subscription metadata")
+    try:
+        if event_type == "checkout.session.completed":
+            session = event["data"]["object"]
+            metadata = session.get("metadata") or {}
+            account_id = metadata.get("account_id")
+            plan = metadata.get("plan")
+            subscription_id = session.get("subscription")
+            customer_id = session.get("customer")
 
-        sub = db.query(Subscription).filter(Subscription.account_id == account_id).first()
-        if not sub:
-            sub = Subscription(
-                account_id=account_id,
-                stripe_customer_id=customer_id,
-                stripe_subscription_id=subscription_id,
-                plan=plan,
-                status="active",
-            )
-            db.add(sub)
-        else:
-            sub.stripe_customer_id = customer_id
-            sub.stripe_subscription_id = subscription_id
-            sub.plan = plan
-            sub.status = "active"
-        
-        # Update account plan and limits
-        account = db.query(Account).filter(Account.id == account_id).first()
-        if account:
-            account.plan = AccountPlan(plan) if plan in [p.value for p in AccountPlan] else AccountPlan.FREE
-            account.max_users = PLAN_USER_LIMITS.get(plan, 1)
-            account.stripe_customer_id = customer_id
-            account.stripe_subscription_id = subscription_id
-        
-        db.commit()
+            if not all([account_id, plan, subscription_id, customer_id]):
+                logger.warning(f"Missing subscription metadata in checkout.session.completed: {metadata}")
+                return {"received": True, "processed": False}
 
-    elif event["type"] == "customer.subscription.updated":
-        subscription = event["data"]["object"]
-        customer_id = subscription.get("customer")
-        status = subscription.get("status")
-        current_period_end = subscription.get("current_period_end")
-        
-        sub = db.query(Subscription).filter(Subscription.stripe_customer_id == customer_id).first()
-        if sub:
-            sub.status = status
-            if current_period_end:
-                sub.current_period_end = datetime.fromtimestamp(current_period_end)
-            db.commit()
+            logger.info(f"Checkout completed for account={account_id}, plan={plan}")
 
-    elif event["type"] == "customer.subscription.deleted":
-        subscription = event["data"]["object"]
-        customer_id = subscription.get("customer")
-        
-        sub = db.query(Subscription).filter(Subscription.stripe_customer_id == customer_id).first()
-        if sub:
-            sub.status = "canceled"
-            # Reset account to free plan
-            account = db.query(Account).filter(Account.id == sub.account_id).first()
+            sub = db.query(Subscription).filter(Subscription.account_id == account_id).first()
+            if not sub:
+                sub = Subscription(
+                    account_id=account_id,
+                    stripe_customer_id=customer_id,
+                    stripe_subscription_id=subscription_id,
+                    plan=plan,
+                    status="active",
+                )
+                db.add(sub)
+            else:
+                sub.stripe_customer_id = customer_id
+                sub.stripe_subscription_id = subscription_id
+                sub.plan = plan
+                sub.status = "active"
+
+            # Update account plan and limits
+            account = db.query(Account).filter(Account.id == account_id).first()
             if account:
-                account.plan = AccountPlan.FREE
-                account.max_users = 1
+                try:
+                    account.plan = AccountPlan(plan)
+                except ValueError:
+                    account.plan = AccountPlan.FREE
+                account.max_users = PLAN_USER_LIMITS.get(plan, 1)
+                account.stripe_customer_id = customer_id
+                account.stripe_subscription_id = subscription_id
+
             db.commit()
 
-    return {"received": True}
+        elif event_type == "customer.subscription.created":
+            subscription_data = event["data"]["object"]
+            _handle_subscription_update(db, subscription_data)
+
+        elif event_type == "customer.subscription.updated":
+            subscription_data = event["data"]["object"]
+            _handle_subscription_update(db, subscription_data)
+
+        elif event_type == "customer.subscription.deleted":
+            subscription_data = event["data"]["object"]
+            customer_id = subscription_data.get("customer")
+
+            logger.info(f"Subscription deleted for customer={customer_id}")
+
+            sub = db.query(Subscription).filter(Subscription.stripe_customer_id == customer_id).first()
+            if sub:
+                sub.status = "canceled"
+                # Reset account to free plan
+                account = db.query(Account).filter(Account.id == sub.account_id).first()
+                if account:
+                    account.plan = AccountPlan.FREE
+                    account.max_users = 1
+                db.commit()
+
+        else:
+            logger.debug(f"Unhandled webhook event type: {event_type}")
+
+    except Exception as e:
+        logger.error(f"Error processing webhook {event_type}: {e}")
+        # Don't raise - we still return 200 to acknowledge receipt
+        return {"received": True, "processed": False, "error": str(e)}
+
+    return {"received": True, "processed": True}
+
+
+def _handle_subscription_update(db: Session, subscription_data: dict):
+    """Helper to handle subscription created/updated events."""
+    customer_id = subscription_data.get("customer")
+    sub_status = subscription_data.get("status")
+    current_period_start = subscription_data.get("current_period_start")
+    current_period_end = subscription_data.get("current_period_end")
+    trial_end = subscription_data.get("trial_end")
+
+    logger.info(f"Subscription update for customer={customer_id}, status={sub_status}")
+
+    sub = db.query(Subscription).filter(Subscription.stripe_customer_id == customer_id).first()
+    if sub:
+        sub.status = sub_status
+        if current_period_start:
+            sub.current_period_start = datetime.fromtimestamp(current_period_start)
+        if current_period_end:
+            sub.current_period_end = datetime.fromtimestamp(current_period_end)
+        if trial_end:
+            sub.trial_end = datetime.fromtimestamp(trial_end)
+        db.commit()
 
 
 @router.post("/portal", response_model=PortalResponse)

@@ -14,26 +14,49 @@ from app.models.subscription import Subscription
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+
+def is_stripe_configured() -> bool:
+    """Check if Stripe is properly configured."""
+    return bool(settings.STRIPE_SECRET_KEY)
+
+
 # Plan configuration - map internal names to Stripe price IDs
 # Update these with your actual Stripe price IDs
 PLANS = {
+    "free": {
+        "price_id": None,
+        "name": "Free",
+        "price": 0,
+        "features": ["1 team member", "1 integration", "7-day data retention"],
+        "max_integrations": 1,
+    },
     "starter": {
-        "price_id": settings.STRIPE_STARTER_PRICE_ID if hasattr(settings, 'STRIPE_STARTER_PRICE_ID') else "price_starter_placeholder",
+        "price_id": settings.STRIPE_STARTER_PRICE_ID or "price_starter_placeholder",
         "name": "Starter",
         "price": 49,
-        "features": ["5 integrations", "30-day data retention", "Email support"],
+        "features": ["3 team members", "3 integrations", "30-day data retention", "Email support"],
+        "max_integrations": 3,
     },
     "pro": {
-        "price_id": settings.STRIPE_PRO_PRICE_ID if hasattr(settings, 'STRIPE_PRO_PRICE_ID') else "price_pro_placeholder",
+        "price_id": settings.STRIPE_PRICE_PRO or settings.STRIPE_PRO_PRICE_ID or "price_pro_placeholder",
         "name": "Pro",
         "price": 149,
-        "features": ["Unlimited integrations", "1-year data retention", "Priority support", "Custom reports"],
+        "features": ["10 team members", "5 integrations", "1-year data retention", "Priority support", "Custom reports"],
+        "max_integrations": 5,
     },
     "agency": {
-        "price_id": settings.STRIPE_AGENCY_PRICE_ID if hasattr(settings, 'STRIPE_AGENCY_PRICE_ID') else "price_agency_placeholder",
+        "price_id": settings.STRIPE_AGENCY_PRICE_ID or "price_agency_placeholder",
         "name": "Agency",
         "price": 399,
-        "features": ["Multi-account", "White-label reports", "Dedicated support", "API access"],
+        "features": ["Unlimited team members", "Unlimited integrations", "Unlimited data retention", "White-label reports", "Dedicated support"],
+        "max_integrations": -1,  # Unlimited
+    },
+    "enterprise": {
+        "price_id": settings.STRIPE_PRICE_ENTERPRISE or "price_enterprise_placeholder",
+        "name": "Enterprise",
+        "price": 999,
+        "features": ["Unlimited team members", "Unlimited integrations", "Unlimited data retention", "White-label reports", "Dedicated support", "SLA", "Custom onboarding"],
+        "max_integrations": -1,  # Unlimited
     },
 }
 
