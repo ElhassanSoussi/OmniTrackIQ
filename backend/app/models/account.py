@@ -1,7 +1,7 @@
 import uuid
 from enum import Enum
 
-from sqlalchemy import Column, DateTime, String, Integer, Enum as SQLEnum
+from sqlalchemy import Column, DateTime, String, Integer, Boolean, Enum as SQLEnum, JSON
 from sqlalchemy.sql import func
 
 from app.db import Base
@@ -15,6 +15,14 @@ class AccountPlan(str, Enum):
     AGENCY = "agency"
 
 
+# Default onboarding steps structure
+DEFAULT_ONBOARDING_STEPS = {
+    "created_workspace": False,
+    "connected_integration": False,
+    "viewed_dashboard": False,
+}
+
+
 class Account(Base):
     __tablename__ = "accounts"
 
@@ -25,5 +33,10 @@ class Account(Base):
     max_users = Column(Integer, nullable=False, default=1)  # Determined by plan
     stripe_customer_id = Column(String, nullable=True, index=True)
     stripe_subscription_id = Column(String, nullable=True)
+    
+    # Onboarding tracking
+    onboarding_completed = Column(Boolean, nullable=False, default=False)
+    onboarding_steps = Column(JSON, nullable=False, default=lambda: DEFAULT_ONBOARDING_STEPS.copy())
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

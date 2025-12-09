@@ -183,6 +183,19 @@ export function OnboardingChecklist({
             ))}
           </div>
           
+          {/* Continue onboarding button */}
+          <div className="mt-4 flex justify-center">
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+              Continue onboarding
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </div>
+          
           {/* Help text */}
           <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             Need help? Check our{" "}

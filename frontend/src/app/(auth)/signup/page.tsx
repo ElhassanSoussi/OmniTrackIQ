@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { SocialLoginButtons } from "@/components/auth";
+import { getOnboardingStatus } from "@/hooks/useOnboarding";
 
 // Client-side validation helpers
 function validateEmail(email: string): string | null {
@@ -39,9 +40,18 @@ export default function SignupPage() {
   const isBusy = useMemo(() => authLoading || submitting, [authLoading, submitting]);
 
   useEffect(() => {
-    if (!authLoading && user) {
-      router.replace("/dashboard");
+    async function checkOnboardingAndRedirect() {
+      if (!authLoading && user) {
+        // New users should go to onboarding
+        const onboarding = await getOnboardingStatus();
+        if (onboarding && !onboarding.onboarding_completed) {
+          router.replace("/onboarding");
+        } else {
+          router.replace("/dashboard");
+        }
+      }
     }
+    checkOnboardingAndRedirect();
   }, [authLoading, router, user]);
 
   useEffect(() => {
@@ -72,7 +82,8 @@ export default function SignupPage() {
 
     try {
       await signup({ email, password, accountName });
-      router.push("/dashboard");
+      // New signups should go to onboarding
+      router.push("/onboarding");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Signup failed";
       setFieldErrors({ form: message });

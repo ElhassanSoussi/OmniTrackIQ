@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { SocialLoginButtons } from "@/components/auth";
+import { getOnboardingStatus } from "@/hooks/useOnboarding";
 
 // Client-side validation helpers
 function validateEmail(email: string): string | null {
@@ -31,9 +32,18 @@ export default function LoginPage() {
   const isBusy = useMemo(() => authLoading || submitting, [authLoading, submitting]);
 
   useEffect(() => {
-    if (!authLoading && user) {
-      router.replace("/dashboard");
+    async function checkOnboardingAndRedirect() {
+      if (!authLoading && user) {
+        // Check onboarding status before redirecting
+        const onboarding = await getOnboardingStatus();
+        if (onboarding && !onboarding.onboarding_completed) {
+          router.replace("/onboarding");
+        } else {
+          router.replace("/dashboard");
+        }
+      }
     }
+    checkOnboardingAndRedirect();
   }, [authLoading, router, user]);
 
   useEffect(() => {
@@ -62,7 +72,13 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push("/dashboard");
+      // Check onboarding status after login
+      const onboarding = await getOnboardingStatus();
+      if (onboarding && !onboarding.onboarding_completed) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setFieldErrors({ form: message });
