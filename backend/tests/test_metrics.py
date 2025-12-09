@@ -806,3 +806,384 @@ class TestAdAccountModel:
         db.refresh(ad_account)
         
         assert ad_account.status == AdAccountStatus.ERROR
+
+
+# ================== New Drill-Down Analytics Tests ==================
+
+
+class TestCampaignTimeseries:
+    """Tests for /metrics/campaigns/{campaign_id}/timeseries endpoint."""
+
+    def test_campaign_timeseries_authenticated(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test getting campaign timeseries when authenticated."""
+        # Use the campaign ID from sample data
+        campaign_id = "facebook-campaign-1"
+        
+        response = client.get(
+            f"/metrics/campaigns/{campaign_id}/timeseries",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=7)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Check response structure
+        assert "data" in data
+        assert isinstance(data["data"], list)
+        
+        # If there's data, verify structure
+        if len(data["data"]) > 0:
+            point = data["data"][0]
+            assert "date" in point
+            assert "spend" in point
+            assert "clicks" in point
+            assert "impressions" in point
+            assert "conversions" in point
+
+    def test_campaign_timeseries_unauthenticated(self, client: TestClient):
+        """Test campaign timeseries endpoint requires authentication."""
+        response = client.get("/metrics/campaigns/test-campaign/timeseries")
+        assert response.status_code == 401
+
+    def test_campaign_timeseries_default_date_range(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test campaign timeseries uses default date range when not provided."""
+        response = client.get(
+            "/metrics/campaigns/facebook-campaign-1/timeseries",
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "data" in data
+
+
+class TestCampaignSummary:
+    """Tests for /metrics/campaigns/{campaign_id}/summary endpoint."""
+
+    def test_campaign_summary_authenticated(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test getting campaign summary when authenticated."""
+        campaign_id = "facebook-campaign-1"
+        
+        response = client.get(
+            f"/metrics/campaigns/{campaign_id}/summary",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=7)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Check required fields
+        assert "campaign_id" in data
+        assert "campaign_name" in data
+        assert "platform" in data
+        assert "spend" in data
+        assert "clicks" in data
+        assert "impressions" in data
+        assert "conversions" in data
+        assert "ctr" in data
+        assert "cpc" in data
+        assert "cpa" in data
+
+    def test_campaign_summary_not_found(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+    ):
+        """Test campaign summary returns 404 for non-existent campaign."""
+        response = client.get(
+            "/metrics/campaigns/non-existent-campaign/summary",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=7)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 404
+
+    def test_campaign_summary_unauthenticated(self, client: TestClient):
+        """Test campaign summary endpoint requires authentication."""
+        response = client.get("/metrics/campaigns/test-campaign/summary")
+        assert response.status_code == 401
+
+
+class TestCampaignTimeseriesByName:
+    """Tests for /metrics/campaign-timeseries endpoint."""
+
+    def test_campaign_timeseries_by_name(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test getting campaign timeseries by name."""
+        response = client.get(
+            "/metrics/campaign-timeseries",
+            headers=auth_headers,
+            params={
+                "campaign_name": "Facebook Campaign 1",
+                "from": str(date.today() - timedelta(days=7)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "data" in data
+
+    def test_campaign_timeseries_by_name_with_channel_filter(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_ad_spend: list[AdSpend],
+    ):
+        """Test campaign timeseries by name with channel filter."""
+        response = client.get(
+            "/metrics/campaign-timeseries",
+            headers=auth_headers,
+            params={
+                "campaign_name": "Facebook Campaign 1",
+                "channel": "facebook",
+                "from": str(date.today() - timedelta(days=7)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 200
+
+    def test_campaign_timeseries_by_name_not_found(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+    ):
+        """Test campaign timeseries returns 404 for non-existent campaign name."""
+        response = client.get(
+            "/metrics/campaign-timeseries",
+            headers=auth_headers,
+            params={
+                "campaign_name": "Non-Existent Campaign",
+                "from": str(date.today() - timedelta(days=7)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 404
+
+    def test_campaign_timeseries_by_name_requires_param(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+    ):
+        """Test campaign timeseries by name requires campaign_name param."""
+        response = client.get(
+            "/metrics/campaign-timeseries",
+            headers=auth_headers,
+        )
+        assert response.status_code == 422  # Validation error
+
+
+class TestOrdersList:
+    """Tests for /metrics/orders/list endpoint."""
+
+    def test_orders_list_authenticated(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_orders: list[Order],
+    ):
+        """Test getting orders list when authenticated."""
+        response = client.get(
+            "/metrics/orders/list",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Check response structure
+        assert "items" in data
+        assert "total_count" in data
+        assert "page" in data
+        assert "page_size" in data
+        assert isinstance(data["items"], list)
+        assert isinstance(data["total_count"], int)
+
+    def test_orders_list_unauthenticated(self, client: TestClient):
+        """Test orders list endpoint requires authentication."""
+        response = client.get("/metrics/orders/list")
+        assert response.status_code == 401
+
+    def test_orders_list_pagination(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_orders: list[Order],
+    ):
+        """Test orders list pagination."""
+        # First page
+        response = client.get(
+            "/metrics/orders/list",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+                "page": 1,
+                "page_size": 10,
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        assert data["page"] == 1
+        assert data["page_size"] == 10
+        assert len(data["items"]) <= 10
+        
+        # Second page
+        response = client.get(
+            "/metrics/orders/list",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+                "page": 2,
+                "page_size": 10,
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["page"] == 2
+
+    def test_orders_list_channel_filter(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_orders: list[Order],
+    ):
+        """Test orders list filtering by channel."""
+        response = client.get(
+            "/metrics/orders/list",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+                "channel": "facebook",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # All items should have facebook as utm_source
+        for item in data["items"]:
+            assert item.get("utm_source") == "facebook" or item.get("attributed_channel") == "facebook"
+
+    def test_orders_list_search(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_orders: list[Order],
+    ):
+        """Test orders list search by order ID."""
+        response = client.get(
+            "/metrics/orders/list",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+                "search": "order-1",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Results should match search query
+        for item in data["items"]:
+            assert "order-1" in item.get("external_order_id", "").lower() or "order-1" in item.get("id", "").lower()
+
+    def test_orders_list_item_structure(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_orders: list[Order],
+    ):
+        """Test orders list item has expected fields."""
+        response = client.get(
+            "/metrics/orders/list",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+                "page_size": 1,
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        if data["items"]:
+            item = data["items"][0]
+            # Check required fields are present
+            assert "id" in item
+            assert "external_order_id" in item
+            assert "date_time" in item
+            assert "total_amount" in item
+            assert "currency" in item
+            assert "source_platform" in item
+            assert "attributed_channel" in item
+
+
+class TestOrdersSummaryEnhanced:
+    """Tests for enhanced /metrics/orders/summary endpoint."""
+
+    def test_orders_summary_has_daily(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        sample_orders: list[Order],
+    ):
+        """Test orders summary includes daily timeseries."""
+        response = client.get(
+            "/metrics/orders/summary",
+            headers=auth_headers,
+            params={
+                "from": str(date.today() - timedelta(days=30)),
+                "to": str(date.today()),
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Check enhanced response includes daily
+        assert "total_orders" in data
+        assert "total_revenue" in data
+        assert "aov" in data
+        assert "orders_by_source" in data
+        assert "revenue_by_source" in data
+        assert "daily" in data
+        
+        # Daily should be a list
+        assert isinstance(data["daily"], list)
+        
+        # If there's daily data, check structure
+        if data["daily"]:
+            point = data["daily"][0]
+            assert "date" in point
+            assert "orders" in point
+            assert "revenue" in point
