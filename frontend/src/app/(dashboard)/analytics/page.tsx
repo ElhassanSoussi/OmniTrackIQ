@@ -340,6 +340,70 @@ export default function AnalyticsPage() {
           <p className="mt-1 text-sm text-gray-500">Order attribution and revenue trends</p>
         </Link>
       </div>
+
+      {/* Advanced Analytics Section */}
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Advanced Analytics</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link
+            href="/analytics/insights"
+            className="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 transition hover:shadow-md"
+          >
+            <div className="text-2xl mb-2">🤖</div>
+            <h3 className="font-semibold text-gray-900">AI Insights</h3>
+            <p className="mt-1 text-sm text-gray-500">AI-powered analysis and predictions</p>
+          </Link>
+          <Link
+            href="/analytics/attribution"
+            className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 transition hover:shadow-md"
+          >
+            <div className="text-2xl mb-2">🎯</div>
+            <h3 className="font-semibold text-gray-900">Attribution</h3>
+            <p className="mt-1 text-sm text-gray-500">Multi-touch attribution models</p>
+          </Link>
+          <Link
+            href="/analytics/mmm"
+            className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-white p-6 transition hover:shadow-md"
+          >
+            <div className="text-2xl mb-2">📊</div>
+            <h3 className="font-semibold text-gray-900">Marketing Mix</h3>
+            <p className="mt-1 text-sm text-gray-500">Channel contribution & budget optimization</p>
+          </Link>
+          <Link
+            href="/analytics/incrementality"
+            className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-white p-6 transition hover:shadow-md"
+          >
+            <div className="text-2xl mb-2">📈</div>
+            <h3 className="font-semibold text-gray-900">Incrementality</h3>
+            <p className="mt-1 text-sm text-gray-500">Measure true marketing impact</p>
+          </Link>
+        </div>
+      </div>
+
+      {/* More Analytics Tools */}
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <Link
+          href="/analytics/cohorts"
+          className="rounded-xl border border-gray-200 bg-white p-6 transition hover:border-emerald-300 hover:shadow-md"
+        >
+          <h3 className="font-semibold text-gray-900">Cohort Analysis</h3>
+          <p className="mt-1 text-sm text-gray-500">Customer retention and LTV tracking</p>
+        </Link>
+        <Link
+          href="/analytics/funnel"
+          className="rounded-xl border border-gray-200 bg-white p-6 transition hover:border-emerald-300 hover:shadow-md"
+        >
+          <h3 className="font-semibold text-gray-900">Funnel Analysis</h3>
+          <p className="mt-1 text-sm text-gray-500">Conversion funnel visualization</p>
+        </Link>
+        <Link
+          href="/analytics/anomalies"
+          className="rounded-xl border border-gray-200 bg-white p-6 transition hover:border-emerald-300 hover:shadow-md"
+        >
+          <h3 className="font-semibold text-gray-900">Anomaly Detection</h3>
+          <p className="mt-1 text-sm text-gray-500">Detect unusual patterns in metrics</p>
+        </Link>
+      </div>
     </div>
   );
 }

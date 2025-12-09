@@ -34,10 +34,10 @@ OmniTrackIQ is being built in iterative phases, each adding significant value to
 
 ### Future Enhancements
 
-- [ ] More attribution models (linear, time-decay, position-based, data-driven)
-- [ ] AI-powered forecasting and recommendations
-- [ ] Cohort analysis and LTV prediction
-- [ ] Funnel visualization and drop-off analysis
+- [x] More attribution models (linear, time-decay, position-based, data-driven) — *Completed in Phase 5*
+- [x] AI-powered forecasting and recommendations — *Completed in Phase 5*
+- [x] Cohort analysis and LTV prediction — *Completed*
+- [x] Funnel visualization and drop-off analysis — *Completed*
 
 ---
 
@@ -145,26 +145,51 @@ OmniTrackIQ is being built in iterative phases, each adding significant value to
 
 ---
 
-## Phase 5 — Advanced Analytics (Planned)
+## Phase 5 — Advanced Analytics ✅
 
 **Goal**: Add sophisticated analytics features for power users.
 
-### Planned Features
+### Backend
 
-- [ ] Multi-touch attribution models
-  - [ ] First-touch, last-touch, linear, time-decay
-  - [ ] Data-driven attribution (ML-based)
-  - [ ] Custom model builder
-- [ ] Incrementality testing
-  - [ ] Geo holdout experiments
-  - [ ] Conversion lift measurement
-- [ ] Marketing mix modeling (MMM)
-  - [ ] Channel contribution analysis
-  - [ ] Budget optimization recommendations
-- [ ] AI insights
-  - [ ] Anomaly explanation
-  - [ ] Predictive alerts
-  - [ ] Natural language queries
+- [x] AI Insights Service (`insights_service.py`)
+  - [x] AI-powered insight generation with trend analysis
+  - [x] Anomaly explanation with possible causes and recommendations
+  - [x] Predictive alerts based on trend forecasting
+- [x] Marketing Mix Modeling Service (`mmm_service.py`)
+  - [x] Channel contribution analysis
+  - [x] Budget optimization with 4 goals (maximize_revenue, maximize_roas, minimize_cpa, balanced)
+  - [x] Scenario analysis for budget changes
+  - [x] Diminishing returns analysis with quartile breakdown
+- [x] Incrementality Testing Service (`incrementality_service.py`)
+  - [x] Time-based incrementality analysis with statistical significance
+  - [x] Baseline conversion estimation
+  - [x] Holdout test design recommendations
+  - [x] Conversion lift analysis per channel/campaign
+- [x] API Routes (`routes_insights.py`)
+  - [x] `/analytics/insights` - AI insights endpoint
+  - [x] `/analytics/insights/anomaly-explanation` - Anomaly explanation
+  - [x] `/analytics/insights/predictive-alerts` - Predictive alerts
+  - [x] `/analytics/mmm/*` - MMM endpoints (4 endpoints)
+  - [x] `/analytics/incrementality/*` - Incrementality endpoints (4 endpoints)
+
+### Frontend
+
+- [x] React Query hooks (`useInsights.ts`)
+  - [x] Hooks for all insight, MMM, and incrementality endpoints
+- [x] AI Insights Page (`/analytics/insights`)
+  - [x] Summary cards, predictive alerts, insights list with filtering
+- [x] Marketing Mix Modeling Page (`/analytics/mmm`)
+  - [x] Channel contribution, budget optimization, diminishing returns tabs
+- [x] Incrementality Testing Page (`/analytics/incrementality`)
+  - [x] Time-based analysis, baseline estimation, conversion lift, test design tabs
+- [x] Analytics Overview Page updated with Advanced Analytics section
+
+### Future Enhancements
+
+- [ ] Data-driven attribution with ML model
+- [ ] Natural language queries for insights
+- [ ] Custom model builder for attribution
+- [ ] Real-time incrementality monitoring
 
 ---
 
@@ -240,6 +265,7 @@ These are ideas under consideration but not yet scheduled:
 
 | Date | Phase | Description |
 |------|-------|-------------|
+| 2025-12 | Phase 5 | Advanced analytics complete (AI insights, MMM, incrementality) |
 | 2024-12 | Phase 4 | Marketing site complete |
 | 2024-12 | Phase 3 | Onboarding flow complete |
 | 2024-12 | Phase 2 | Stripe billing complete |
