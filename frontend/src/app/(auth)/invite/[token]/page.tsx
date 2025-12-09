@@ -164,10 +164,11 @@ export default function AcceptInvitePage() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label htmlFor="invite-email" className="block text-sm font-medium text-gray-700">
                 Email
               </label>
               <input
+                id="invite-email"
                 type="email"
                 value={inviteInfo.email}
                 disabled

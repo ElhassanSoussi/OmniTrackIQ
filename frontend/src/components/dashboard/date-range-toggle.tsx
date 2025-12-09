@@ -84,6 +84,7 @@ export function DateRangeToggle({
       {/* Mobile: Dropdown select */}
       <div className="sm:hidden">
         <select
+          aria-label="Select date range"
           value={value}
           onChange={(e) => handleRangeClick(e.target.value as DateRangeValue)}
           className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -131,8 +132,9 @@ export function DateRangeToggle({
           
           <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+              <label htmlFor="date-range-start" className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Start Date</label>
               <input
+                id="date-range-start"
                 type="date"
                 value={tempFrom}
                 onChange={(e) => setTempFrom(e.target.value)}
@@ -141,8 +143,9 @@ export function DateRangeToggle({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">End Date</label>
+              <label htmlFor="date-range-end" className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">End Date</label>
               <input
+                id="date-range-end"
                 type="date"
                 value={tempTo}
                 onChange={(e) => setTempTo(e.target.value)}

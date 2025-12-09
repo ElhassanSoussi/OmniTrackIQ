@@ -349,8 +349,9 @@ function CreateViewModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">View Type</label>
+            <label htmlFor="view-type" className="block text-sm font-medium text-gray-700">View Type</label>
             <select
+              id="view-type"
               value={viewType}
               onChange={(e) => setViewType(e.target.value as typeof viewType)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -362,8 +363,9 @@ function CreateViewModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Default Date Range</label>
+            <label htmlFor="date-range" className="block text-sm font-medium text-gray-700">Default Date Range</label>
             <select
+              id="date-range"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -446,8 +448,9 @@ function EditViewModal({
         <h2 className="text-lg font-semibold text-gray-900">Edit Saved View</h2>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label htmlFor="edit-view-name" className="block text-sm font-medium text-gray-700">Name</label>
             <input
+              id="edit-view-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -456,8 +459,9 @@ function EditViewModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description (optional)</label>
+            <label htmlFor="edit-view-description" className="block text-sm font-medium text-gray-700">Description (optional)</label>
             <input
+              id="edit-view-description"
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
