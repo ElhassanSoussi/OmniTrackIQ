@@ -50,6 +50,7 @@ def start_scheduler():
     from app.jobs.sync_tasks import (
         sync_all_integrations,
         check_pending_scheduled_reports,
+        check_trial_expirations,
     )
     
     # Sync all integrations every hour
@@ -67,6 +68,15 @@ def start_scheduler():
         trigger=IntervalTrigger(minutes=15),
         id="check_scheduled_reports",
         name="Check Scheduled Reports",
+        replace_existing=True,
+    )
+    
+    # Check for trial expirations every hour
+    scheduler.add_job(
+        check_trial_expirations,
+        trigger=IntervalTrigger(hours=1),
+        id="check_trial_expirations",
+        name="Check Trial Expirations",
         replace_existing=True,
     )
     

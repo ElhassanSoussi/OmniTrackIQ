@@ -81,6 +81,15 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
         workspace_id=account_id,
         user_id=user.id,
     )
+    
+    # Track started_trial event (all new signups start with a trial)
+    events_service.track_event(
+        db=db,
+        event_name="started_trial",
+        properties={"plan": "free", "trial_days": 14},
+        workspace_id=account_id,
+        user_id=user.id,
+    )
 
     token = create_access_token(user.id)
     return token

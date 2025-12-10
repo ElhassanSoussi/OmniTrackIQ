@@ -361,6 +361,90 @@ OmniTrackIQ is being built in iterative phases, each adding significant value to
 
 ---
 
+## Phase 8 — Product Analytics ✅
+
+**Goal**: Implement internal product analytics to track user journey from signup → onboarding → connected integrations → active dashboards → paying.
+
+### Backend
+
+- [x] ProductEvent Model (`product_event.py`)
+  - [x] `ProductEvent` model with id, workspace_id, user_id, event_name, properties, created_at
+  - [x] `ProductEventName` Literal type with all allowed event names
+  - [x] `ALLOWED_EVENT_NAMES` set for validation
+- [x] Events Service (`events_service.py`)
+  - [x] Event validation against whitelist (16 event types)
+  - [x] In-memory rate limiting (100 events/minute per user/IP)
+  - [x] Properties truncation for large payloads (4KB limit)
+  - [x] `track_event()` - Fire-and-forget event recording
+  - [x] `get_events()` - Query events with filtering
+- [x] Events Routes (`routes_events.py`)
+  - [x] `POST /events/track` - Accepts both authenticated and unauthenticated requests
+  - [x] `GET /events/allowed` - Lists valid event names (for debugging)
+- [x] Dependencies (`deps.py`)
+  - [x] `get_current_user_optional()` - Optional auth for mixed endpoints
+- [x] JWT Helper (`jwt.py`)
+  - [x] `decode_token()` - Non-throwing JWT decode
+- [x] Database Migration (`0013_product_events.py`)
+  - [x] `product_events` table with indexes on workspace_id, user_id, event_name, created_at
+
+### Tracked Events
+
+| Event | Location | Trigger |
+|-------|----------|---------|
+| `signup_completed` | Backend (auth_service.py) | On successful signup |
+| `started_trial` | Backend (auth_service.py) | On every new signup |
+| `onboarding_completed` | Frontend (useOnboarding.ts) | When all steps done |
+| `integration_connected` | Frontend (integrations/page.tsx) | After OAuth callback |
+| `integration_disconnected` | (Future) | On disconnect |
+| `viewed_overview_dashboard` | Frontend (dashboard/page.tsx) | First view per session |
+| `viewed_campaigns_dashboard` | Frontend (campaigns/page.tsx) | First view per session |
+| `viewed_orders_dashboard` | Frontend (orders/page.tsx) | First view per session |
+| `subscription_activated` | Backend (routes_billing.py) | Stripe webhook |
+| `subscription_cancelled` | Backend (routes_billing.py) | Stripe webhook |
+| `trial_expired` | Backend (sync_tasks.py) | Scheduled job |
+| `demo_login` | (Future) | Demo mode login |
+| `demo_to_signup` | (Future) | Demo → real signup |
+| `report_created` | (Future) | Custom report saved |
+| `report_exported` | (Future) | Report export |
+| `team_member_invited` | (Future) | Team invite sent |
+
+### Frontend
+
+- [x] Analytics Module (`lib/analytics.ts`)
+  - [x] `trackEvent(name, props)` - Fire-and-forget event tracking
+  - [x] `trackDashboardView(type)` - Session-scoped dashboard tracking
+  - [x] `trackIntegrationConnected()` - Integration helper
+  - [x] `trackSubscriptionActivated()` - Billing helper
+  - [x] `ProductEventName` TypeScript union type
+- [x] Dashboard pages wired with tracking
+- [x] Onboarding hook wired with tracking
+- [x] Integrations page wired with tracking
+
+### Background Jobs
+
+- [x] Trial expiration check (`sync_tasks.py`)
+  - [x] `check_trial_expirations()` - Runs hourly
+  - [x] Finds subscriptions with status='trialing' where trial_end < now
+  - [x] Fires `trial_expired` event and updates status
+
+### Tests
+
+- [x] Event tracking tests (`test_events.py`)
+  - [x] Unauthenticated event tracking
+  - [x] Authenticated event tracking
+  - [x] Invalid event name validation
+  - [x] Properties handling
+
+### Future Enhancements
+
+- [ ] Analytics dashboard for internal use
+- [ ] Funnel visualization (signup → onboarding → integration → dashboard → paid)
+- [ ] Cohort analysis based on signup date
+- [ ] Export events to external analytics (Segment, Amplitude)
+- [ ] A/B test tracking integration
+
+---
+
 ## Future Ideas (Backlog)
 
 These are ideas under consideration but not yet scheduled:
@@ -402,6 +486,7 @@ These are ideas under consideration but not yet scheduled:
 
 | Date | Phase | Description |
 |------|-------|-------------|
+| 2025-12 | Phase 8 | Product analytics complete (event tracking, user journey, trial monitoring) |
 | 2025-12 | Phase 7 | Enterprise features complete (SSO, audit logs, API keys, data retention) |
 | 2025-12 | Phase 6 | Agency features complete (multi-client, white-label, benchmarks) |
 | 2025-12 | Phase 5 | Advanced analytics complete (AI insights, MMM, incrementality) |

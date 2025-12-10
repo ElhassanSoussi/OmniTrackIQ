@@ -375,3 +375,63 @@ async def check_pending_scheduled_reports():
                 
     finally:
         db.close()
+
+
+async def check_trial_expirations():
+    """
+    Check for expired trials and fire trial_expired events.
+    Called periodically by the scheduler.
+    
+    Logic:
+    - Find subscriptions with status='trialing' where trial_end < now
+    - Fire trial_expired event for each
+    - Update subscription status to 'trial_expired'
+    """
+    logger.info("Checking for trial expirations")
+    
+    from app.models.subscription import Subscription
+    from app.services import events_service
+    
+    db = SessionLocal()
+    try:
+        now = datetime.utcnow()
+        
+        # Find expired trials that haven't been processed yet
+        # We look for trialing subscriptions where trial has ended
+        expired_trials = db.query(Subscription).filter(
+            Subscription.status == "trialing",
+            Subscription.trial_end.isnot(None),
+            Subscription.trial_end < now,
+        ).all()
+        
+        logger.info(f"Found {len(expired_trials)} expired trials")
+        
+        for subscription in expired_trials:
+            try:
+                # Track trial_expired event
+                events_service.track_event(
+                    db=db,
+                    event_name="trial_expired",
+                    properties={
+                        "plan": subscription.plan,
+                        "trial_started": subscription.created_at.isoformat() if subscription.created_at else None,
+                        "trial_end": subscription.trial_end.isoformat() if subscription.trial_end else None,
+                    },
+                    workspace_id=subscription.account_id,
+                )
+                
+                # Update subscription status
+                subscription.status = "trial_expired"
+                subscription.updated_at = now
+                db.commit()
+                
+                logger.info(f"Processed trial expiration for account {subscription.account_id}")
+                
+            except Exception as e:
+                logger.error(f"Error processing trial expiration for {subscription.account_id}: {e}")
+                db.rollback()
+                
+    except Exception as e:
+        logger.error(f"Error in check_trial_expirations: {e}")
+    finally:
+        db.close()
