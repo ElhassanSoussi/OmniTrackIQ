@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CampaignsTable,
   ChannelTable,
@@ -27,6 +27,7 @@ import { useSampleDataStats, useGenerateSampleData, useDeleteSampleData } from "
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
+import { trackDashboardView } from "@/lib/analytics";
 
 const CHANNEL_OPTIONS = [
   { value: "", label: "All channels" },
@@ -63,6 +64,11 @@ export default function DashboardPage() {
   } = useDashboardLayout();
 
   const hiddenWidgets = widgets.filter((w) => !w.visible);
+
+  // Track dashboard view (once per session)
+  useEffect(() => {
+    trackDashboardView("overview");
+  }, []);
 
   const kpis: KPIItem[] = useMemo(() => {
     if (!summary) {

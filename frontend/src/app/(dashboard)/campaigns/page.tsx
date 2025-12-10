@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { DashboardSection, DateRangeToggle, DateRangeValue } from "@/components/dashboard";
 import { TableSkeleton } from "@/components/ui/loading-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -9,6 +9,7 @@ import { useCampaigns, CampaignMetrics, useCampaignDetail } from "@/hooks/useCam
 import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
+import { trackDashboardView } from "@/lib/analytics";
 
 const CHANNEL_OPTIONS = [
   { value: "", label: "All channels" },
@@ -50,6 +51,11 @@ export default function CampaignsPage() {
   const [sortBy, setSortBy] = useState<string>("spend");
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const { from, to } = getDateRange(range);
+
+  // Track dashboard view (once per session)
+  useEffect(() => {
+    trackDashboardView("campaigns");
+  }, []);
 
   const { data, isError, error, isPending } = useCampaigns(from, to, {
     platform: channelFilter || undefined,

@@ -5,6 +5,7 @@ from app.models.account import Account
 from app.models.user import User
 from app.security.jwt import create_access_token
 from app.security.password import hash_password, verify_password
+from app.services import events_service
 
 
 def signup(db: Session, email: str, password: str, account_name: str) -> str:
@@ -71,6 +72,15 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Track signup completed event
+    events_service.track_event(
+        db=db,
+        event_name="signup_completed",
+        properties={"signup_method": "email"},
+        workspace_id=account_id,
+        user_id=user.id,
+    )
 
     token = create_access_token(user.id)
     return token

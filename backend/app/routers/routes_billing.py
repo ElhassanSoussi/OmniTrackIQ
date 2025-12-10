@@ -18,6 +18,7 @@ from app.schemas.billing import (
     PlansResponse,
 )
 from app.services import billing_service
+from app.services import events_service
 
 logger = logging.getLogger(__name__)
 
@@ -219,6 +220,14 @@ async def stripe_webhook(
                 account.stripe_subscription_id = subscription_id
 
             db.commit()
+            
+            # Track subscription activated event
+            events_service.track_event(
+                db=db,
+                event_name="subscription_activated",
+                properties={"plan": plan, "from_checkout": True},
+                workspace_id=account_id,
+            )
 
         elif event_type == "customer.subscription.created":
             subscription_data = event["data"]["object"]
@@ -243,6 +252,14 @@ async def stripe_webhook(
                     account.plan = AccountPlan.FREE
                     account.max_users = 1
                 db.commit()
+                
+                # Track subscription cancelled event
+                events_service.track_event(
+                    db=db,
+                    event_name="subscription_cancelled",
+                    properties={"previous_plan": sub.plan},
+                    workspace_id=sub.account_id,
+                )
 
         else:
             logger.debug(f"Unhandled webhook event type: {event_type}")

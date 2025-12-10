@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { SocialLoginButtons } from "@/components/auth";
 import { getOnboardingStatus } from "@/hooks/useOnboarding";
+import { trackEvent } from "@/lib/analytics";
 
 // Client-side validation helpers
 function validateEmail(email: string): string | null {
@@ -82,6 +83,8 @@ export default function SignupPage() {
 
     try {
       await signup({ email, password, accountName });
+      // Track successful signup
+      trackEvent("signup_completed");
       // New signups should go to onboarding
       router.push("/onboarding");
     } catch (err) {

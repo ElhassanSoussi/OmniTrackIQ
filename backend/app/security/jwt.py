@@ -42,6 +42,27 @@ class TokenData:
         self.sub = sub
 
 
+def decode_token(token: str) -> Optional[dict]:
+    """
+    Decode a JWT token without raising exceptions.
+    Returns the payload dict or None if invalid/expired.
+    
+    Use this for optional authentication scenarios.
+    """
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[JWT_ALGORITHM],
+        )
+        return payload
+    except (jwt.ExpiredSignatureError, jwt.PyJWTError):
+        return None
+
+
 def decode_access_token(token: str = Depends(oauth2_scheme)) -> TokenData:
     """
     Decode and validate the JWT access token coming from the Authorization header.

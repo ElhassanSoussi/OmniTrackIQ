@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useIntegrations, IntegrationItem, IntegrationPlatform } from "@/hooks/useIntegrations";
 import { useBilling } from "@/hooks/useBilling";
 import { canAddMoreIntegrations, maxIntegrations, getUpgradeSuggestion } from "@/lib/plan";
+import { trackIntegrationConnected } from "@/lib/analytics";
 
 const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; description: string }> = {
   facebook: { title: "Facebook Ads", description: "Sync ad spend, campaigns, and conversions from Meta." },
@@ -15,9 +17,29 @@ const PLATFORM_COPY: Record<IntegrationItem["platform"], { title: string; descri
 };
 
 export default function IntegrationsPage() {
-  const { integrations, connect, connecting, isLoading, isError, error, actionError } = useIntegrations();
+  const searchParams = useSearchParams();
+  const { integrations, connect, connecting, isLoading, isError, error, actionError, reload } = useIntegrations();
   const { billing } = useBilling();
   const [comingSoonPlatform, setComingSoonPlatform] = useState<IntegrationPlatform | null>(null);
+  const [trackedConnection, setTrackedConnection] = useState<string | null>(null);
+
+  // Track successful integration connection from OAuth callback
+  useEffect(() => {
+    const success = searchParams.get("success");
+    const platform = searchParams.get("platform");
+    
+    if (success === "true" && platform && platform !== trackedConnection) {
+      // Track the connection event
+      trackIntegrationConnected(
+        platform,
+        billing?.plan,
+        billing?.status === "trialing"
+      );
+      setTrackedConnection(platform);
+      // Reload integrations to show updated status
+      reload();
+    }
+  }, [searchParams, billing?.plan, billing?.status, trackedConnection, reload]);
 
   const cards = useMemo(() => integrations.map((i) => ({ ...i, ...PLATFORM_COPY[i.platform] })), [integrations]);
   

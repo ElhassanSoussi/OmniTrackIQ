@@ -1,6 +1,6 @@
-from typing import Generator
+from typing import Generator, Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
@@ -27,6 +27,40 @@ def get_current_user(
             detail="Your account was not found. Please sign up or contact support."
         )
     return user
+
+
+def get_current_user_optional(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """
+    Get current user if authenticated, otherwise return None.
+    Use this for endpoints that accept both authenticated and unauthenticated requests.
+    """
+    if not authorization:
+        return None
+    
+    try:
+        # Extract token from "Bearer <token>"
+        if not authorization.startswith("Bearer "):
+            return None
+        
+        token = authorization[7:]
+        if not token:
+            return None
+        
+        # Decode token
+        from app.security.jwt import decode_token
+        payload = decode_token(token)
+        if not payload or "sub" not in payload:
+            return None
+        
+        # Get user
+        user = db.query(User).filter(User.id == payload["sub"]).first()
+        return user
+    except Exception:
+        # Any error means no valid auth
+        return None
 
 
 def get_current_account_user(

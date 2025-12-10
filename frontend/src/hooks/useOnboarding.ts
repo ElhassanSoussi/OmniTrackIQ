@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { apiFetch } from "@/lib/api-client";
+import { trackEvent } from "@/lib/analytics";
 import type { OnboardingStep } from "@/components/ui/onboarding-checklist";
 
 export interface OnboardingSteps {
@@ -81,6 +82,10 @@ export function useOnboarding() {
       });
       if (result) {
         setData(result);
+        // Track onboarding completed when all steps are done
+        if (result.onboarding_completed && !data?.onboarding_completed) {
+          trackEvent("onboarding_completed");
+        }
         return result;
       }
       return null;
@@ -88,7 +93,7 @@ export function useOnboarding() {
       console.error("Failed to complete onboarding step:", err);
       return null;
     }
-  }, []);
+  }, [data?.onboarding_completed]);
 
   const resetOnboarding = useCallback(async (): Promise<boolean> => {
     try {

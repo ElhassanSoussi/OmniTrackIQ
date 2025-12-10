@@ -27,6 +27,7 @@ from app.models.enterprise import (
     DataRetentionPolicy,
     APIKey,
 )
+from app.models.product_event import ProductEvent, ProductEventName, ALLOWED_EVENT_NAMES
 
 __all__ = [
     "User",
@@ -66,4 +67,8 @@ __all__ = [
     "AuditLogSeverity",
     "DataRetentionPolicy",
     "APIKey",
+    # Product Analytics
+    "ProductEvent",
+    "ProductEventName",
+    "ALLOWED_EVENT_NAMES",
 ]

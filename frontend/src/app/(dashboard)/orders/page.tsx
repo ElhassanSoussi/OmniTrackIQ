@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { DashboardSection, DateRangeToggle, DateRangeValue, OrdersTable } from "@/components/dashboard";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +11,7 @@ import { useOrdersSummary, useOrdersList, OrderListItem } from "@/hooks/useOrder
 import { useSampleDataStats, useGenerateSampleData } from "@/hooks/useSampleData";
 import { getDateRange } from "@/lib/date-range";
 import { formatCurrency, formatNumber, formatErrorMessage } from "@/lib/format";
+import { trackDashboardView } from "@/lib/analytics";
 
 const SOURCE_COLORS: Record<string, string> = {
   facebook: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
@@ -44,6 +45,11 @@ export default function OrdersPage() {
   const pageSize = 25;
   
   const { from, to } = getDateRange(range);
+
+  // Track dashboard view (once per session)
+  useEffect(() => {
+    trackDashboardView("orders");
+  }, []);
   
   // Use the new paginated orders list endpoint
   const { data: ordersData, isLoading, isError, error } = useOrdersList(from, to, {

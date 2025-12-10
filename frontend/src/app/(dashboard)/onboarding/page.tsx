@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CheckCircle2, Circle, ArrowRight, Building2, Plug, LayoutDashboard, PartyPopper, Loader2 } from "lucide-react";
 import { useOnboarding, OnboardingStepName } from "@/hooks/useOnboarding";
 import { apiFetch } from "@/lib/api-client";
+import { trackEvent } from "@/lib/analytics";
 
 interface Integration {
   id: string;
