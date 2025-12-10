@@ -16,11 +16,23 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create enum types (IF NOT EXISTS for idempotency)
-    op.execute("DO $$ BEGIN CREATE TYPE ssoprovider AS ENUM ('saml', 'oidc', 'azure_ad', 'okta', 'google_workspace', 'onelogin'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
-    op.execute("DO $$ BEGIN CREATE TYPE ssoconfigstatus AS ENUM ('draft', 'testing', 'active', 'disabled'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
-    op.execute("DO $$ BEGIN CREATE TYPE auditaction AS ENUM ('login', 'logout', 'login_failed', 'sso_login', 'password_changed', 'password_reset', 'user_created', 'user_updated', 'user_deleted', 'user_invited', 'user_role_changed', 'account_updated', 'plan_changed', 'billing_updated', 'integration_connected', 'integration_disconnected', 'integration_synced', 'report_viewed', 'report_exported', 'data_exported', 'sso_config_updated', 'api_key_created', 'api_key_revoked', 'permission_changed', 'client_created', 'client_updated', 'client_archived', 'client_access_granted', 'client_access_revoked'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
-    op.execute("DO $$ BEGIN CREATE TYPE auditlogseverity AS ENUM ('info', 'warning', 'critical'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
+    # Drop enum types if they exist (from partial previous migration)
+    op.execute("DROP TYPE IF EXISTS ssoprovider CASCADE")
+    op.execute("DROP TYPE IF EXISTS ssoconfigstatus CASCADE")
+    op.execute("DROP TYPE IF EXISTS auditaction CASCADE")
+    op.execute("DROP TYPE IF EXISTS auditlogseverity CASCADE")
+    
+    # Drop tables if they exist (from partial previous migration)
+    op.execute("DROP TABLE IF EXISTS api_keys CASCADE")
+    op.execute("DROP TABLE IF EXISTS data_retention_policies CASCADE")
+    op.execute("DROP TABLE IF EXISTS audit_logs CASCADE")
+    op.execute("DROP TABLE IF EXISTS sso_configs CASCADE")
+    
+    # Create enum types
+    op.execute("CREATE TYPE ssoprovider AS ENUM ('saml', 'oidc', 'azure_ad', 'okta', 'google_workspace', 'onelogin')")
+    op.execute("CREATE TYPE ssoconfigstatus AS ENUM ('draft', 'testing', 'active', 'disabled')")
+    op.execute("CREATE TYPE auditaction AS ENUM ('login', 'logout', 'login_failed', 'sso_login', 'password_changed', 'password_reset', 'user_created', 'user_updated', 'user_deleted', 'user_invited', 'user_role_changed', 'account_updated', 'plan_changed', 'billing_updated', 'integration_connected', 'integration_disconnected', 'integration_synced', 'report_viewed', 'report_exported', 'data_exported', 'sso_config_updated', 'api_key_created', 'api_key_revoked', 'permission_changed', 'client_created', 'client_updated', 'client_archived', 'client_access_granted', 'client_access_revoked')")
+    op.execute("CREATE TYPE auditlogseverity AS ENUM ('info', 'warning', 'critical')")
     
     # Create sso_configs table
     op.create_table(
