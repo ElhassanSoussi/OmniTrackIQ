@@ -319,7 +319,7 @@ alembic history
 |---------|-------|
 | Root Directory | `backend` |
 | Runtime | Python 3 |
-| Build Command | `pip install -r requirements.txt && alembic upgrade head` |
+| Build Command | `./build.sh` |
 | Start Command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 
 4. **Environment Variables** (add all from backend/.env):
