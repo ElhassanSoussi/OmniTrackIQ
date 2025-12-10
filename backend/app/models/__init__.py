@@ -16,6 +16,17 @@ from app.models.notification_preference import (
     NotificationChannel,
     AlertType,
 )
+from app.models.client_account import ClientAccount, ClientUserAccess, ClientStatus
+from app.models.enterprise import (
+    SSOConfig,
+    SSOProvider,
+    SSOConfigStatus,
+    AuditLog,
+    AuditAction,
+    AuditLogSeverity,
+    DataRetentionPolicy,
+    APIKey,
+)
 
 __all__ = [
     "User",
@@ -43,4 +54,16 @@ __all__ = [
     "NotificationLog",
     "NotificationChannel",
     "AlertType",
+    "ClientAccount",
+    "ClientUserAccess",
+    "ClientStatus",
+    # Enterprise
+    "SSOConfig",
+    "SSOProvider",
+    "SSOConfigStatus",
+    "AuditLog",
+    "AuditAction",
+    "AuditLogSeverity",
+    "DataRetentionPolicy",
+    "APIKey",
 ]

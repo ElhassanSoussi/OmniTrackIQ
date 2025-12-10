@@ -109,6 +109,12 @@ To rollback to a previous version:
 Migrations run automatically during backend build:
 
 ```bash
+./build.sh
+```
+
+Or manually:
+
+```bash
 pip install -r requirements.txt && alembic upgrade head
 ```
 
@@ -119,6 +125,23 @@ If needed, run migrations manually:
 1. Go to Render Dashboard → Backend Service
 2. Click "Shell" tab
 3. Run: `alembic upgrade head`
+
+### Fixing Migration Issues
+
+If you see errors like "revision X overlaps with Y", the `alembic_version` table may be corrupted. The `build.sh` script handles this automatically. If running manually:
+
+```bash
+# In Render Shell
+python -c "
+from sqlalchemy import create_engine, text
+import os
+engine = create_engine(os.environ['DATABASE_URL'].replace('postgres://', 'postgresql://', 1))
+with engine.connect() as conn:
+    conn.execute(text('DELETE FROM alembic_version'))
+    conn.commit()
+"
+alembic upgrade head
+```
 
 ### Creating New Migrations
 

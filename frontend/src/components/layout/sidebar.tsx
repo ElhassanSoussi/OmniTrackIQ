@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useBilling } from "@/hooks/useBilling";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSidebar } from "@/contexts/SidebarContext";
+import ClientSwitcher from "@/components/agency/ClientSwitcher";
 
 // Icons for navigation
 const icons: Record<string, React.ReactNode> = {
@@ -64,6 +66,11 @@ const icons: Record<string, React.ReactNode> = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
   ),
+  "/agency": (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+    </svg>
+  ),
 };
 
 const links = [
@@ -83,6 +90,17 @@ const links = [
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const { billing } = useBilling();
+
+  const isAgencyPlan = billing?.plan === "agency" || billing?.plan === "enterprise";
+
+  // Agency-specific links (only shown for agency plan)
+  const agencyLinks = isAgencyPlan
+    ? [
+        { href: "/agency", label: "Agency Dashboard" },
+        { href: "/agency/clients", label: "Manage Clients" },
+      ]
+    : [];
 
   return (
     <>
@@ -97,6 +115,40 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Link>
         <ThemeToggle />
       </div>
+
+      {/* Client Switcher (Agency only) */}
+      {isAgencyPlan && (
+        <div className="border-b border-gray-200 px-3 py-3 dark:border-gray-800">
+          <ClientSwitcher />
+        </div>
+      )}
+
+      {/* Agency Navigation (Agency only) */}
+      {isAgencyPlan && agencyLinks.length > 0 && (
+        <div className="border-b border-gray-200 px-2 lg:px-3 py-2 dark:border-gray-800">
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            Agency
+          </p>
+          {agencyLinks.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={onNavigate}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+                  active
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                }`}
+              >
+                {icons["/agency"]}
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 lg:px-3 py-4">

@@ -10,7 +10,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
-from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports, routes_funnel, routes_anomaly, routes_notifications, routes_onboarding, routes_insights
+from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports, routes_funnel, routes_anomaly, routes_notifications, routes_onboarding, routes_insights, routes_agency, routes_enterprise
 from app.routers import routes_websocket
 from app.security.rate_limit import limiter
 
@@ -174,6 +174,14 @@ For API support, contact: api-support@omnitrackiq.com
             "name": "Onboarding",
             "description": "Workspace onboarding flow and progress tracking",
         },
+        {
+            "name": "Agency",
+            "description": "Agency features: multi-client management, white-label branding, and cross-client analytics",
+        },
+        {
+            "name": "Enterprise",
+            "description": "Enterprise features: SSO configuration, audit logs, API keys, and data retention policies",
+        },
     ],
     docs_url="/docs",
     redoc_url="/redoc",
@@ -235,15 +243,30 @@ origins = [
     "https://www.omnitrackiq.com",
     "https://omnitrackiq.onrender.com",
     "https://omnitrackiq-frontend.onrender.com",
+    # Vercel deployments
+    "https://omnitrackiq.vercel.app",
+    "https://omnni-track-iq.vercel.app",
+    "https://omni-track-iq.vercel.app",
 ]
 
 # Add FRONTEND_URL to origins if set
 if settings.FRONTEND_URL and settings.FRONTEND_URL not in origins:
     origins.append(settings.FRONTEND_URL)
 
+# Allow all Vercel preview deployments
+import re
+def is_vercel_preview(origin: str) -> bool:
+    """Check if origin is a Vercel preview deployment."""
+    if not origin:
+        return False
+    # Match patterns like: https://<project>-<hash>-<team>.vercel.app
+    # or https://<project>-git-<branch>-<team>.vercel.app
+    return bool(re.match(r'^https://[\w-]+-[\w-]+\.vercel\.app$', origin))
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -269,6 +292,8 @@ app.include_router(routes_anomaly.router, prefix="/anomalies", tags=["Anomalies"
 app.include_router(routes_insights.router, prefix="/analytics", tags=["AI Insights", "Marketing Mix Modeling", "Incrementality"])
 app.include_router(routes_notifications.router, prefix="/notifications", tags=["Notifications"])
 app.include_router(routes_onboarding.router, prefix="/onboarding", tags=["Onboarding"])
+app.include_router(routes_agency.router, prefix="/agency", tags=["Agency"])
+app.include_router(routes_enterprise.router, prefix="/enterprise", tags=["Enterprise"])
 app.include_router(routes_websocket.router, tags=["WebSocket"])
 
 

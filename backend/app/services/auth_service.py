@@ -18,11 +18,56 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
             detail="An account with this email already exists. Please log in instead.",
         )
 
-    account = Account(name=normalized_account_name, type="business")
-    db.add(account)
-    db.flush()
+    # Create account with only the core fields that exist in the database
+    # Use raw SQL to avoid issues with columns that may not exist yet
+    from sqlalchemy import text
+    import uuid
+    
+    account_id = str(uuid.uuid4())
+    
+    # Check if onboarding columns exist
+    try:
+        result = db.execute(text("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'accounts' AND column_name = 'onboarding_completed'
+        """))
+        has_onboarding_columns = result.fetchone() is not None
+    except Exception:
+        has_onboarding_columns = False
+    
+    # Insert based on whether onboarding columns exist
+    if has_onboarding_columns:
+        db.execute(
+            text("""
+                INSERT INTO accounts (id, name, type, plan, max_users, onboarding_completed, onboarding_steps)
+                VALUES (:id, :name, :type, :plan, :max_users, :onboarding_completed, :onboarding_steps)
+            """),
+            {
+                "id": account_id,
+                "name": normalized_account_name,
+                "type": "business",
+                "plan": "FREE",
+                "max_users": 1,
+                "onboarding_completed": False,
+                "onboarding_steps": '{"created_workspace": false, "connected_integration": false, "viewed_dashboard": false}'
+            }
+        )
+    else:
+        db.execute(
+            text("""
+                INSERT INTO accounts (id, name, type, plan, max_users)
+                VALUES (:id, :name, :type, :plan, :max_users)
+            """),
+            {
+                "id": account_id,
+                "name": normalized_account_name,
+                "type": "business",
+                "plan": "FREE",
+                "max_users": 1,
+            }
+        )
 
-    user = User(email=normalized_email, password_hash=hash_password(password), account_id=account.id)
+    user = User(email=normalized_email, password_hash=hash_password(password), account_id=account_id)
     db.add(user)
     db.commit()
     db.refresh(user)

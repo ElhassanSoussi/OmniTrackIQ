@@ -34,9 +34,9 @@ class Account(Base):
     stripe_customer_id = Column(String, nullable=True, index=True)
     stripe_subscription_id = Column(String, nullable=True)
     
-    # Onboarding tracking
-    onboarding_completed = Column(Boolean, nullable=False, default=False)
-    onboarding_steps = Column(JSON, nullable=False, default=lambda: DEFAULT_ONBOARDING_STEPS.copy())
+    # Onboarding tracking - nullable to support databases without these columns yet
+    onboarding_completed = Column(Boolean, nullable=True, default=False)
+    onboarding_steps = Column(JSON, nullable=True, default=lambda: DEFAULT_ONBOARDING_STEPS.copy())
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

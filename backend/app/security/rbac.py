@@ -2,12 +2,21 @@
 Role-Based Access Control (RBAC) utilities.
 """
 from functools import wraps
-from typing import List, Callable
+from typing import List, Callable, TYPE_CHECKING
 
 from fastapi import HTTPException, status, Depends
 
 from app.models.user import User, UserRole
-from app.routers.deps import get_current_user
+
+# Lazy import to avoid circular dependency
+if TYPE_CHECKING:
+    pass
+
+
+def _get_current_user_dependency():
+    """Lazy import of get_current_user to avoid circular imports."""
+    from app.routers.deps import get_current_user
+    return get_current_user
 
 
 # Role hierarchy - higher roles include permissions of lower roles
@@ -41,6 +50,8 @@ def require_role(*roles: UserRole):
         def admin_endpoint():
             ...
     """
+    get_current_user = _get_current_user_dependency()
+    
     def dependency(current_user: User = Depends(get_current_user)):
         if not check_role(current_user, list(roles)):
             raise HTTPException(

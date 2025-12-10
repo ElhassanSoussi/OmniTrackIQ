@@ -57,8 +57,19 @@ def signup(request: Request, body: SignupRequest, db: Session = Depends(get_db))
     Returns a JWT token that should be included in subsequent requests as:
     `Authorization: Bearer <token>`
     """
-    token = auth_service.signup(db, body.email, body.password, body.account_name)
-    return TokenResponse(access_token=token)
+    import logging
+    logger = logging.getLogger("omnitrackiq")
+    try:
+        token = auth_service.signup(db, body.email, body.password, body.account_name)
+        return TokenResponse(access_token=token)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Signup failed for {body.email}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create account: {str(e)}"
+        )
 
 
 @router.post("/login", response_model=TokenResponse, summary="Login to existing account")
