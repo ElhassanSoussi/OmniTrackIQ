@@ -96,62 +96,62 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8">
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Create your account</h1>
-          <p className="text-sm text-gray-500">Start your free trial today</p>
+    <main className="flex min-h-screen items-center justify-center bg-gh-canvas-subtle px-4 py-8 dark:bg-gh-canvas-dark">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-md border border-gh-border bg-gh-canvas-default p-6 shadow-gh-md dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark">
+        <div className="space-y-1 text-center">
+          <h1 className="text-xl font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Create your account</h1>
+          <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Start your free trial today</p>
         </div>
 
         {/* Social Login Buttons */}
         <SocialLoginButtons mode="signup" />
         
         <div className="space-y-1">
-          <label htmlFor="accountName" className="text-sm font-medium text-gray-700">Account name</label>
+          <label htmlFor="accountName" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Account name</label>
           <input
             id="accountName"
-            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-              fieldErrors.accountName ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            className={`gh-input w-full rounded-md border px-3 py-2 text-sm text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark ${
+              fieldErrors.accountName ? "border-gh-danger bg-gh-danger-subtle dark:border-gh-danger-dark" : "border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark"
             }`}
             placeholder="Your company or team name"
             value={accountName}
             onChange={(e) => setAccountName(e.target.value)}
           />
-          {fieldErrors.accountName && <p className="text-sm text-red-600">{fieldErrors.accountName}</p>}
+          {fieldErrors.accountName && <p className="text-xs text-gh-danger dark:text-gh-danger-dark">{fieldErrors.accountName}</p>}
         </div>
         
         <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Email</label>
           <input
             id="email"
-            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-              fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            className={`gh-input w-full rounded-md border px-3 py-2 text-sm text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark ${
+              fieldErrors.email ? "border-gh-danger bg-gh-danger-subtle dark:border-gh-danger-dark" : "border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark"
             }`}
             placeholder="you@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
+          {fieldErrors.email && <p className="text-xs text-gh-danger dark:text-gh-danger-dark">{fieldErrors.email}</p>}
         </div>
         
         <div className="space-y-1">
-          <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
+          <label htmlFor="password" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Password</label>
           <input
             id="password"
-            className={`w-full rounded-lg border px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-              fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300 bg-white"
+            className={`gh-input w-full rounded-md border px-3 py-2 text-sm text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark ${
+              fieldErrors.password ? "border-gh-danger bg-gh-danger-subtle dark:border-gh-danger-dark" : "border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark"
             }`}
             placeholder="At least 8 characters"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {fieldErrors.password && <p className="text-sm text-red-600">{fieldErrors.password}</p>}
+          {fieldErrors.password && <p className="text-xs text-gh-danger dark:text-gh-danger-dark">{fieldErrors.password}</p>}
         </div>
         
         {fieldErrors.form && (
-          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          <div className="gh-flash-danger rounded-md border border-gh-danger bg-gh-danger-subtle px-3 py-2 text-sm text-gh-danger dark:border-gh-danger-dark dark:bg-gh-danger-subtle-dark dark:text-gh-danger-dark">
             {fieldErrors.form}
           </div>
         )}
@@ -159,25 +159,25 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={isBusy}
-          className="w-full rounded-lg bg-emerald-600 py-2.5 font-semibold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="gh-btn-primary w-full rounded-md bg-brand-500 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isBusy ? "Creating account..." : "Create account"}
         </button>
         
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">
           By signing up, you agree to our{" "}
-          <Link href="/terms" className="text-emerald-600 hover:text-emerald-700">
+          <Link href="/terms" className="text-gh-link hover:underline dark:text-gh-link-dark">
             Terms
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700">
+          <Link href="/privacy" className="text-gh-link hover:underline dark:text-gh-link-dark">
             Privacy Policy
           </Link>
         </p>
         
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-emerald-600 hover:text-emerald-700">
+          <Link href="/login" className="font-medium text-gh-link hover:underline dark:text-gh-link-dark">
             Sign in
           </Link>
         </p>

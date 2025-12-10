@@ -3,14 +3,25 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* GitHub-inspired base styles */
+  html {
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Improve touch targets on mobile */
+  body {
+    @apply bg-white text-[#1f2328] dark:bg-[#0d1117] dark:text-[#e6edf3];
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.5;
+  }
+
+  /* GitHub-style focus states */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-blue-600;
+  }
+
+  /* Improved touch targets on mobile */
   @media (max-width: 768px) {
     button, a, input, select, textarea {
       min-height: 44px;
@@ -19,74 +30,250 @@
 }
 
 @layer components {
-  /* Card component with responsive padding */
-  .card {
-    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl;
-    @apply p-4 sm:p-5 lg:p-6;
+  /* GitHub-style card/box */
+  .gh-box {
+    @apply bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md;
   }
 
-  /* Responsive section spacing */
-  .section {
-    @apply space-y-4 sm:space-y-6;
+  .gh-box-header {
+    @apply px-4 py-3 bg-[#f6f8fa] dark:bg-[#161b22] border-b border-[#d0d7de] dark:border-[#30363d] font-semibold text-sm;
   }
 
-  /* Mobile-first grid system */
-  .responsive-grid {
-    @apply grid grid-cols-1 gap-3 sm:gap-4;
-    @apply sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  .gh-box-body {
+    @apply p-4;
   }
 
-  /* KPI grid optimized for mobile */
-  .kpi-grid {
-    @apply grid grid-cols-2 gap-2 sm:gap-3;
-    @apply md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6;
-  }
-
-  /* Table container with horizontal scroll on mobile */
-  .table-container {
-    @apply w-full overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
-    @apply rounded-xl border border-gray-200 dark:border-gray-800;
-  }
-
-  /* Responsive form inputs */
-  .form-input {
-    @apply w-full rounded-lg border border-gray-300 dark:border-gray-600;
-    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-white;
-    @apply px-3 py-2.5 sm:py-2 text-sm;
-    @apply focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500;
-  }
-
-  /* Primary button with touch-friendly sizing */
-  .btn-primary {
-    @apply inline-flex items-center justify-center;
-    @apply rounded-lg bg-emerald-600 px-4 py-2.5 sm:py-2;
-    @apply text-sm font-semibold text-white;
-    @apply transition hover:bg-emerald-700 active:bg-emerald-800;
+  /* GitHub-style buttons */
+  .gh-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-[5px] text-sm font-medium rounded-md border transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
-  /* Secondary button */
-  .btn-secondary {
-    @apply inline-flex items-center justify-center;
-    @apply rounded-lg border border-gray-300 dark:border-gray-600;
-    @apply bg-white dark:bg-gray-800 px-4 py-2.5 sm:py-2;
-    @apply text-sm font-semibold text-gray-700 dark:text-gray-300;
-    @apply transition hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100;
+  .gh-btn-primary {
+    @apply gh-btn bg-[#238636] border-[#238636] text-white;
+    @apply hover:bg-[#2ea043] hover:border-[#2ea043];
   }
 
-  /* Icon button for mobile */
-  .btn-icon {
-    @apply inline-flex items-center justify-center;
-    @apply rounded-lg p-2.5 sm:p-2;
-    @apply text-gray-500 hover:text-gray-700 hover:bg-gray-100;
-    @apply dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800;
-    @apply transition;
+  .gh-btn-secondary {
+    @apply gh-btn bg-[#f6f8fa] dark:bg-[#21262d] border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#c9d1d9];
+    @apply hover:bg-[#f3f4f6] dark:hover:bg-[#30363d] hover:border-[#1b1f2326];
+  }
+
+  .gh-btn-danger {
+    @apply gh-btn bg-[#da3633] border-[#da3633] text-white;
+    @apply hover:bg-[#b62324];
+  }
+
+  .gh-btn-invisible {
+    @apply gh-btn bg-transparent border-transparent text-[#0969da] dark:text-[#58a6ff];
+    @apply hover:bg-[#f6f8fa] dark:hover:bg-[#21262d];
+  }
+
+  /* GitHub-style form inputs */
+  .gh-input {
+    @apply w-full px-3 py-[5px] text-sm bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-md;
+    @apply text-[#1f2328] dark:text-[#e6edf3] placeholder-[#6e7781] dark:placeholder-[#6e7681];
+    @apply focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da];
+  }
+
+  .gh-select {
+    @apply gh-input appearance-none bg-no-repeat pr-8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%236e7781' d='M4.427 9.427l3.396 3.396a.25.25 0 0 0 .354 0l3.396-3.396A.25.25 0 0 0 11.396 9H4.604a.25.25 0 0 0-.177.427zM4.423 6.573l3.396-3.396a.25.25 0 0 1 .354 0l3.396 3.396a.25.25 0 0 1-.177.427H4.6a.25.25 0 0 1-.177-.427z'%3E%3C/path%3E%3C/svg%3E");
+    background-position: right 8px center;
+  }
+
+  /* GitHub-style labels */
+  .gh-label {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+  }
+
+  .gh-label-green {
+    @apply gh-label bg-[#dafbe1] dark:bg-[#23863629] text-[#1a7f37] dark:text-[#3fb950];
+  }
+
+  .gh-label-blue {
+    @apply gh-label bg-[#ddf4ff] dark:bg-[#388bfd26] text-[#0969da] dark:text-[#58a6ff];
+  }
+
+  .gh-label-yellow {
+    @apply gh-label bg-[#fff8c5] dark:bg-[#bb800926] text-[#9a6700] dark:text-[#d29922];
+  }
+
+  .gh-label-red {
+    @apply gh-label bg-[#ffebe9] dark:bg-[#f8514926] text-[#cf222e] dark:text-[#f85149];
+  }
+
+  .gh-label-purple {
+    @apply gh-label bg-[#fbefff] dark:bg-[#a371f726] text-[#8250df] dark:text-[#a371f7];
+  }
+
+  .gh-label-gray {
+    @apply gh-label bg-[#eaeef2] dark:bg-[#6e768166] text-[#57606a] dark:text-[#8b949e];
+  }
+
+  /* GitHub-style navigation tabs */
+  .gh-nav-tabs {
+    @apply flex border-b border-[#d0d7de] dark:border-[#30363d];
+  }
+
+  .gh-nav-tab {
+    @apply px-4 py-2 text-sm font-medium text-[#57606a] dark:text-[#8b949e] border-b-2 border-transparent -mb-px;
+    @apply hover:text-[#1f2328] dark:hover:text-[#e6edf3];
+  }
+
+  .gh-nav-tab-active {
+    @apply gh-nav-tab text-[#1f2328] dark:text-[#e6edf3] border-[#fd8c73] dark:border-[#f78166];
+  }
+
+  /* GitHub-style sidebar navigation */
+  .gh-sidenav-item {
+    @apply flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors;
+    @apply text-[#1f2328] dark:text-[#e6edf3];
+    @apply hover:bg-[#eaeef2] dark:hover:bg-[#21262d];
+  }
+
+  .gh-sidenav-item-active {
+    @apply gh-sidenav-item bg-[#eaeef2] dark:bg-[#21262d] font-medium;
+  }
+
+  /* GitHub-style tables */
+  .gh-table {
+    @apply w-full text-sm;
+  }
+
+  .gh-table thead {
+    @apply bg-[#f6f8fa] dark:bg-[#161b22];
+  }
+
+  .gh-table th {
+    @apply px-4 py-3 text-left font-medium text-[#57606a] dark:text-[#8b949e] border-b border-[#d0d7de] dark:border-[#30363d];
+  }
+
+  .gh-table td {
+    @apply px-4 py-3 border-b border-[#d0d7de] dark:border-[#30363d];
+  }
+
+  .gh-table tbody tr {
+    @apply hover:bg-[#f6f8fa] dark:hover:bg-[#161b22];
+  }
+
+  /* GitHub-style counters */
+  .gh-counter {
+    @apply inline-flex items-center justify-center min-w-[20px] px-1.5 py-0.5 text-xs font-medium rounded-full;
+    @apply bg-[#eaeef2] dark:bg-[#6e768166] text-[#1f2328] dark:text-[#e6edf3];
+  }
+
+  /* GitHub-style avatars */
+  .gh-avatar {
+    @apply rounded-full border border-[#d0d7de] dark:border-[#30363d];
+  }
+
+  /* GitHub-style flash messages */
+  .gh-flash {
+    @apply px-4 py-3 text-sm rounded-md border;
+  }
+
+  .gh-flash-success {
+    @apply gh-flash bg-[#dafbe1] dark:bg-[#23863614] border-[#4ac26b33] text-[#1a7f37] dark:text-[#3fb950];
+  }
+
+  .gh-flash-warning {
+    @apply gh-flash bg-[#fff8c5] dark:bg-[#bb800914] border-[#d4a72c33] text-[#9a6700] dark:text-[#d29922];
+  }
+
+  .gh-flash-error {
+    @apply gh-flash bg-[#ffebe9] dark:bg-[#f8514914] border-[#ff818266] text-[#cf222e] dark:text-[#f85149];
+  }
+
+  .gh-flash-info {
+    @apply gh-flash bg-[#ddf4ff] dark:bg-[#388bfd14] border-[#54aeff66] text-[#0969da] dark:text-[#58a6ff];
+  }
+
+  /* GitHub-style progress bar */
+  .gh-progress {
+    @apply h-2 bg-[#eaeef2] dark:bg-[#21262d] rounded-full overflow-hidden;
+  }
+
+  .gh-progress-bar {
+    @apply h-full bg-[#238636] rounded-full transition-all duration-300;
+  }
+
+  /* GitHub blankslate (empty state) */
+  .gh-blankslate {
+    @apply text-center py-10 px-6;
+  }
+
+  .gh-blankslate-icon {
+    @apply mx-auto mb-4 text-[#6e7781] dark:text-[#6e7681];
+  }
+
+  .gh-blankslate-heading {
+    @apply text-xl font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-2;
+  }
+
+  .gh-blankslate-text {
+    @apply text-[#57606a] dark:text-[#8b949e] mb-4;
+  }
+
+  /* Card component (legacy support) */
+  .card {
+    @apply gh-box;
+  }
+
+  /* Primary button (legacy support) */
+  .btn-primary {
+    @apply gh-btn-primary;
+  }
+
+  .btn-secondary {
+    @apply gh-btn-secondary;
+  }
+
+  /* Form input (legacy support) */
+  .form-input {
+    @apply gh-input;
   }
 }
 
 @layer utilities {
-  .dark-card {
-    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800;
+  /* GitHub text colors */
+  .text-gh-primary {
+    @apply text-[#1f2328] dark:text-[#e6edf3];
+  }
+
+  .text-gh-secondary {
+    @apply text-[#57606a] dark:text-[#8b949e];
+  }
+
+  .text-gh-muted {
+    @apply text-[#6e7781] dark:text-[#6e7681];
+  }
+
+  .text-gh-link {
+    @apply text-[#0969da] dark:text-[#58a6ff] hover:underline;
+  }
+
+  /* GitHub background colors */
+  .bg-gh-canvas {
+    @apply bg-white dark:bg-[#0d1117];
+  }
+
+  .bg-gh-subtle {
+    @apply bg-[#f6f8fa] dark:bg-[#161b22];
+  }
+
+  .bg-gh-inset {
+    @apply bg-[#f6f8fa] dark:bg-[#010409];
+  }
+
+  /* GitHub border colors */
+  .border-gh {
+    @apply border-[#d0d7de] dark:border-[#30363d];
+  }
+
+  .border-gh-muted {
+    @apply border-[#d8dee4] dark:border-[#21262d];
   }
 
   /* Hide scrollbar but keep functionality */
@@ -98,32 +285,12 @@
     display: none;
   }
 
-  /* Safe area padding for mobile devices with notches */
+  /* Safe area padding for mobile */
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .safe-area-inset-top {
     padding-top: env(safe-area-inset-top, 0px);
-  }
-
-  /* Truncate text with ellipsis */
-  .truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .truncate-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* Touch-friendly tap highlight color */
-  .tap-highlight-none {
-    -webkit-tap-highlight-color: transparent;
   }
 }
