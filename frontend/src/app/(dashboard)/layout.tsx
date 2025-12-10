@@ -4,6 +4,7 @@ import Sidebar from "@/components/layout/sidebar";
 import Topbar from "@/components/layout/topbar";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { KeyboardShortcutsProvider } from "@/contexts/KeyboardShortcutsContext";
+import { ClientProvider } from "@/contexts/ClientContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
@@ -67,7 +68,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <SidebarProvider>
       <KeyboardShortcutsProvider>
-        <DashboardContent>{children}</DashboardContent>
+        <ClientProvider>
+          <DashboardContent>{children}</DashboardContent>
+        </ClientProvider>
       </KeyboardShortcutsProvider>
     </SidebarProvider>
   );

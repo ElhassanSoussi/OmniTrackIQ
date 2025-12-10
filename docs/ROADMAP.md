@@ -193,34 +193,171 @@ OmniTrackIQ is being built in iterative phases, each adding significant value to
 
 ---
 
-## Phase 6 — Agency Features (Planned)
+## Phase 6 — Agency Features ✅
 
 **Goal**: Build features specifically for agencies managing multiple clients.
 
-### Planned Features
+### Backend
 
-- [ ] Multi-account dashboard (client switcher)
-- [ ] White-label reports with custom branding
-- [ ] Client permission levels
-- [ ] Cross-client benchmarking
-- [ ] Automated client reporting
-- [ ] Agency billing (pass-through to clients)
+- [x] Client Account Model (`client_account.py`)
+  - [x] `ClientAccount` model with name, slug, industry, website, status, settings, branding
+  - [x] `ClientUserAccess` model for granular per-client permissions
+  - [x] `ClientStatus` enum: ACTIVE, PAUSED, ARCHIVED, PENDING_SETUP
+- [x] Agency Service (`agency_service.py`)
+  - [x] `is_agency_account()` - Plan check
+  - [x] `get_client_accounts()` - List with filtering
+  - [x] `create_client_account()` / `update_client_account()` / `delete_client_account()`
+  - [x] `grant_client_access()` / `revoke_client_access()` - Permission management
+  - [x] `check_client_access()` - Permission checking
+  - [x] `get_cross_client_summary()` - Agency-level dashboard metrics
+  - [x] `get_client_benchmarks()` - Cross-client performance comparison
+  - [x] `get_white_label_config()` / `update_white_label_config()` - Branding management
+- [x] Agency Routes (`routes_agency.py`)
+  - [x] `/agency/clients` - CRUD endpoints for clients
+  - [x] `/agency/clients/{id}/users` - User access management
+  - [x] `/agency/dashboard` - Cross-client summary
+  - [x] `/agency/benchmarks` - Client comparison
+  - [x] `/agency/clients/{id}/branding` - White-label config
+  - [x] `/agency/clients/{id}/switch` - Context switching
+- [x] Database Migration (`0010_client_accounts.py`)
+  - [x] `client_accounts` table
+  - [x] `client_user_access` table
+  - [x] Required indexes
+
+### Frontend
+
+- [x] React Query Hooks (`useAgency.ts`)
+  - [x] `useClientAccounts()` - List clients
+  - [x] `useClientAccount()` - Get single client
+  - [x] `useCreateClient()` / `useUpdateClient()` / `useArchiveClient()`
+  - [x] `useGrantClientAccess()` / `useRevokeClientAccess()`
+  - [x] `useAgencyDashboard()` / `useClientBenchmarks()`
+  - [x] `useClientBranding()` / `useUpdateClientBranding()`
+  - [x] `useSwitchClient()`
+- [x] Client Context (`ClientContext.tsx`)
+  - [x] `ClientProvider` for managing current client state
+  - [x] `useClientContext()` / `useCurrentClient()` hooks
+  - [x] Persistence to localStorage
+- [x] Client Switcher Component (`ClientSwitcher.tsx`)
+  - [x] Dropdown with search
+  - [x] Agency overview option
+  - [x] Recent clients
+  - [x] Manage clients link
+- [x] Agency Dashboard Page (`/agency`)
+  - [x] Cross-client metrics cards
+  - [x] Clients by status breakdown
+  - [x] Performance benchmarks table
+  - [x] Top performing clients
+- [x] Client Management Page (`/agency/clients`)
+  - [x] Client grid with status badges
+  - [x] Search and filter by status
+  - [x] Create client modal
+  - [x] Archive/restore functionality
+- [x] Client Detail Page (`/agency/clients/[id]`)
+  - [x] Details tab with editable form
+  - [x] White-label branding tab with preview
+  - [x] Switch to client button
+- [x] Sidebar Updates
+  - [x] Client switcher integration
+  - [x] Agency navigation links (conditional)
+
+### Future Enhancements
+
+- [ ] Automated client reporting (scheduled email reports)
+- [ ] Agency billing pass-through to clients
+- [ ] Client onboarding wizard
+- [ ] Bulk client import (CSV)
+- [ ] Client activity feed
 
 ---
 
-## Phase 7 — Enterprise (Planned)
+## Phase 7 — Enterprise ✅
 
 **Goal**: Add enterprise-grade features for large organizations.
 
-### Planned Features
+### Backend
 
-- [ ] SSO (SAML, OIDC)
-- [ ] Audit logs
+- [x] Enterprise Models (`enterprise.py`)
+  - [x] `SSOConfig` model - SAML/OIDC SSO configuration per account
+  - [x] `SSOProvider` enum: SAML, OIDC, AZURE_AD, OKTA, GOOGLE_WORKSPACE, ONELOGIN
+  - [x] `SSOConfigStatus` enum: DRAFT, TESTING, ACTIVE, DISABLED
+  - [x] `AuditLog` model - Security event tracking with 29 action types
+  - [x] `AuditAction` enum: LOGIN, LOGOUT, USER_CREATED, SSO_CONFIG_UPDATED, etc.
+  - [x] `AuditLogSeverity` enum: INFO, WARNING, CRITICAL
+  - [x] `DataRetentionPolicy` model - Configurable retention per data type
+  - [x] `APIKey` model - Programmatic API access with scopes, IP whitelist, rate limits
+- [x] Enterprise Service (`enterprise_service.py`)
+  - [x] `is_enterprise_account()` - Plan check
+  - [x] SSO Management: `get_sso_config()`, `create_sso_config()`, `update_sso_config()`, `delete_sso_config()`
+  - [x] `validate_sso_config()` - Validation with errors/warnings
+  - [x] `get_sso_metadata()` - SAML SP metadata generation
+  - [x] Audit Logging: `log_audit_event()`, `get_audit_logs()`, `get_audit_summary()`
+  - [x] Data Retention: `get_retention_policy()`, `create_retention_policy()`, `update_retention_policy()`
+  - [x] API Keys: `generate_api_key()`, `create_api_key()`, `validate_api_key()`, `get_api_keys()`, `revoke_api_key()`
+  - [x] `get_enterprise_overview()` - Combined enterprise status dashboard
+- [x] Enterprise Routes (`routes_enterprise.py`)
+  - [x] `/enterprise/sso` - SSO configuration CRUD
+  - [x] `/enterprise/sso/metadata` - SAML SP metadata
+  - [x] `/enterprise/sso/validate` - Validate SSO configuration
+  - [x] `/enterprise/sso/activate` - Activate SSO after testing
+  - [x] `/enterprise/audit-logs` - Query audit logs with filtering
+  - [x] `/enterprise/audit-logs/summary` - Audit statistics
+  - [x] `/enterprise/retention` - Data retention policy CRUD
+  - [x] `/enterprise/api-keys` - API key management
+  - [x] `/enterprise/overview` - Enterprise dashboard
+- [x] Database Migration (`0011_enterprise.py`)
+  - [x] `sso_configs` table
+  - [x] `audit_logs` table
+  - [x] `data_retention_policies` table
+  - [x] `api_keys` table
+  - [x] Required indexes and enum types
+
+### Frontend
+
+- [x] React Query hooks (`useEnterprise.ts`)
+  - [x] SSO hooks: `useSSOConfig()`, `useCreateSSOConfig()`, `useUpdateSSOConfig()`, `useDeleteSSOConfig()`
+  - [x] `useSSOMetadata()`, `useValidateSSOConfig()`, `useActivateSSOConfig()`
+  - [x] Audit hooks: `useAuditLogs()`, `useAuditSummary()`
+  - [x] Retention hooks: `useRetentionPolicy()`, `useCreateRetentionPolicy()`, `useUpdateRetentionPolicy()`
+  - [x] API key hooks: `useAPIKeys()`, `useCreateAPIKey()`, `useRevokeAPIKey()`
+  - [x] `useEnterpriseOverview()` - Combined dashboard data
+  - [x] Helper functions for labels, colors, formatting
+- [x] Enterprise Settings page (`/settings/enterprise`)
+  - [x] Overview cards for SSO, API Keys, Data Retention, Audit Logs
+  - [x] Security overview with status indicators
+  - [x] Recent audit activity summary
+  - [x] Compliance information section
+- [x] SSO Configuration UI (`/settings/enterprise/sso`)
+  - [x] Provider selection grid (SAML, OIDC, Azure AD, Okta, Google, OneLogin)
+  - [x] SAML configuration fields (Entity ID, SSO URL, Certificate)
+  - [x] OIDC configuration fields (Issuer, Client ID, Client Secret)
+  - [x] Service Provider metadata display with copy functionality
+  - [x] Validation and activation workflow
+  - [x] SSO enforcement toggle
+- [x] Audit Log viewer (`/settings/enterprise/audit-logs`)
+  - [x] Summary cards (total events, users, failures, critical)
+  - [x] Filterable log table (action, severity, date range)
+  - [x] Pagination controls
+  - [x] Export functionality
+- [x] API Key management UI (`/settings/enterprise/api-keys`)
+  - [x] Key listing with usage stats
+  - [x] Create key modal with scopes, expiry, rate limits
+  - [x] Secure key display (shown once on creation)
+  - [x] Revoke functionality
+- [x] Data Retention settings UI (`/settings/enterprise/retention`)
+  - [x] Retention period sliders for each data type
+  - [x] Preset buttons (1y, 2y, 3y, 5y, 7y, 10y)
+  - [x] Auto-deletion toggle with export option
+
+### Future Enhancements
+
 - [ ] Data warehouse connectors (BigQuery, Snowflake, Redshift)
-- [ ] Custom data retention policies
 - [ ] Dedicated infrastructure options
 - [ ] SLA guarantees
-- [ ] SOC 2 Type II certification
+- [ ] SOC 2 Type II certification preparation
+- [ ] SCIM user provisioning
+- [ ] IP allowlist configuration
+- [ ] Custom SAML attribute mapping UI
 
 ---
 
@@ -265,6 +402,8 @@ These are ideas under consideration but not yet scheduled:
 
 | Date | Phase | Description |
 |------|-------|-------------|
+| 2025-12 | Phase 7 | Enterprise features complete (SSO, audit logs, API keys, data retention) |
+| 2025-12 | Phase 6 | Agency features complete (multi-client, white-label, benchmarks) |
 | 2025-12 | Phase 5 | Advanced analytics complete (AI insights, MMM, incrementality) |
 | 2024-12 | Phase 4 | Marketing site complete |
 | 2024-12 | Phase 3 | Onboarding flow complete |
