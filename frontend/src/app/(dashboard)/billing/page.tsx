@@ -72,17 +72,17 @@ const PLANS = [
 function getStatusBadgeStyle(status: SubscriptionStatus): string {
   switch (status) {
     case "active":
-      return "bg-emerald-100 text-emerald-700";
+      return "bg-gh-success-subtle text-gh-success-fg";
     case "trialing":
-      return "bg-blue-100 text-blue-700";
+      return "bg-gh-accent-subtle text-gh-accent-fg";
     case "past_due":
-      return "bg-amber-100 text-amber-700";
+      return "bg-gh-attention-subtle text-gh-attention-fg";
     case "canceled":
     case "incomplete":
     case "incomplete_expired":
-      return "bg-gray-100 text-gray-700";
+      return "bg-gh-canvas-subtle text-gh-text-secondary";
     default:
-      return "bg-gray-100 text-gray-700";
+      return "bg-gh-canvas-subtle text-gh-text-secondary";
   }
 }
 
@@ -172,14 +172,14 @@ export default function BillingPage() {
     return (
       <div className="p-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Billing & Plans</h1>
-          <p className="mt-1 text-gray-500">
+          <h1 className="text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">Billing & Plans</h1>
+          <p className="mt-1 text-gh-text-secondary dark:text-gh-text-secondary-dark">
             Manage your subscription and billing details
           </p>
         </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
-          <h2 className="text-lg font-semibold text-amber-800">Billing Not Yet Configured</h2>
-          <p className="mt-2 text-amber-700">
+        <div className="rounded-md border border-gh-attention-emphasis bg-gh-attention-subtle p-6 text-center">
+          <h2 className="text-lg font-semibold text-gh-attention-fg">Billing Not Yet Configured</h2>
+          <p className="mt-2 text-gh-attention-fg">
             Payment processing is not yet set up for this instance. Please contact support for assistance.
           </p>
         </div>
@@ -191,10 +191,10 @@ export default function BillingPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 w-48 rounded bg-gray-200" />
+          <div className="h-8 w-48 rounded bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark" />
           <div className="grid gap-6 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-96 rounded-xl bg-gray-200" />
+              <div key={i} className="h-96 rounded-md bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark" />
             ))}
           </div>
         </div>
@@ -206,8 +206,8 @@ export default function BillingPage() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Billing & Plans</h1>
-        <p className="mt-1 text-gray-500">
+        <h1 className="text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">Billing & Plans</h1>
+        <p className="mt-1 text-gh-text-secondary dark:text-gh-text-secondary-dark">
           Manage your subscription and billing details
         </p>
       </div>
@@ -215,10 +215,10 @@ export default function BillingPage() {
       {/* Notifications */}
       {notification && (
         <div
-          className={`mb-6 rounded-lg px-4 py-3 text-sm ${
+          className={`mb-6 rounded-md px-4 py-3 text-sm border ${
             notification.type === "success"
-              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-              : "bg-red-50 text-red-700 border border-red-200"
+              ? "bg-gh-success-subtle text-gh-success-fg border-gh-success-emphasis"
+              : "bg-gh-danger-subtle text-gh-danger-fg border-gh-danger-emphasis"
           }`}
         >
           {notification.message}
@@ -226,18 +226,18 @@ export default function BillingPage() {
       )}
 
       {error && (
-        <div className="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="mb-6 rounded-md bg-gh-danger-subtle border border-gh-danger-emphasis px-4 py-3 text-sm text-gh-danger-fg">
           {error}
         </div>
       )}
 
       {/* Current Plan Status */}
       {billing && billing.status !== "none" && (
-        <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mb-8 rounded-md border border-gh-border bg-gh-canvas-default p-6 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">
                   Current Plan: {billing.plan_name || currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}
                 </h2>
                 <span
@@ -247,12 +247,12 @@ export default function BillingPage() {
                 </span>
               </div>
               {billing.trialEnd && billing.status === "trialing" && (
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
                   Trial ends on: {new Date(billing.trialEnd).toLocaleDateString()}
                 </p>
               )}
               {billing.currentPeriodEnd && billing.status !== "trialing" && (
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
                   {billing.status === "canceled" ? "Access until" : "Next billing date"}:{" "}
                   {new Date(billing.currentPeriodEnd).toLocaleDateString()}
                 </p>
@@ -261,7 +261,7 @@ export default function BillingPage() {
             {billing.stripeCustomerPortalAvailable && (
               <button
                 onClick={handleManageBilling}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                className="rounded-md border border-gh-border px-4 py-2 text-sm font-medium text-gh-text-primary transition hover:bg-gh-canvas-subtle dark:border-gh-border-dark dark:text-gh-text-primary-dark dark:hover:bg-gh-canvas-subtle-dark"
               >
                 Manage Billing
               </button>
@@ -279,33 +279,33 @@ export default function BillingPage() {
           return (
             <div
               key={plan.id}
-              className={`relative rounded-xl border bg-white p-6 shadow-sm transition ${
+              className={`relative rounded-md border bg-gh-canvas-default p-6 transition dark:bg-gh-canvas-dark ${
                 plan.highlighted
-                  ? "border-emerald-500 ring-2 ring-emerald-500"
+                  ? "border-brand-500 ring-2 ring-brand-500"
                   : isCurrentPlan
-                  ? "border-emerald-300 bg-emerald-50"
-                  : "border-gray-200"
+                  ? "border-brand-300 bg-brand-50 dark:bg-brand-900/10"
+                  : "border-gh-border dark:border-gh-border-dark"
               }`}
             >
               {plan.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-0.5 text-xs font-semibold text-white">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-3 py-0.5 text-xs font-semibold text-white">
                   Most Popular
                 </div>
               )}
 
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{plan.name}</h3>
+                <h3 className="text-lg font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">{plan.name}</h3>
                 <div className="mt-2">
-                  <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
-                  <span className="text-gray-500">{plan.period}</span>
+                  <span className="text-3xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">${plan.price}</span>
+                  <span className="text-gh-text-secondary dark:text-gh-text-secondary-dark">{plan.period}</span>
                 </div>
               </div>
 
               <ul className="mb-6 space-y-3">
                 {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                  <li key={i} className="flex items-start gap-2 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
                     <svg
-                      className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500"
+                      className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-500"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -325,14 +325,14 @@ export default function BillingPage() {
               <button
                 onClick={() => canUpgrade && handleUpgrade(plan.id)}
                 disabled={isCurrentPlan || upgrading === plan.id || plan.id === "free"}
-                className={`w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+                className={`w-full rounded-md px-4 py-2.5 text-sm font-semibold transition ${
                   isCurrentPlan
-                    ? "cursor-default bg-emerald-100 text-emerald-700"
+                    ? "cursor-default bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
                     : plan.id === "free"
-                    ? "cursor-default bg-gray-100 text-gray-400"
+                    ? "cursor-default bg-gh-canvas-subtle text-gh-text-tertiary dark:bg-gh-canvas-subtle-dark dark:text-gh-text-tertiary-dark"
                     : plan.highlighted
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    ? "bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
+                    : "border border-gh-border text-gh-text-primary hover:bg-gh-canvas-subtle dark:border-gh-border-dark dark:text-gh-text-primary-dark dark:hover:bg-gh-canvas-subtle-dark disabled:opacity-50"
                 }`}
               >
                 {upgrading === plan.id
@@ -349,31 +349,31 @@ export default function BillingPage() {
       </div>
 
       {/* FAQ / Help */}
-      <div className="mt-12 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">Frequently Asked Questions</h3>
+      <div className="mt-12 rounded-md border border-gh-border bg-gh-canvas-default p-6 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
+        <h3 className="text-lg font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Frequently Asked Questions</h3>
         <div className="mt-4 grid gap-6 md:grid-cols-2">
           <div>
-            <h4 className="font-medium text-gray-900">Can I change plans anytime?</h4>
-            <p className="mt-1 text-sm text-gray-500">
+            <h4 className="font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Can I change plans anytime?</h4>
+            <p className="mt-1 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
               Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900">What happens when I cancel?</h4>
-            <p className="mt-1 text-sm text-gray-500">
+            <h4 className="font-medium text-gh-text-primary dark:text-gh-text-primary-dark">What happens when I cancel?</h4>
+            <p className="mt-1 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
               Your subscription remains active until the end of your billing period. Your data is retained for 30 days.
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900">Do you offer refunds?</h4>
-            <p className="mt-1 text-sm text-gray-500">
+            <h4 className="font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Do you offer refunds?</h4>
+            <p className="mt-1 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
               We offer a 14-day money-back guarantee. Contact support within 14 days for a full refund.
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900">Need help choosing?</h4>
-            <p className="mt-1 text-sm text-gray-500">
-              <a href="/contact" className="text-emerald-600 hover:text-emerald-700">
+            <h4 className="font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Need help choosing?</h4>
+            <p className="mt-1 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
+              <a href="/contact" className="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300">
                 Contact our sales team
               </a>{" "}
               for personalized recommendations.

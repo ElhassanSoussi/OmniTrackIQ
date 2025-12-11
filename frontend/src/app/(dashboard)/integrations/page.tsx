@@ -77,52 +77,52 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Integrations</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Connect your ad platforms and storefront to stream live performance data.</p>
+        <h1 className="text-xl font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Integrations</h1>
+        <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Connect your ad platforms and storefront to stream live performance data.</p>
       </div>
 
       {isLoading && (
-        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+        <div className="flex items-center gap-2 text-gh-text-secondary dark:text-gh-text-secondary-dark">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></div>
           Loading integrations...
         </div>
       )}
       
       {isError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+        <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle px-4 py-3 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
           Failed to load integrations: {error?.message}
         </div>
       )}
       
       {actionError && !comingSoonPlatform && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+        <div className="rounded-md border border-gh-attention-emphasis bg-gh-attention-subtle px-4 py-3 text-sm text-gh-attention-fg dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300">
           {actionError}
         </div>
       )}
 
       {comingSoonPlatform && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+        <div className="rounded-md border border-gh-accent-emphasis bg-gh-accent-subtle px-4 py-3 text-sm text-gh-accent-fg dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
           <strong>{PLATFORM_COPY[comingSoonPlatform].title}</strong> integration is coming soon! We&apos;re working on it.
         </div>
       )}
 
       {/* Plan limit warning */}
       {!canConnect && limit !== -1 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-900/20">
+        <div className="rounded-md border border-gh-attention-emphasis bg-gh-attention-subtle px-4 py-3 text-sm dark:border-yellow-700 dark:bg-yellow-900/20">
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-medium text-amber-800 dark:text-amber-300">
+              <span className="font-medium text-gh-attention-fg dark:text-yellow-300">
                 Integration limit reached ({connectedCount}/{limit})
               </span>
               {upgradeSuggestion && (
-                <p className="mt-1 text-amber-700 dark:text-amber-400">
+                <p className="mt-1 text-gh-attention-fg dark:text-yellow-400">
                   {upgradeSuggestion.message}
                 </p>
               )}
             </div>
             <Link 
               href="/billing"
-              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition"
+              className="rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 transition"
             >
               Upgrade Plan
             </Link>
@@ -132,7 +132,7 @@ export default function IntegrationsPage() {
 
       {/* Current usage indicator */}
       {limit !== -1 && (
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
           Using {connectedCount} of {limit} integration{limit !== 1 ? "s" : ""}
         </div>
       )}
@@ -147,10 +147,10 @@ export default function IntegrationsPage() {
             return (
               <div
                 key={card.platform}
-                className={`flex h-full flex-col justify-between rounded-xl border bg-white p-5 shadow-sm transition-shadow dark:bg-gray-900 ${
+                className={`flex h-full flex-col justify-between rounded-md border bg-gh-canvas-default p-5 transition dark:bg-gh-canvas-dark ${
                   isDisabledByLimit 
-                    ? "border-gray-200 opacity-60 dark:border-gray-800" 
-                    : "border-gray-200 hover:shadow-md dark:border-gray-800"
+                    ? "border-gh-border opacity-60 dark:border-gh-border-dark" 
+                    : "border-gh-border hover:border-gh-border-dark dark:border-gh-border-dark dark:hover:border-gh-border"
                 }`}
               >
                 <div className="space-y-3">
@@ -159,22 +159,22 @@ export default function IntegrationsPage() {
                       href={`/integrations/${card.platform}`}
                       className="hover:opacity-80 transition-opacity"
                     >
-                      <span className="text-lg font-semibold text-gray-900 hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400">{card.title}</span>
+                      <span className="text-lg font-semibold text-gh-text-primary hover:text-brand-500 dark:text-gh-text-primary-dark dark:hover:text-brand-400">{card.title}</span>
                     </Link>
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         isConnected
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                          : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                          ? "bg-gh-success-subtle text-gh-success-fg dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-gh-attention-subtle text-gh-attention-fg dark:bg-yellow-900/30 dark:text-yellow-400"
                       }`}
                     >
                       {isConnected ? "Connected" : "Not connected"}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{card.description}</p>
+                  <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">{card.description}</p>
                   {card.account_name && (
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      Linked account: <span className="font-medium text-gray-900 dark:text-white">{card.account_name}</span>
+                    <div className="rounded-md border border-gh-border bg-gh-canvas-subtle px-3 py-2 text-xs text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
+                      Linked account: <span className="font-medium text-gh-text-primary dark:text-gh-text-primary-dark">{card.account_name}</span>
                     </div>
                   )}
                 </div>
@@ -182,13 +182,13 @@ export default function IntegrationsPage() {
                 <div className="mt-5 flex items-center justify-between">
                   <Link 
                     href={`/integrations/${card.platform}`}
-                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium dark:text-emerald-400 dark:hover:text-emerald-300"
+                    className="text-xs text-brand-500 hover:text-brand-600 font-medium dark:text-brand-400 dark:hover:text-brand-300"
                   >
                     View details →
                   </Link>
                   {isDisabledByLimit ? (
                     <span 
-                      className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400"
+                      className="rounded-md bg-gh-canvas-subtle px-4 py-2 text-sm font-semibold text-gh-text-tertiary cursor-not-allowed dark:bg-gh-canvas-subtle-dark dark:text-gh-text-tertiary-dark"
                       title={upgradeSuggestion?.message || "Upgrade to connect more integrations"}
                     >
                       Upgrade to Connect
@@ -197,10 +197,10 @@ export default function IntegrationsPage() {
                     <button
                       disabled={isConnected || isPending}
                       onClick={() => handleConnect(card.platform)}
-                      className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                      className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
                         isConnected
-                          ? "bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400"
-                          : "bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+                          ? "bg-gh-canvas-subtle text-gh-text-tertiary cursor-not-allowed dark:bg-gh-canvas-subtle-dark dark:text-gh-text-tertiary-dark"
+                          : "bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
                       }`}
                     >
                       {isConnected ? "Connected" : isPending ? "Connecting..." : "Connect"}

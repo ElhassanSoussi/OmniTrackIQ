@@ -24,21 +24,21 @@ export default function SummaryChart({ data }: { data?: SummaryPoint[] }) {
   const showRevenue = dataset.some((d) => d.revenue !== undefined);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 transition-colors duration-200">
+    <div className="rounded-md border border-gh-border bg-gh-canvas-default p-6 dark:border-gh-border-dark dark:bg-gh-canvas-dark transition-colors duration-200">
       <div className="mb-4 flex items-center justify-between">
         <div className="space-y-1">
-          <div className="text-sm font-semibold text-gray-900 dark:text-white">{showRevenue ? "Revenue vs Spend" : "Spend trend"}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">{data?.length ? "Live data" : "Sample data"}</div>
+          <div className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">{showRevenue ? "Revenue vs Spend" : "Spend trend"}</div>
+          <div className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">{data?.length ? "Live data" : "Sample data"}</div>
         </div>
         <div className="flex items-center gap-4 text-xs">
           {showRevenue && (
-            <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden />
+            <div className="flex items-center gap-1.5 text-gh-text-secondary dark:text-gh-text-secondary-dark">
+              <span className="h-2.5 w-2.5 rounded-full bg-brand-500" aria-hidden />
               Revenue
             </div>
           )}
-          <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-500" aria-hidden />
+          <div className="flex items-center gap-1.5 text-gh-text-secondary dark:text-gh-text-secondary-dark">
+            <span className="h-2.5 w-2.5 rounded-full bg-gh-link" aria-hidden />
             Spend
           </div>
         </div>
@@ -53,16 +53,16 @@ export default function SummaryChart({ data }: { data?: SummaryPoint[] }) {
               <div className="flex w-full items-end justify-center gap-1.5 h-full">
                 {showRevenue && (
                   <div
-                    className={`w-3 rounded-t-sm bg-emerald-500 transition-all duration-300`}
+                    className={`w-3 rounded-t-sm bg-brand-500 transition-all duration-300`}
                     style={{ "--bar-height": `${revenueHeight}%`, height: "var(--bar-height)" } as React.CSSProperties}
                   />
                 )}
                 <div
-                  className={`w-3 rounded-t-sm bg-blue-500 transition-all duration-300`}
+                  className={`w-3 rounded-t-sm bg-gh-link transition-all duration-300`}
                   style={{ "--bar-height": `${spendHeight}%`, height: "var(--bar-height)" } as React.CSSProperties}
                 />
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{point.label}</div>
+              <div className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">{point.label}</div>
             </div>
           );
         })}

@@ -98,7 +98,7 @@ export default function CampaignsPage() {
             <select
               value={channelFilter}
               onChange={(e) => setChannelFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className="rounded-md border border-gh-border px-2 sm:px-3 py-2 text-sm bg-gh-canvas-default focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark"
               aria-label="Filter by channel"
             >
               {CHANNEL_OPTIONS.map((opt) => (
@@ -108,7 +108,7 @@ export default function CampaignsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className="rounded-md border border-gh-border px-2 sm:px-3 py-2 text-sm bg-gh-canvas-default focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark"
               aria-label="Sort by"
             >
               {SORT_OPTIONS.map((opt) => (
@@ -122,38 +122,38 @@ export default function CampaignsPage() {
         {/* Summary KPIs */}
         {!isPending && !isError && campaigns.length > 0 && (
           <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
               <MetricTooltip metric="spend">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Spend</p>
+                <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Total Spend</p>
               </MetricTooltip>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="mt-2 text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">
                 {formatCurrency(totals.totalSpend)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">
                 {campaigns.length} campaigns
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
               <MetricTooltip metric="clicks">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Clicks</p>
+                <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Total Clicks</p>
               </MetricTooltip>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="mt-2 text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">
                 {formatNumber(totals.totalClicks)}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
               <MetricTooltip metric="conversions">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Conversions</p>
+                <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Total Conversions</p>
               </MetricTooltip>
-              <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              <p className="mt-2 text-2xl font-bold text-brand-600 dark:text-brand-400">
                 {formatNumber(totals.totalConversions)}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
               <MetricTooltip metric="impressions">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Impressions</p>
+                <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Impressions</p>
               </MetricTooltip>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="mt-2 text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">
                 {formatNumber(totals.totalImpressions)}
               </p>
             </div>
@@ -165,7 +165,7 @@ export default function CampaignsPage() {
 
         {/* Error State */}
         {isError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+          <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle px-4 py-3 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
             Failed to load campaigns: {formatErrorMessage(error)}
           </div>
         )}
@@ -185,10 +185,10 @@ export default function CampaignsPage() {
 
         {/* Campaigns Table */}
         {!isPending && !isError && campaigns.length > 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-md border border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-gray-100 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                <thead className="border-b border-gh-border text-left text-xs font-medium uppercase tracking-wide text-gh-text-secondary dark:border-gh-border-dark dark:text-gh-text-secondary-dark">
                   <tr>
                     <th className="px-5 py-3">Campaign</th>
                     <th className="px-5 py-3">Channel</th>
@@ -215,21 +215,21 @@ export default function CampaignsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="text-gray-700 dark:text-gray-300">
+                <tbody className="text-gh-text-secondary dark:text-gh-text-secondary-dark">
                   {campaigns.map((campaign: CampaignMetrics) => {
                     const platform = campaign.platform || "unknown";
                     const colorClass = PLATFORM_COLORS[platform] || "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
                     const roasValue = campaign.roas || 0;
-                    const roasColor = roasValue >= 3 ? "text-emerald-600 dark:text-emerald-400" : roasValue >= 2 ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400";
+                    const roasColor = roasValue >= 3 ? "text-gh-success-fg dark:text-green-400" : roasValue >= 2 ? "text-gh-attention-fg dark:text-yellow-400" : "text-gh-danger-fg dark:text-red-400";
 
                     return (
                       <tr
                         key={campaign.campaign_id || campaign.campaign_name}
-                        className="border-t border-gray-50 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50 cursor-pointer"
+                        className="border-t border-gh-border hover:bg-gh-canvas-subtle dark:border-gh-border-dark dark:hover:bg-gh-canvas-subtle-dark cursor-pointer"
                         onClick={() => setSelectedCampaignId(campaign.campaign_id || null)}
                       >
                         <td className="px-5 py-3">
-                          <div className="font-medium text-gray-900 dark:text-white">
+                          <div className="font-medium text-gh-text-primary dark:text-gh-text-primary-dark">
                             {campaign.campaign_name || campaign.name || "Untitled"}
                           </div>
                         </td>

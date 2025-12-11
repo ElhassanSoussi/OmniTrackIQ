@@ -132,12 +132,12 @@ export default function OrdersPage() {
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search order ID..."
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white w-40 sm:w-48"
+              className="rounded-md border border-gh-border px-3 py-2 text-sm bg-gh-canvas-default focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark w-40 sm:w-48"
             />
             <select
               value={sourceFilter}
               onChange={(e) => handleFilterChange(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className="rounded-md border border-gh-border px-3 py-2 text-sm bg-gh-canvas-default focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark"
               aria-label="Filter by source"
             >
               <option value="">All sources</option>
@@ -151,33 +151,33 @@ export default function OrdersPage() {
       >
         {/* KPI Summary */}
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <MetricTooltip metric="revenue">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</p>
+              <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Total Revenue</p>
             </MetricTooltip>
-            <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <p className="mt-2 text-2xl font-bold text-brand-600 dark:text-brand-400">
               {summaryLoading ? "..." : formatCurrency(summaryData?.total_revenue || 0)}
             </p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <MetricTooltip metric="orders">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Orders</p>
+              <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Total Orders</p>
             </MetricTooltip>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+            <p className="mt-2 text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">
               {summaryLoading ? "..." : formatNumber(summaryData?.total_orders || 0)}
             </p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <MetricTooltip metric="aov">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Average Order Value</p>
+              <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Average Order Value</p>
             </MetricTooltip>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+            <p className="mt-2 text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">
               {summaryLoading ? "..." : formatCurrency(summaryData?.aov || 0)}
             </p>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Attribution Sources</p>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
+            <p className="text-sm font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Attribution Sources</p>
+            <p className="mt-2 text-2xl font-bold text-gh-text-primary dark:text-gh-text-primary-dark">
               {summaryLoading ? "..." : availableSources.length}
             </p>
           </div>
@@ -185,11 +185,11 @@ export default function OrdersPage() {
 
         {/* Daily Mini-Chart */}
         {dailyData.length > 0 && (
-          <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-6 rounded-md border border-gh-border bg-gh-canvas-default p-5 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Orders Over Time</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Daily orders and revenue</p>
+                <h3 className="font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Orders Over Time</h3>
+                <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Daily orders and revenue</p>
               </div>
             </div>
             <div className="h-32 flex items-end justify-between gap-1">

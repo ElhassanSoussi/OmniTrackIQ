@@ -29,14 +29,14 @@ const PLATFORM_COLORS: Record<string, string> = {
 export default function ChannelTable({ channels, isLoading }: ChannelTableProps) {
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-          <span className="text-sm font-semibold text-gray-900 dark:text-white">Channel Performance</span>
+      <div className="rounded-md border border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark">
+        <div className="flex items-center justify-between border-b border-gh-border px-5 py-3 dark:border-gh-border-dark">
+          <span className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Channel Performance</span>
         </div>
         <div className="animate-pulse p-5">
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-10 rounded bg-gray-100 dark:bg-gray-800" />
+              <div key={i} className="h-10 rounded-md bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark" />
             ))}
           </div>
         </div>
@@ -47,17 +47,17 @@ export default function ChannelTable({ channels, isLoading }: ChannelTableProps)
   const hasRows = channels && channels.length > 0;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 transition-colors duration-200">
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-        <span className="text-sm font-semibold text-gray-900 dark:text-white">Channel Performance</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+    <div className="rounded-md border border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark transition-colors">
+      <div className="flex items-center justify-between border-b border-gh-border px-5 py-3 dark:border-gh-border-dark">
+        <span className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Channel Performance</span>
+        <span className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">
           {hasRows ? `${channels.length} channels` : "No data"}
         </span>
       </div>
       {hasRows ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            <thead className="border-b border-gh-border text-left text-xs font-medium uppercase tracking-wide text-gh-text-tertiary dark:border-gh-border-dark dark:text-gh-text-tertiary-dark">
               <tr>
                 <th className="px-5 py-3">Channel</th>
                 <th className="px-5 py-3">
@@ -77,20 +77,20 @@ export default function ChannelTable({ channels, isLoading }: ChannelTableProps)
                 </th>
               </tr>
             </thead>
-            <tbody className="text-gray-700 dark:text-gray-300">
+            <tbody className="text-gh-text-secondary dark:text-gh-text-secondary-dark">
               {channels.map((row) => {
-                const colorClass = PLATFORM_COLORS[row.platform] || "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
-                const roasColor = row.roas >= 3 ? "text-emerald-600 dark:text-emerald-400" : row.roas >= 2 ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400";
+                const colorClass = PLATFORM_COLORS[row.platform] || "bg-gh-canvas-subtle text-gh-text-secondary dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark";
+                const roasColor = row.roas >= 3 ? "text-brand-600 dark:text-brand-400" : row.roas >= 2 ? "text-gh-attention-fg dark:text-gh-attention-fg-dark" : "text-gh-danger dark:text-gh-danger-dark";
                 
                 return (
-                  <tr key={row.platform} className="border-t border-gray-50 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+                  <tr key={row.platform} className="border-t border-gh-border hover:bg-gh-canvas-subtle dark:border-gh-border-dark dark:hover:bg-gh-canvas-subtle-dark">
                     <td className="px-5 py-3">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClass}`}>
                         {row.platform_label || row.platform}
                       </span>
                     </td>
                     <td className="px-5 py-3 font-medium">{formatCurrency(row.spend)}</td>
-                    <td className="px-5 py-3 font-medium text-emerald-600 dark:text-emerald-400">{formatCurrency(row.revenue)}</td>
+                    <td className="px-5 py-3 font-medium text-brand-600 dark:text-brand-400">{formatCurrency(row.revenue)}</td>
                     <td className={`px-5 py-3 font-semibold ${roasColor}`}>
                       {row.roas.toFixed(2)}x
                     </td>
@@ -103,7 +103,7 @@ export default function ChannelTable({ channels, isLoading }: ChannelTableProps)
           </table>
         </div>
       ) : (
-        <div className="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="px-5 py-8 text-center text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
           No channel data available. Connect your ad platforms to see performance by channel.
         </div>
       )}

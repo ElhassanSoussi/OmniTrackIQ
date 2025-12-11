@@ -78,71 +78,71 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Manage your account profile, login email, and password.</p>
+        <h1 className="text-xl font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Settings</h1>
+        <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Manage your account profile, login email, and password.</p>
       </div>
 
       {/* Settings Navigation */}
-      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800 overflow-x-auto">
-        <a href="/settings" className="border-b-2 border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+      <div className="flex gap-2 border-b border-gh-border dark:border-gh-border-dark overflow-x-auto">
+        <a href="/settings" className="border-b-2 border-brand-500 px-4 py-2 text-sm font-medium text-brand-500 dark:text-brand-400 whitespace-nowrap">
           Profile
         </a>
-        <a href="/settings/team" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap">
+        <a href="/settings/team" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gh-text-secondary hover:text-gh-text-primary dark:text-gh-text-secondary-dark dark:hover:text-gh-text-primary-dark whitespace-nowrap">
           Team
         </a>
-        <a href="/settings/notifications" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap">
+        <a href="/settings/notifications" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gh-text-secondary hover:text-gh-text-primary dark:text-gh-text-secondary-dark dark:hover:text-gh-text-primary-dark whitespace-nowrap">
           Notifications
         </a>
-        <a href="/settings/views" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap">
+        <a href="/settings/views" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gh-text-secondary hover:text-gh-text-primary dark:text-gh-text-secondary-dark dark:hover:text-gh-text-primary-dark whitespace-nowrap">
           Saved Views
         </a>
-        <a href="/settings/reports" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap">
+        <a href="/settings/reports" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gh-text-secondary hover:text-gh-text-primary dark:text-gh-text-secondary-dark dark:hover:text-gh-text-primary-dark whitespace-nowrap">
           Reports
         </a>
-        <a href="/settings/appearance" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap">
+        <a href="/settings/appearance" className="border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gh-text-secondary hover:text-gh-text-primary dark:text-gh-text-secondary-dark dark:hover:text-gh-text-primary-dark whitespace-nowrap">
           Appearance
         </a>
       </div>
 
       {/* Toast messages */}
       {localMessage && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
+        <div className="rounded-md border border-gh-success-emphasis bg-gh-success-subtle px-4 py-3 text-sm text-gh-success-fg dark:border-green-700 dark:bg-green-900/20 dark:text-green-300">
           ✓ {localMessage}
         </div>
       )}
       {localError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+        <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle px-4 py-3 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
           {localError}
         </div>
       )}
 
       {loading ? (
-        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+        <div className="flex items-center gap-2 text-gh-text-secondary dark:text-gh-text-secondary-dark">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></div>
           Loading settings...
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
-          <form onSubmit={handleAccountSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <form onSubmit={handleAccountSubmit} className="space-y-4 rounded-md border border-gh-border bg-gh-canvas-default p-6 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Account</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Update your workspace details that appear across dashboards.</p>
+              <h2 className="text-lg font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Account</h2>
+              <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Update your workspace details that appear across dashboards.</p>
             </div>
             <div className="space-y-1">
-              <label htmlFor="accountName" className="text-sm font-medium text-gray-700 dark:text-gray-300">Account name</label>
+              <label htmlFor="accountName" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Account name</label>
               <input
                 id="accountName"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                className="w-full rounded-md border border-gh-border bg-gh-canvas-default px-3 py-2.5 text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="displayName" className="text-sm font-medium text-gray-700 dark:text-gray-300">Display name</label>
+              <label htmlFor="displayName" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Display name</label>
               <input
                 id="displayName"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                className="w-full rounded-md border border-gh-border bg-gh-canvas-default px-3 py-2.5 text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
@@ -151,22 +151,22 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving === "account"}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving === "account" ? "Saving..." : "Save changes"}
             </button>
           </form>
 
-          <form onSubmit={handleEmailSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <form onSubmit={handleEmailSubmit} className="space-y-4 rounded-md border border-gh-border bg-gh-canvas-default p-6 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Login email</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Change the email you use to sign in.</p>
+              <h2 className="text-lg font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Login email</h2>
+              <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Change the email you use to sign in.</p>
             </div>
             <div className="space-y-1">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+              <label htmlFor="email" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Email</label>
               <input
                 id="email"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                className="w-full rounded-md border border-gh-border bg-gh-canvas-default px-3 py-2.5 text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -176,23 +176,23 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving === "email"}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving === "email" ? "Updating..." : "Update email"}
             </button>
           </form>
 
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2 dark:border-gray-800 dark:bg-gray-900">
+          <form onSubmit={handlePasswordSubmit} className="space-y-4 rounded-md border border-gh-border bg-gh-canvas-default p-6 lg:col-span-2 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Password</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Set a new password for your account.</p>
+              <h2 className="text-lg font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Password</h2>
+              <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Set a new password for your account.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
-                <label htmlFor="currentPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300">Current password</label>
+                <label htmlFor="currentPassword" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Current password</label>
                 <input
                   id="currentPassword"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                  className="w-full rounded-md border border-gh-border bg-gh-canvas-default px-3 py-2.5 text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark"
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
@@ -200,10 +200,10 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label htmlFor="newPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300">New password</label>
+                <label htmlFor="newPassword" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">New password</label>
                 <input
                   id="newPassword"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                  className="w-full rounded-md border border-gh-border bg-gh-canvas-default px-3 py-2.5 text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -215,7 +215,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving === "password"}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving === "password" ? "Updating..." : "Update password"}
             </button>

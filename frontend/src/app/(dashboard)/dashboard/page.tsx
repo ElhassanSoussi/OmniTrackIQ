@@ -203,7 +203,7 @@ export default function DashboardPage() {
             <select
               value={channelFilter}
               onChange={(e) => setChannelFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className="rounded-md border border-gh-border px-2 sm:px-3 py-2 text-sm bg-gh-canvas-default focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark"
               aria-label="Filter by channel"
             >
               {CHANNEL_OPTIONS.map((opt) => (
@@ -224,7 +224,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-4 sm:gap-6">
           {/* Edit mode hint */}
           {isEditing && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
+            <div className="rounded-md border border-brand-300 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-700 dark:bg-brand-900/20 dark:text-brand-300">
               <div className="flex items-center gap-2">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -235,11 +235,11 @@ export default function DashboardPage() {
           )}
 
           {hasNoLiveData && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+            <div className="rounded-md border border-gh-attention-emphasis bg-gh-attention-subtle px-4 py-3 text-sm text-gh-attention-fg dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
-                  <a href="/integrations" className="ml-2 font-semibold text-amber-900 underline hover:text-amber-700 dark:text-amber-200 dark:hover:text-amber-100">
+                  <a href="/integrations" className="ml-2 font-semibold underline hover:text-yellow-900 dark:hover:text-yellow-100">
                     Connect integrations
                   </a>
                 </div>
@@ -247,7 +247,7 @@ export default function DashboardPage() {
                   <button
                     onClick={() => generateSampleData.mutate()}
                     disabled={generateSampleData.isPending}
-                    className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-md bg-gh-attention-emphasis px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-yellow-600 disabled:opacity-50"
                   >
                     {generateSampleData.isPending ? (
                       <>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
           )}
 
           {sampleDataStats?.has_sample_data && (
-            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+            <div className="rounded-md border border-gh-accent-emphasis bg-gh-accent-subtle px-4 py-3 text-sm text-gh-accent-fg dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <span className="font-semibold">Demo mode:</span> You&apos;re viewing sample data ({sampleDataStats.ad_spend_records} ad records, {sampleDataStats.order_records} orders).
@@ -276,7 +276,7 @@ export default function DashboardPage() {
                 <button
                   onClick={() => deleteSampleData.mutate()}
                   disabled={deleteSampleData.isPending}
-                  className="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm transition hover:bg-blue-50 disabled:opacity-50 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                  className="inline-flex items-center gap-2 rounded-md border border-gh-accent-emphasis bg-gh-canvas-default px-3 py-1.5 text-xs font-medium text-gh-accent-fg shadow-sm transition hover:bg-gh-canvas-subtle disabled:opacity-50 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
                 >
                   {deleteSampleData.isPending ? "Removing..." : "Remove Sample Data"}
                 </button>
@@ -284,26 +284,26 @@ export default function DashboardPage() {
             </div>
           )}
           
-          <div className="grid gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:flex md:items-center md:justify-between dark:border-gray-800 dark:bg-gray-900">
+          <div className="grid gap-4 rounded-md border border-gh-border bg-gh-canvas-default p-5 md:flex md:items-center md:justify-between dark:border-gh-border-dark dark:bg-gh-canvas-dark">
             <div className="space-y-1">
-              <div className="text-sm font-semibold text-gray-900 dark:text-white">Account health</div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Account health</div>
+              <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
                 ROAS above target; TikTok prospecting is accelerating and Google brand remains most efficient.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Healthy</span>
-              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+              <span className="rounded-full bg-gh-success-subtle px-3 py-1 font-semibold text-gh-success-fg dark:bg-green-900/30 dark:text-green-400">Healthy</span>
+              <span className="rounded-full border border-gh-border bg-gh-canvas-subtle px-3 py-1 font-semibold text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
                 {range === "7d" ? "Last 7 days" : range === "30d" ? "Last 30 days" : "Last 90 days"}
               </span>
-              <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-semibold text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+              <span className="rounded-full border border-gh-border bg-gh-canvas-subtle px-3 py-1 font-semibold text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
                 Blended CAC $27.4
               </span>
             </div>
           </div>
 
           {summaryError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+            <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
               Failed to load metrics: {formatErrorMessage(summaryErr)}
             </div>
           ) : summaryLoading ? (
@@ -374,7 +374,7 @@ export default function DashboardPage() {
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             {visibleWidgets.find((w) => w.id === "campaigns-table") && (
               campaignsError ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
                   Failed to load campaigns: {formatErrorMessage(campaignsErr)}
                 </div>
               ) : campaignsLoading ? (
@@ -403,7 +403,7 @@ export default function DashboardPage() {
             )}
             {visibleWidgets.find((w) => w.id === "orders-table") && (
               ordersError ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
                   Failed to load orders: {formatErrorMessage(ordersErr)}
                 </div>
               ) : ordersLoading ? (

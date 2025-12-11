@@ -87,7 +87,7 @@ export function DateRangeToggle({
           aria-label="Select date range"
           value={value}
           onChange={(e) => handleRangeClick(e.target.value as DateRangeValue)}
-          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full rounded-md border border-gh-border bg-gh-canvas-default px-3 py-2 text-sm font-medium dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
           {ranges.map((range) => (
             <option key={range.value} value={range.value}>
@@ -100,7 +100,7 @@ export function DateRangeToggle({
       </div>
 
       {/* Desktop: Button group */}
-      <div className="hidden sm:inline-flex items-center rounded-lg border border-gray-200 bg-white p-1 text-sm font-medium shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="hidden sm:inline-flex items-center rounded-md border border-gh-border bg-gh-canvas-default p-1 text-sm font-medium dark:border-gh-border-dark dark:bg-gh-canvas-dark">
         {ranges.map((range) => {
           const active = value === range.value;
           const isCustomActive = range.value === "custom" && value === "custom";
@@ -112,8 +112,8 @@ export function DateRangeToggle({
               onClick={() => handleRangeClick(range.value as DateRangeValue)}
               className={`rounded-md px-3 py-1.5 transition ${
                 active
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  ? "bg-brand-500 text-white"
+                  : "text-gh-text-secondary hover:bg-gh-canvas-subtle hover:text-gh-text-primary dark:text-gh-text-secondary-dark dark:hover:bg-gh-canvas-subtle-dark dark:hover:text-gh-text-primary-dark"
               }`}
             >
               {isCustomActive && formatDateDisplay() ? formatDateDisplay() : range.label}
@@ -124,26 +124,26 @@ export function DateRangeToggle({
 
       {/* Custom Date Picker Dropdown */}
       {showCustomPicker && (
-        <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:translate-y-0 sm:mt-2 w-auto sm:w-80 rounded-xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:translate-y-0 sm:mt-2 w-auto sm:w-80 rounded-md border border-gh-border bg-gh-canvas-default p-4 shadow-gh-lg dark:border-gh-border-dark dark:bg-gh-canvas-dark">
           <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Custom Date Range</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Select start and end dates</p>
+            <h3 className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Custom Date Range</h3>
+            <p className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">Select start and end dates</p>
           </div>
           
           <div className="space-y-3">
             <div>
-              <label htmlFor="date-range-start" className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+              <label htmlFor="date-range-start" className="mb-1 block text-xs font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Start Date</label>
               <input
                 id="date-range-start"
                 type="date"
                 value={tempFrom}
                 onChange={(e) => setTempFrom(e.target.value)}
                 max={tempTo || undefined}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="w-full rounded-md border border-gh-border px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark"
               />
             </div>
             <div>
-              <label htmlFor="date-range-end" className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">End Date</label>
+              <label htmlFor="date-range-end" className="mb-1 block text-xs font-medium text-gh-text-primary dark:text-gh-text-primary-dark">End Date</label>
               <input
                 id="date-range-end"
                 type="date"
@@ -151,14 +151,14 @@ export function DateRangeToggle({
                 onChange={(e) => setTempTo(e.target.value)}
                 min={tempFrom || undefined}
                 max={new Date().toISOString().split("T")[0]}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="w-full rounded-md border border-gh-border px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gh-border-dark dark:bg-gh-canvas-dark dark:text-gh-text-primary-dark"
               />
             </div>
           </div>
 
           {/* Quick presets */}
-          <div className="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
-            <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">Quick select</p>
+          <div className="mt-4 border-t border-gh-border pt-4 dark:border-gh-border-dark">
+            <p className="mb-2 text-xs font-medium text-gh-text-secondary dark:text-gh-text-secondary-dark">Quick select</p>
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "This week", days: 7 },
@@ -178,7 +178,7 @@ export function DateRangeToggle({
                     setTempFrom(from.toISOString().split("T")[0]);
                     setTempTo(to.toISOString().split("T")[0]);
                   }}
-                  className="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="rounded-md border border-gh-border px-2 py-1 text-xs text-gh-text-secondary hover:bg-gh-canvas-subtle dark:border-gh-border-dark dark:text-gh-text-secondary-dark dark:hover:bg-gh-canvas-subtle-dark"
                 >
                   {preset.label}
                 </button>
@@ -190,7 +190,7 @@ export function DateRangeToggle({
             <button
               type="button"
               onClick={() => setShowCustomPicker(false)}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="rounded-md border border-gh-border px-3 py-1.5 text-sm font-medium text-gh-text-primary hover:bg-gh-canvas-subtle dark:border-gh-border-dark dark:text-gh-text-primary-dark dark:hover:bg-gh-canvas-subtle-dark"
             >
               Cancel
             </button>
@@ -198,7 +198,7 @@ export function DateRangeToggle({
               type="button"
               onClick={handleApplyCustomRange}
               disabled={!tempFrom || !tempTo}
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+              className="rounded-md bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
             >
               Apply
             </button>

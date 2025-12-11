@@ -1,4 +1,3 @@
-
 interface SkeletonProps {
   className?: string;
   style?: React.CSSProperties;
@@ -7,7 +6,7 @@ interface SkeletonProps {
 export function Skeleton({ className, style }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-gray-200 dark:bg-gray-700 ${className || ""}`}
+      className={`animate-pulse rounded-md bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark ${className || ""}`}
       style={style}
     />
   );
@@ -19,7 +18,7 @@ export function KPIGridSkeleton() {
       {[...Array(6)].map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+          className="rounded-md border border-gh-border bg-gh-canvas-default p-4 dark:border-gh-border-dark dark:bg-gh-canvas-dark"
         >
           <Skeleton className="h-3 w-16 mb-2" />
           <Skeleton className="h-7 w-24 mb-1" />
@@ -32,7 +31,7 @@ export function KPIGridSkeleton() {
 
 export function ChartSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-md border border-gh-border bg-gh-canvas-default p-6 dark:border-gh-border-dark dark:bg-gh-canvas-dark">
       <div className="mb-4 flex items-center justify-between">
         <div className="space-y-1">
           <Skeleton className="h-4 w-32" />
@@ -60,8 +59,8 @@ export function ChartSkeleton() {
 
 export function TableSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+    <div className="rounded-md border border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark">
+      <div className="flex items-center justify-between border-b border-gh-border px-5 py-4 dark:border-gh-border-dark">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-3 w-16" />
       </div>
