@@ -115,8 +115,8 @@ export default function NotificationsSettingsPage() {
       type="button"
       onClick={() => !disabled && onChange(!enabled)}
       disabled={disabled}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
-        enabled ? "bg-emerald-600" : "bg-zinc-600"
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#238636] focus:ring-offset-2 ${
+        enabled ? "bg-[#238636]" : "bg-[#6e7781] dark:bg-[#484f58]"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <span
@@ -130,7 +130,7 @@ export default function NotificationsSettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#238636]" />
       </div>
     );
   }
@@ -138,7 +138,7 @@ export default function NotificationsSettingsPage() {
   if (error && !preferences) {
     return (
       <div className="p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400">
+        <div className="rounded-md border border-[#ffccd5] bg-[#ffebe9] p-4 text-[#cf222e] dark:border-[#f8514966] dark:bg-[#f8514915] dark:text-[#f85149]">
           {error}
         </div>
       </div>
@@ -150,20 +150,20 @@ export default function NotificationsSettingsPage() {
   return (
     <div className="p-6 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Notification Settings</h1>
-        <p className="text-zinc-400">
+        <h1 className="text-2xl font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-2">Notification Settings</h1>
+        <p className="text-[#57606a] dark:text-[#8b949e]">
           Manage how and when you receive alerts and reports.
         </p>
       </div>
 
       {/* Email Not Configured Warning */}
       {status && !status.email_configured && (
-        <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+        <div className="mb-6 rounded-md border border-[#d4a72c66] bg-[#fff8c5] p-4 dark:border-[#bb800926] dark:bg-[#bb800915]">
           <div className="flex items-start gap-3">
-            <Mail className="h-5 w-5 text-amber-400 mt-0.5" />
+            <Mail className="h-5 w-5 text-[#9a6700] dark:text-[#d29922] mt-0.5" />
             <div>
-              <p className="text-amber-200 font-medium">Email notifications not configured</p>
-              <p className="text-amber-400/70 text-sm mt-1">
+              <p className="text-[#9a6700] dark:text-[#d29922] font-medium">Email notifications not configured</p>
+              <p className="text-[#6e5000] dark:text-[#bb8009] text-sm mt-1">
                 Email sending is not configured for this instance. In-app notifications will still work.
               </p>
             </div>
@@ -172,25 +172,25 @@ export default function NotificationsSettingsPage() {
       )}
 
       {saving && (
-        <div className="fixed top-4 right-4 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 flex items-center gap-2 shadow-lg z-50">
-          <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
-          <span className="text-sm text-zinc-300">Saving...</span>
+        <div className="fixed top-4 right-4 rounded-md border border-[#d0d7de] bg-white px-4 py-2 flex items-center gap-2 shadow-gh-lg z-50 dark:border-[#30363d] dark:bg-[#161b22]">
+          <Loader2 className="h-4 w-4 animate-spin text-[#238636]" />
+          <span className="text-sm text-[#57606a] dark:text-[#8b949e]">Saving...</span>
         </div>
       )}
 
       <div className="space-y-6">
         {/* Global Notification Channels */}
-        <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Bell className="h-5 w-5 text-emerald-500" />
+        <section className="rounded-md border border-[#d0d7de] bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+          <h2 className="text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-4 flex items-center gap-2">
+            <Bell className="h-5 w-5 text-[#238636]" />
             Notification Channels
           </h2>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium">Email Notifications</p>
-                <p className="text-zinc-400 text-sm">Receive alerts and reports via email</p>
+                <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Email Notifications</p>
+                <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Receive alerts and reports via email</p>
               </div>
               <ToggleSwitch
                 enabled={preferences.email_notifications_enabled}
@@ -198,11 +198,11 @@ export default function NotificationsSettingsPage() {
                 disabled={!status?.email_configured}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium">In-App Notifications</p>
-                <p className="text-zinc-400 text-sm">Show notifications in the dashboard</p>
+                <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">In-App Notifications</p>
+                <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Show notifications in the dashboard</p>
               </div>
               <ToggleSwitch
                 enabled={preferences.in_app_notifications_enabled}
@@ -213,17 +213,17 @@ export default function NotificationsSettingsPage() {
         </section>
 
         {/* Anomaly Alerts */}
-        <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
+        <section className="rounded-md border border-[#d0d7de] bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+          <h2 className="text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-4 flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-[#9a6700] dark:text-[#d29922]" />
             Anomaly Alerts
           </h2>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium">Enable Anomaly Alerts</p>
-                <p className="text-zinc-400 text-sm">Get notified when unusual metric changes are detected</p>
+                <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Enable Anomaly Alerts</p>
+                <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Get notified when unusual metric changes are detected</p>
               </div>
               <ToggleSwitch
                 enabled={preferences.anomaly_alerts_enabled}
@@ -233,20 +233,20 @@ export default function NotificationsSettingsPage() {
             
             {preferences.anomaly_alerts_enabled && (
               <div className="pt-2">
-                <label className="block text-sm text-zinc-400 mb-2">Detection Sensitivity</label>
+                <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-2">Detection Sensitivity</label>
                 <div className="grid grid-cols-3 gap-2">
                   {SENSITIVITY_OPTIONS.map((option) => (
                     <button
                       key={option.value}
                       onClick={() => updatePreference({ anomaly_sensitivity: option.value })}
-                      className={`p-3 rounded-lg border text-left transition-colors ${
+                      className={`p-3 rounded-md border text-left transition-colors ${
                         preferences.anomaly_sensitivity === option.value
-                          ? "border-emerald-500 bg-emerald-500/10"
-                          : "border-zinc-700 hover:border-zinc-600"
+                          ? "border-[#238636] bg-[#dafbe1] dark:bg-[#23863620]"
+                          : "border-[#d0d7de] hover:border-[#8c959f] dark:border-[#30363d] dark:hover:border-[#484f58]"
                       }`}
                     >
-                      <p className="text-white font-medium text-sm">{option.label}</p>
-                      <p className="text-zinc-400 text-xs mt-0.5">{option.description}</p>
+                      <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium text-sm">{option.label}</p>
+                      <p className="text-[#57606a] dark:text-[#8b949e] text-xs mt-0.5">{option.description}</p>
                     </button>
                   ))}
                 </div>
@@ -256,9 +256,9 @@ export default function NotificationsSettingsPage() {
         </section>
 
         {/* Spend & ROAS Alerts */}
-        <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-green-500" />
+        <section className="rounded-md border border-[#d0d7de] bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+          <h2 className="text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-4 flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-[#1a7f37] dark:text-[#3fb950]" />
             Spend & Performance Alerts
           </h2>
           
@@ -267,8 +267,8 @@ export default function NotificationsSettingsPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-white font-medium">Daily Spend Alert</p>
-                  <p className="text-zinc-400 text-sm">Alert when daily spend exceeds threshold</p>
+                  <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Daily Spend Alert</p>
+                  <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Alert when daily spend exceeds threshold</p>
                 </div>
                 <ToggleSwitch
                   enabled={preferences.spend_alerts_enabled}
@@ -277,13 +277,13 @@ export default function NotificationsSettingsPage() {
               </div>
               {preferences.spend_alerts_enabled && (
                 <div className="mt-3">
-                  <label className="block text-sm text-zinc-400 mb-1">Threshold Amount ($)</label>
+                  <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-1">Threshold Amount ($)</label>
                   <input
                     type="number"
                     value={preferences.daily_spend_threshold || ""}
                     onChange={(e) => updatePreference({ daily_spend_threshold: parseInt(e.target.value) || null })}
                     placeholder="e.g. 1000"
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-md border border-[#d0d7de] bg-white px-3 py-2 text-[#1f2328] placeholder-[#6e7781] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#e6edf3] dark:placeholder-[#6e7681]"
                   />
                 </div>
               )}
@@ -293,8 +293,8 @@ export default function NotificationsSettingsPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-white font-medium">ROAS Alert</p>
-                  <p className="text-zinc-400 text-sm">Alert when ROAS drops below threshold</p>
+                  <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">ROAS Alert</p>
+                  <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Alert when ROAS drops below threshold</p>
                 </div>
                 <ToggleSwitch
                   enabled={preferences.roas_alerts_enabled}
@@ -303,13 +303,13 @@ export default function NotificationsSettingsPage() {
               </div>
               {preferences.roas_alerts_enabled && (
                 <div className="mt-3">
-                  <label className="block text-sm text-zinc-400 mb-1">Minimum ROAS (e.g. 200 = 2.0x)</label>
+                  <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-1">Minimum ROAS (e.g. 200 = 2.0x)</label>
                   <input
                     type="number"
                     value={preferences.roas_threshold || ""}
                     onChange={(e) => updatePreference({ roas_threshold: parseInt(e.target.value) || null })}
                     placeholder="e.g. 200"
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-md border border-[#d0d7de] bg-white px-3 py-2 text-[#1f2328] placeholder-[#6e7781] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#e6edf3] dark:placeholder-[#6e7681]"
                   />
                 </div>
               )}
@@ -319,8 +319,8 @@ export default function NotificationsSettingsPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-white font-medium">Budget Alert</p>
-                  <p className="text-zinc-400 text-sm">Alert when approaching budget limit</p>
+                  <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Budget Alert</p>
+                  <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Alert when approaching budget limit</p>
                 </div>
                 <ToggleSwitch
                   enabled={preferences.budget_alerts_enabled}
@@ -329,11 +329,11 @@ export default function NotificationsSettingsPage() {
               </div>
               {preferences.budget_alerts_enabled && (
                 <div className="mt-3">
-                  <label className="block text-sm text-zinc-400 mb-1">Alert at % of budget</label>
+                  <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-1">Alert at % of budget</label>
                   <select
                     value={preferences.budget_alert_percentage}
                     onChange={(e) => updatePreference({ budget_alert_percentage: parseInt(e.target.value) })}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-md border border-[#d0d7de] bg-white px-3 py-2 text-[#1f2328] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#e6edf3]"
                   >
                     <option value={50}>50%</option>
                     <option value={70}>70%</option>
@@ -348,9 +348,9 @@ export default function NotificationsSettingsPage() {
         </section>
 
         {/* Scheduled Reports */}
-        <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-500" />
+        <section className="rounded-md border border-[#d0d7de] bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+          <h2 className="text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-4 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-[#0969da] dark:text-[#58a6ff]" />
             Scheduled Reports
           </h2>
           
@@ -359,8 +359,8 @@ export default function NotificationsSettingsPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-white font-medium">Weekly Performance Report</p>
-                  <p className="text-zinc-400 text-sm">Receive a summary of your weekly metrics</p>
+                  <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Weekly Performance Report</p>
+                  <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Receive a summary of your weekly metrics</p>
                 </div>
                 <ToggleSwitch
                   enabled={preferences.weekly_report_enabled}
@@ -369,11 +369,11 @@ export default function NotificationsSettingsPage() {
               </div>
               {preferences.weekly_report_enabled && (
                 <div className="mt-3">
-                  <label className="block text-sm text-zinc-400 mb-1">Send on</label>
+                  <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-1">Send on</label>
                   <select
                     value={preferences.weekly_report_day}
                     onChange={(e) => updatePreference({ weekly_report_day: parseInt(e.target.value) })}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-md border border-[#d0d7de] bg-white px-3 py-2 text-[#1f2328] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#e6edf3]"
                   >
                     {DAYS_OF_WEEK.map((day) => (
                       <option key={day.value} value={day.value}>{day.label}</option>
@@ -386,8 +386,8 @@ export default function NotificationsSettingsPage() {
             {/* Monthly Report */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium">Monthly Performance Report</p>
-                <p className="text-zinc-400 text-sm">Receive a comprehensive monthly summary</p>
+                <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Monthly Performance Report</p>
+                <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Receive a comprehensive monthly summary</p>
               </div>
               <ToggleSwitch
                 enabled={preferences.monthly_report_enabled}
@@ -398,17 +398,17 @@ export default function NotificationsSettingsPage() {
         </section>
 
         {/* Quiet Hours */}
-        <section className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Moon className="h-5 w-5 text-purple-500" />
+        <section className="rounded-md border border-[#d0d7de] bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+          <h2 className="text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3] mb-4 flex items-center gap-2">
+            <Moon className="h-5 w-5 text-[#8250df] dark:text-[#a371f7]" />
             Quiet Hours
           </h2>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium">Enable Quiet Hours</p>
-                <p className="text-zinc-400 text-sm">Don&apos;t send notifications during specified hours</p>
+                <p className="text-[#1f2328] dark:text-[#e6edf3] font-medium">Enable Quiet Hours</p>
+                <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Don&apos;t send notifications during specified hours</p>
               </div>
               <ToggleSwitch
                 enabled={preferences.quiet_hours_enabled}
@@ -419,11 +419,11 @@ export default function NotificationsSettingsPage() {
             {preferences.quiet_hours_enabled && (
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
-                  <label className="block text-sm text-zinc-400 mb-1">Start Time</label>
+                  <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-1">Start Time</label>
                   <select
                     value={preferences.quiet_hours_start}
                     onChange={(e) => updatePreference({ quiet_hours_start: parseInt(e.target.value) })}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-md border border-[#d0d7de] bg-white px-3 py-2 text-[#1f2328] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#e6edf3]"
                   >
                     {Array.from({ length: 24 }, (_, i) => (
                       <option key={i} value={i}>
@@ -433,11 +433,11 @@ export default function NotificationsSettingsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-zinc-400 mb-1">End Time</label>
+                  <label className="block text-sm text-[#57606a] dark:text-[#8b949e] mb-1">End Time</label>
                   <select
                     value={preferences.quiet_hours_end}
                     onChange={(e) => updatePreference({ quiet_hours_end: parseInt(e.target.value) })}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-md border border-[#d0d7de] bg-white px-3 py-2 text-[#1f2328] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#e6edf3]"
                   >
                     {Array.from({ length: 24 }, (_, i) => (
                       <option key={i} value={i}>

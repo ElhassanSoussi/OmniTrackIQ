@@ -8,18 +8,18 @@ import Link from "next/link";
 const getAlertIcon = (alertType: string) => {
   switch (alertType) {
     case "anomaly_spike":
-      return <TrendingUp className="h-4 w-4 text-red-400" />;
+      return <TrendingUp className="h-4 w-4 text-[#cf222e] dark:text-[#f85149]" />;
     case "anomaly_drop":
-      return <TrendingDown className="h-4 w-4 text-amber-400" />;
+      return <TrendingDown className="h-4 w-4 text-[#9a6700] dark:text-[#d29922]" />;
     case "spend_threshold":
     case "roas_threshold":
     case "budget_alert":
-      return <AlertTriangle className="h-4 w-4 text-amber-400" />;
+      return <AlertTriangle className="h-4 w-4 text-[#9a6700] dark:text-[#d29922]" />;
     case "weekly_report":
     case "monthly_report":
-      return <FileText className="h-4 w-4 text-blue-400" />;
+      return <FileText className="h-4 w-4 text-[#0969da] dark:text-[#58a6ff]" />;
     default:
-      return <Bell className="h-4 w-4 text-zinc-400" />;
+      return <Bell className="h-4 w-4 text-[#57606a] dark:text-[#8b949e]" />;
   }
 };
 
@@ -65,27 +65,27 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-zinc-800 transition-colors"
+        className="relative p-2 rounded-md hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="h-5 w-5 text-zinc-400" />
+        <Bell className="h-5 w-5 text-[#57606a] dark:text-[#8b949e]" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 h-5 w-5 flex items-center justify-center text-xs font-bold text-white bg-red-500 rounded-full">
+          <span className="absolute -top-0.5 -right-0.5 h-5 w-5 flex items-center justify-center text-xs font-bold text-white bg-[#cf222e] rounded-full">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md shadow-gh-lg z-50 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-            <h3 className="font-semibold text-white">Notifications</h3>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22]">
+            <h3 className="font-semibold text-sm text-[#1f2328] dark:text-[#e6edf3]">Notifications</h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsRead()}
-                  className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                  className="text-xs text-[#238636] hover:text-[#2ea043] dark:text-[#3fb950] dark:hover:text-[#56d364] flex items-center gap-1"
                 >
                   <CheckCheck className="h-3 w-3" />
                   Mark all read
@@ -93,10 +93,10 @@ export function NotificationBell() {
               )}
               <Link
                 href="/settings/notifications"
-                className="p-1 hover:bg-zinc-800 rounded"
+                className="p-1 hover:bg-[#eaeef2] dark:hover:bg-[#21262d] rounded-md"
                 onClick={() => setIsOpen(false)}
               >
-                <Settings className="h-4 w-4 text-zinc-400" />
+                <Settings className="h-4 w-4 text-[#57606a] dark:text-[#8b949e]" />
               </Link>
             </div>
           </div>
@@ -104,20 +104,20 @@ export function NotificationBell() {
           {/* Notifications List */}
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-zinc-500">Loading...</div>
+              <div className="p-4 text-center text-[#57606a] dark:text-[#8b949e]">Loading...</div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="h-8 w-8 text-zinc-600 mx-auto mb-2" />
-                <p className="text-zinc-500 text-sm">No notifications yet</p>
+                <Bell className="h-8 w-8 text-[#d0d7de] dark:text-[#30363d] mx-auto mb-2" />
+                <p className="text-[#57606a] dark:text-[#8b949e] text-sm">No notifications yet</p>
               </div>
             ) : (
-              <div className="divide-y divide-zinc-800">
+              <div className="divide-y divide-[#d0d7de] dark:divide-[#30363d]">
                 {notifications.slice(0, 10).map((notification) => (
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`w-full text-left px-4 py-3 hover:bg-zinc-800/50 transition-colors ${
-                      !notification.read_at ? "bg-emerald-500/5" : ""
+                    className={`w-full text-left px-4 py-3 hover:bg-[#f6f8fa] dark:hover:bg-[#21262d] transition-colors ${
+                      !notification.read_at ? "bg-[#ddf4ff] dark:bg-[#388bfd15]" : ""
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -125,20 +125,20 @@ export function NotificationBell() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className={`text-sm font-medium truncate ${
-                            !notification.read_at ? "text-white" : "text-zinc-300"
+                            !notification.read_at ? "text-[#1f2328] dark:text-[#e6edf3]" : "text-[#57606a] dark:text-[#8b949e]"
                           }`}>
                             {notification.title}
                           </p>
                           {!notification.read_at && (
-                            <span className="h-2 w-2 bg-emerald-500 rounded-full flex-shrink-0" />
+                            <span className="h-2 w-2 bg-[#238636] dark:bg-[#3fb950] rounded-full flex-shrink-0" />
                           )}
                         </div>
                         {notification.message && (
-                          <p className="text-xs text-zinc-500 truncate mt-0.5">
+                          <p className="text-xs text-[#57606a] dark:text-[#8b949e] truncate mt-0.5">
                             {notification.message}
                           </p>
                         )}
-                        <p className="text-xs text-zinc-600 mt-1">
+                        <p className="text-xs text-[#6e7781] dark:text-[#6e7681] mt-1">
                           {formatTime(notification.sent_at)}
                         </p>
                       </div>
@@ -151,10 +151,10 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-2 border-t border-zinc-800">
+            <div className="px-4 py-2 border-t border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22]">
               <Link
                 href="/settings/notifications"
-                className="text-xs text-emerald-400 hover:text-emerald-300"
+                className="text-xs text-[#0969da] hover:text-[#0550ae] dark:text-[#58a6ff] dark:hover:text-[#79c0ff] font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 Manage notification settings →
