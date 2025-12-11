@@ -186,3 +186,53 @@ def social_callback(request: Request, provider: str, code: str, state: Optional[
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail=f"OAuth callback for {provider} is not fully implemented yet."
     )
+
+
+# ================== Password Reset ==================
+
+from app.schemas.auth import ForgotPasswordRequest, ResetPasswordRequest, MessageResponse
+
+
+@router.post("/forgot-password", response_model=MessageResponse, summary="Request password reset")
+@limiter.limit(get_auth_rate_limit())
+def forgot_password(request: Request, body: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """
+    Request a password reset email.
+    
+    - **email**: The email address associated with your account
+    
+    For security reasons, this endpoint always returns success even if the email
+    is not found in the system. If the email exists, a reset link will be sent.
+    """
+    import logging
+    logger = logging.getLogger("omnitrackiq")
+    
+    token = auth_service.create_password_reset_token(db, body.email)
+    
+    if token:
+        # Send password reset email
+        try:
+            from app.services.email_service import send_password_reset_email
+            reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+            send_password_reset_email(body.email, reset_url)
+            logger.info(f"Password reset email sent to {body.email}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: {e}")
+            # Still return success to not reveal if email exists
+    
+    return MessageResponse(
+        message="If an account with that email exists, we've sent a password reset link. Please check your inbox."
+    )
+
+
+@router.post("/reset-password", response_model=MessageResponse, summary="Reset password with token")
+@limiter.limit(get_auth_rate_limit())
+def reset_password(request: Request, body: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """
+    Reset password using the token from the reset email.
+    
+    - **token**: The password reset token from the email link
+    - **new_password**: Your new password (minimum 8 characters)
+    """
+    auth_service.reset_password(db, body.token, body.new_password)
+    return MessageResponse(message="Your password has been reset successfully. You can now log in with your new password.")

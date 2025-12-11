@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -104,3 +106,64 @@ def login(db: Session, email: str, password: str) -> str:
             detail="Invalid email or password. Please try again."
         )
     return create_access_token(user.id)
+
+
+def create_password_reset_token(db: Session, email: str) -> Optional[str]:
+    """
+    Create a password reset token for the user.
+    Returns the token if user exists, None otherwise.
+    We don't reveal whether the user exists for security.
+    """
+    import secrets
+    from datetime import datetime, timedelta
+    
+    normalized_email = email.strip().lower()
+    user = db.query(User).filter(User.email == normalized_email).first()
+    
+    if not user:
+        return None
+    
+    # Generate a secure token
+    token = secrets.token_urlsafe(32)
+    
+    # Store token hash and expiry on user (token expires in 1 hour)
+    user.password_reset_token = hash_password(token)
+    user.password_reset_expires = datetime.utcnow() + timedelta(hours=1)
+    db.commit()
+    
+    return token
+
+
+def reset_password(db: Session, token: str, new_password: str) -> bool:
+    """
+    Reset user's password using the reset token.
+    Returns True if successful, raises HTTPException otherwise.
+    """
+    from datetime import datetime
+    
+    # Find user with valid reset token
+    users = db.query(User).filter(
+        User.password_reset_token.isnot(None),
+        User.password_reset_expires > datetime.utcnow()
+    ).all()
+    
+    # Check token against all users with pending resets
+    target_user = None
+    for user in users:
+        if verify_password(token, user.password_reset_token):
+            target_user = user
+            break
+    
+    if not target_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token. Please request a new password reset."
+        )
+    
+    # Update password and clear reset token
+    target_user.password_hash = hash_password(new_password)
+    target_user.password_reset_token = None
+    target_user.password_reset_expires = None
+    db.commit()
+    
+    return True

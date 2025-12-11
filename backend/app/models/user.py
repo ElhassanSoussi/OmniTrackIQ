@@ -27,6 +27,10 @@ class User(Base):
     name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_login_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Password reset fields
+    password_reset_token = Column(String, nullable=True)
+    password_reset_expires = Column(DateTime(timezone=True), nullable=True)
 
     account = relationship("Account", backref="users")
     notification_preferences = relationship(

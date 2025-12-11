@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 from pydantic import BaseModel, validator
 
@@ -53,4 +54,30 @@ class UserInfo(BaseModel):
     email: str
     account_id: str
     role: str
-    name: str | None = None
+    name: Optional[str] = None
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+    @validator("email")
+    def normalize_email(cls, v: str) -> str:
+        email = v.strip().lower()
+        if not EMAIL_REGEX.match(email):
+            raise ValueError("Invalid email address")
+        return email
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+    @validator("new_password")
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        return v
+
+
+class MessageResponse(BaseModel):
+    message: str

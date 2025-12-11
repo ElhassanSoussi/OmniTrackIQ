@@ -124,11 +124,19 @@ export function DateRangeToggle({
 
       {/* Custom Date Picker Dropdown */}
       {showCustomPicker && (
-        <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:translate-y-0 sm:mt-2 w-auto sm:w-80 rounded-md border border-gh-border bg-gh-canvas-default p-4 shadow-gh-lg dark:border-gh-border-dark dark:bg-gh-canvas-dark">
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Custom Date Range</h3>
-            <p className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">Select start and end dates</p>
-          </div>
+        <>
+          {/* Backdrop overlay to prevent interaction with content below */}
+          <div 
+            className="fixed inset-0 z-40 bg-black/20 sm:bg-transparent" 
+            onClick={() => setShowCustomPicker(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:translate-y-0 sm:mt-2 w-auto sm:w-80 rounded-md border border-gh-border bg-gh-canvas-default p-4 shadow-gh-lg dark:border-gh-border-dark dark:bg-gh-canvas-dark"
+               style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Custom Date Range</h3>
+              <p className="text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">Select start and end dates</p>
+            </div>
           
           <div className="space-y-3">
             <div>
@@ -204,6 +212,7 @@ export function DateRangeToggle({
             </button>
           </div>
         </div>
+        </>
       )}
     </div>
   );

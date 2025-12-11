@@ -343,3 +343,67 @@ def get_weekly_report_email(
         body_html=body_html,
         body_text=body_text
     )
+
+
+def send_password_reset_email(email: str, reset_url: str) -> bool:
+    """Send password reset email."""
+    subject = "Reset your OmniTrackIQ password"
+    
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+            .button {{ display: inline-block; background-color: #238636; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }}
+            .footer {{ margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }}
+            .warning {{ background-color: #fff8e6; border: 1px solid #f0c14b; padding: 12px; border-radius: 6px; margin: 20px 0; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Reset Your Password</h2>
+            <p>We received a request to reset your password for your OmniTrackIQ account.</p>
+            <p>Click the button below to choose a new password:</p>
+            
+            <p style="margin: 30px 0;">
+                <a href="{reset_url}" class="button">Reset Password</a>
+            </p>
+            
+            <div class="warning">
+                <strong>This link will expire in 1 hour.</strong>
+            </div>
+            
+            <p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+            
+            <div class="footer">
+                <p>For security, this request was received from a web browser.</p>
+                <p>© OmniTrackIQ</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    body_text = f"""
+    Reset Your Password
+    
+    We received a request to reset your password for your OmniTrackIQ account.
+    
+    Click the link below to choose a new password:
+    {reset_url}
+    
+    This link will expire in 1 hour.
+    
+    If you didn't request a password reset, you can safely ignore this email.
+    """
+    
+    message = EmailMessage(
+        to=email,
+        subject=subject,
+        body_html=body_html,
+        body_text=body_text
+    )
+    
+    return send_email(message)

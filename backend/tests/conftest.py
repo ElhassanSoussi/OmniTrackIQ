@@ -25,6 +25,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 
+# Import all models to ensure they're registered with Base.metadata BEFORE app
+# This import must happen first to avoid shadowing the FastAPI app instance
+import app.models as _models  # noqa: F401
+
 from app.main import app
 from app.db import Base
 from app.routers.deps import get_db
@@ -32,6 +36,7 @@ from app.models.user import User
 from app.models.account import Account, AccountPlan
 from app.models.ad_spend import AdSpend
 from app.models.order import Order
+from app.models.product_event import ProductEvent  # Ensure table is created
 from app.security.jwt import create_access_token
 from app.security.password import hash_password
 
@@ -93,6 +98,7 @@ def test_account(db: Session) -> Account:
         id="test-account-123",
         name="Test Company",
         plan=AccountPlan.PRO,
+        max_users=10,  # Allow multiple users for team tests
         created_at=datetime.utcnow(),
     )
     db.add(account)

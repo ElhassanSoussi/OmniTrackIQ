@@ -128,11 +128,12 @@ def track_event(
     try:
         # Use raw SQL to avoid potential ORM issues with nullable columns
         event_id = str(uuid.uuid4())
+        created_at = datetime.utcnow()
         
         db.execute(
             text("""
                 INSERT INTO product_events (id, workspace_id, user_id, event_name, properties, created_at)
-                VALUES (:id, :workspace_id, :user_id, :event_name, :properties, NOW())
+                VALUES (:id, :workspace_id, :user_id, :event_name, :properties, :created_at)
             """),
             {
                 "id": event_id,
@@ -140,6 +141,7 @@ def track_event(
                 "user_id": user_id,
                 "event_name": event_name,
                 "properties": json.dumps(safe_properties),
+                "created_at": created_at,
             }
         )
         db.commit()

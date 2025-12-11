@@ -206,27 +206,27 @@ def generate_metrics_response(
     metrics_list = []
     
     if metric_type == "revenue":
-        revenue = summary.total_revenue
+        revenue = summary.get("revenue", 0)
         message = f"📊 Your total revenue {date_range_text} is **{format_currency(revenue)}**."
         metrics_list.append({
             "name": "Total Revenue",
             "value": format_currency(revenue),
-            "change": f"{summary.revenue_change:+.1f}%" if hasattr(summary, 'revenue_change') else None,
-            "change_direction": "up" if getattr(summary, 'revenue_change', 0) > 0 else "down",
+            "change": None,
+            "change_direction": "neutral",
         })
         
     elif metric_type == "spend":
-        spend = summary.total_spend
+        spend = summary.get("spend", 0)
         message = f"💰 Your total ad spend {date_range_text} is **{format_currency(spend)}**."
         metrics_list.append({
             "name": "Total Ad Spend",
             "value": format_currency(spend),
-            "change": f"{summary.spend_change:+.1f}%" if hasattr(summary, 'spend_change') else None,
-            "change_direction": "up" if getattr(summary, 'spend_change', 0) > 0 else "down",
+            "change": None,
+            "change_direction": "neutral",
         })
         
     elif metric_type == "roas":
-        roas = summary.roas
+        roas = summary.get("roas", 0)
         message = f"📈 Your ROAS {date_range_text} is **{roas:.2f}x**."
         if roas >= 3:
             message += " Great performance! 🎉"
@@ -239,22 +239,24 @@ def generate_metrics_response(
         metrics_list.append({
             "name": "ROAS",
             "value": f"{roas:.2f}x",
-            "change": f"{summary.roas_change:+.1f}%" if hasattr(summary, 'roas_change') else None,
-            "change_direction": "up" if getattr(summary, 'roas_change', 0) > 0 else "down",
+            "change": None,
+            "change_direction": "neutral",
         })
         
     elif metric_type == "orders":
-        orders = summary.total_orders
+        orders = summary.get("orders", 0)
         message = f"🛒 You had **{format_number(orders)} orders** {date_range_text}."
         metrics_list.append({
             "name": "Total Orders",
             "value": format_number(orders),
-            "change": f"{summary.orders_change:+.1f}%" if hasattr(summary, 'orders_change') else None,
-            "change_direction": "up" if getattr(summary, 'orders_change', 0) > 0 else "down",
+            "change": None,
+            "change_direction": "neutral",
         })
         
     elif metric_type == "aov":
-        aov = summary.total_revenue / summary.total_orders if summary.total_orders > 0 else 0
+        revenue = summary.get("revenue", 0)
+        orders = summary.get("orders", 0)
+        aov = revenue / orders if orders > 0 else 0
         message = f"🛍️ Your average order value {date_range_text} is **{format_currency(aov)}**."
         metrics_list.append({
             "name": "Average Order Value",
@@ -262,7 +264,9 @@ def generate_metrics_response(
         })
         
     elif metric_type == "cpa":
-        cpa = summary.total_spend / summary.total_orders if summary.total_orders > 0 else 0
+        spend = summary.get("spend", 0)
+        orders = summary.get("orders", 0)
+        cpa = spend / orders if orders > 0 else 0
         message = f"💵 Your cost per acquisition {date_range_text} is **{format_currency(cpa)}**."
         metrics_list.append({
             "name": "Cost Per Acquisition",
@@ -270,17 +274,21 @@ def generate_metrics_response(
         })
         
     else:  # summary
+        revenue = summary.get("revenue", 0)
+        spend = summary.get("spend", 0)
+        roas = summary.get("roas", 0)
+        orders = summary.get("orders", 0)
         message = f"📊 **Performance Summary** {date_range_text}:\n\n"
-        message += f"• **Revenue**: {format_currency(summary.total_revenue)}\n"
-        message += f"• **Ad Spend**: {format_currency(summary.total_spend)}\n"
-        message += f"• **ROAS**: {summary.roas:.2f}x\n"
-        message += f"• **Orders**: {format_number(summary.total_orders)}"
+        message += f"• **Revenue**: {format_currency(revenue)}\n"
+        message += f"• **Ad Spend**: {format_currency(spend)}\n"
+        message += f"• **ROAS**: {roas:.2f}x\n"
+        message += f"• **Orders**: {format_number(orders)}"
         
         metrics_list = [
-            {"name": "Revenue", "value": format_currency(summary.total_revenue)},
-            {"name": "Ad Spend", "value": format_currency(summary.total_spend)},
-            {"name": "ROAS", "value": f"{summary.roas:.2f}x"},
-            {"name": "Orders", "value": format_number(summary.total_orders)},
+            {"name": "Revenue", "value": format_currency(revenue)},
+            {"name": "Ad Spend", "value": format_currency(spend)},
+            {"name": "ROAS", "value": f"{roas:.2f}x"},
+            {"name": "Orders", "value": format_number(orders)},
         ]
     
     return {
