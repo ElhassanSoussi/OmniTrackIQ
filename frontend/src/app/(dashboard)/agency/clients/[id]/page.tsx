@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -274,6 +275,7 @@ function BrandingTab({
           {formData.logo_url && (
             <div className="mt-3 flex items-center gap-3">
               <span className="text-xs text-gray-500">Preview:</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={formData.logo_url}
                 alt="Logo preview"
@@ -308,6 +310,7 @@ function BrandingTab({
         >
           <div className="flex items-center gap-3">
             {formData.logo_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img src={formData.logo_url} alt="Logo" className="h-8 object-contain" />
             ) : (
               <div
@@ -426,7 +429,7 @@ export default function ClientDetailPage() {
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
               {client.logo_url ? (
-                <img src={client.logo_url} alt={client.name} className="h-12 w-12 rounded-xl object-cover" />
+                <Image src={client.logo_url} alt={client.name} width={48} height={48} className="h-12 w-12 rounded-xl object-cover" />
               ) : (
                 client.name.charAt(0).toUpperCase()
               )}

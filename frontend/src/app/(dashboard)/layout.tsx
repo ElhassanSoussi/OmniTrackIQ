@@ -2,6 +2,7 @@
 
 import Sidebar from "@/components/layout/sidebar";
 import Topbar from "@/components/layout/topbar";
+import { Chatbot } from "@/components/chat";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { KeyboardShortcutsProvider } from "@/contexts/KeyboardShortcutsContext";
 import { ClientProvider } from "@/contexts/ClientContext";
@@ -16,6 +17,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <Topbar />
         <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden">{children}</main>
       </div>
+      <Chatbot />
     </div>
   );
 }

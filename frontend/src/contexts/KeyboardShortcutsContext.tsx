@@ -192,10 +192,10 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
     ? commands.filter((cmd) => cmd.label.toLowerCase().includes(query.toLowerCase()))
     : commands;
 
-  const handleSelect = (command: typeof commands[0]) => {
+  const handleSelect = useCallback((command: typeof commands[0]) => {
     command.action();
     onClose();
-  };
+  }, [onClose]);
 
   // Close on click outside
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -231,7 +231,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [filteredCommands, selectedIndex]);
+  }, [filteredCommands, selectedIndex, handleSelect]);
 
   return (
     <div

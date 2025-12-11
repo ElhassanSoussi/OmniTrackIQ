@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   useClientAccounts,
   useCreateClient,
@@ -230,7 +231,7 @@ function ClientCard({
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-sm font-bold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
             {client.logo_url ? (
-              <img src={client.logo_url} alt={client.name} className="h-10 w-10 rounded-lg object-cover" />
+              <Image src={client.logo_url} alt={client.name} width={40} height={40} className="h-10 w-10 rounded-lg object-cover" />
             ) : (
               client.name.charAt(0).toUpperCase()
             )}

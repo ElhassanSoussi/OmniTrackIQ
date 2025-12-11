@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { useClientAccounts, ClientAccount } from "@/hooks/useAgency";
 import { useClientContext } from "@/contexts/ClientContext";
 import { useBilling } from "@/hooks/useBilling";
@@ -72,9 +73,11 @@ export default function ClientSwitcher() {
         {/* Client Avatar/Icon */}
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
           {currentClient?.logo_url ? (
-            <img
+            <Image
               src={currentClient.logo_url}
               alt={currentClient.name}
+              width={32}
+              height={32}
               className="h-8 w-8 rounded-lg object-cover"
             />
           ) : isAgencyView ? (
@@ -176,7 +179,7 @@ export default function ClientSwitcher() {
                 >
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-xs font-semibold text-gray-600 dark:bg-gray-600 dark:text-gray-300">
                     {client.logo_url ? (
-                      <img src={client.logo_url} alt={client.name} className="h-7 w-7 rounded-md object-cover" />
+                      <Image src={client.logo_url} alt={client.name} width={28} height={28} className="h-7 w-7 rounded-md object-cover" />
                     ) : (
                       client.name.charAt(0).toUpperCase()
                     )}

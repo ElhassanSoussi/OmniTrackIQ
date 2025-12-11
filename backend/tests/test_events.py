@@ -12,7 +12,7 @@ client = TestClient(app)
 class TestEventsTrack:
     """Test /events/track endpoint."""
     
-    def test_track_event_unauthenticated(self, db_session):
+    def test_track_event_unauthenticated(self, db):
         """Unauthenticated event should be accepted with null user/workspace."""
         response = client.post(
             "/events/track",
@@ -27,7 +27,7 @@ class TestEventsTrack:
         assert data["success"] is True
         assert "event_id" in data
     
-    def test_track_event_authenticated(self, db_session, auth_token, test_user):
+    def test_track_event_authenticated(self, db, auth_headers, test_user):
         """Authenticated event should include user and workspace IDs."""
         response = client.post(
             "/events/track",
@@ -35,14 +35,14 @@ class TestEventsTrack:
                 "event_name": "viewed_overview_dashboard",
                 "properties": {"date_range": "30d"}
             },
-            headers={"Authorization": f"Bearer {auth_token}"}
+            headers=auth_headers
         )
         
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
     
-    def test_track_event_invalid_name(self, db_session):
+    def test_track_event_invalid_name(self, db):
         """Invalid event names should be rejected."""
         response = client.post(
             "/events/track",
@@ -54,7 +54,7 @@ class TestEventsTrack:
         
         assert response.status_code == 422  # Validation error
     
-    def test_track_event_with_properties(self, db_session):
+    def test_track_event_with_properties(self, db):
         """Event properties should be stored."""
         response = client.post(
             "/events/track",
@@ -71,7 +71,7 @@ class TestEventsTrack:
         assert response.status_code == 200
         assert response.json()["success"] is True
     
-    def test_track_event_large_properties_truncated(self, db_session):
+    def test_track_event_large_properties_truncated(self, db):
         """Large properties should be truncated, not rejected."""
         large_value = "x" * 10000  # 10KB of data
         response = client.post(

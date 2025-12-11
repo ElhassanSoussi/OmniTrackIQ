@@ -61,10 +61,27 @@ export default function ReportViewPage() {
 
   // Run report on load
   useEffect(() => {
+    const runInitialReport = async () => {
+      if (!reportId) return;
+      setIsRunning(true);
+      setRunError(null);
+      try {
+        const data = await apiFetch(`/custom-reports/${reportId}/run`, {
+          method: "POST",
+        });
+        setResults(data as ReportResults);
+      } catch (err) {
+        setRunError(formatErrorMessage(err));
+      } finally {
+        setIsRunning(false);
+      }
+    };
+
     if (report && !results && !isRunning) {
-      runReport();
+      runInitialReport();
     }
-  }, [report]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [report, reportId]);
 
   const runReport = async () => {
     if (!reportId) return;
