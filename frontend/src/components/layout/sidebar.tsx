@@ -43,6 +43,7 @@ const navigationGroups = [
       { href: "/analytics/attribution", label: "Attribution", icon: GitBranch },
       { href: "/analytics/cohorts", label: "Cohorts", icon: Users },
       { href: "/analytics/funnel", label: "Funnel", icon: TrendingUp },
+      { href: "/analytics/creatives", label: "Creative Intel", icon: Zap },
       { href: "/analytics/anomalies", label: "Anomalies", icon: AlertTriangle },
       { href: "/analytics/reports", label: "Reports", icon: FileText },
     ],
@@ -83,14 +84,14 @@ function NavItem({
       href={href}
       onClick={onNavigate}
       className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
-          ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300"
-          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+        ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300"
+        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
         }`}
     >
       <Icon
         className={`h-5 w-5 transition-colors ${isActive
-            ? "text-primary-600 dark:text-primary-400"
-            : "text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300"
+          ? "text-primary-600 dark:text-primary-400"
+          : "text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300"
           }`}
       />
       <span>{label}</span>
