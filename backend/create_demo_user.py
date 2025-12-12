@@ -67,7 +67,7 @@ def create_demo_user():
                     "id": account_id,
                     "name": DEMO_ACCOUNT_NAME,
                     "type": "business",
-                    "plan": "PRO",  # Give demo user Pro plan for full access
+                    "plan": "ENTERPRISE",  # Give demo user Enterprise plan for full access
                     "max_users": 10,
                     "onboarding_completed": True,
                     "onboarding_steps": '{"created_workspace": true, "connected_integration": true, "viewed_dashboard": true}'
@@ -83,7 +83,7 @@ def create_demo_user():
                     "id": account_id,
                     "name": DEMO_ACCOUNT_NAME,
                     "type": "business",
-                    "plan": "PRO",
+                    "plan": "ENTERPRISE",
                     "max_users": 10,
                 }
             )
@@ -114,7 +114,7 @@ def create_demo_user():
         print("=" * 50)
         print(f"  Email:    {DEMO_EMAIL}")
         print(f"  Password: {DEMO_PASSWORD}")
-        print(f"  Plan:     Pro (full access)")
+        print(f"  Plan:     Enterprise (full access)")
         print("=" * 50)
         print("\nYou can now log in at your website's /login page.")
         
