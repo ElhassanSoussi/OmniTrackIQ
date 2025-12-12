@@ -2,7 +2,7 @@ import uuid
 from enum import Enum
 
 from sqlalchemy import Column, DateTime, ForeignKey, String, Enum as SQLEnum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.sql import func
 
 from app.db import Base
@@ -28,9 +28,9 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_login_at = Column(DateTime(timezone=True), nullable=True)
     
-    # Password reset fields
-    password_reset_token = Column(String, nullable=True)
-    password_reset_expires = Column(DateTime(timezone=True), nullable=True)
+    # Password reset fields - deferred to avoid SELECT errors if columns don't exist yet
+    password_reset_token = deferred(Column(String, nullable=True))
+    password_reset_expires = deferred(Column(DateTime(timezone=True), nullable=True))
 
     account = relationship("Account", backref="users")
     notification_preferences = relationship(

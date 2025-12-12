@@ -11,11 +11,18 @@ from app.services import events_service
 
 
 def signup(db: Session, email: str, password: str, account_name: str) -> str:
+    from sqlalchemy import text
+    import uuid
+    
     normalized_email = email.strip().lower()
     normalized_account_name = account_name.strip()
 
-    existing = db.query(User).filter(User.email == normalized_email).first()
-    if existing:
+    # Use raw SQL to avoid selecting columns that may not exist yet (password_reset_token, etc.)
+    result = db.execute(
+        text("SELECT id FROM users WHERE email = :email LIMIT 1"),
+        {"email": normalized_email}
+    )
+    if result.fetchone():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="An account with this email already exists. Please log in instead.",
@@ -70,10 +77,21 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
             }
         )
 
-    user = User(email=normalized_email, password_hash=hash_password(password), account_id=account_id)
-    db.add(user)
+    # Create user with raw SQL to avoid issues with columns that may not exist
+    user_id = str(uuid.uuid4())
+    db.execute(
+        text("""
+            INSERT INTO users (id, email, password_hash, account_id)
+            VALUES (:id, :email, :password_hash, :account_id)
+        """),
+        {
+            "id": user_id,
+            "email": normalized_email,
+            "password_hash": hash_password(password),
+            "account_id": account_id,
+        }
+    )
     db.commit()
-    db.refresh(user)
 
     # Track signup completed event
     events_service.track_event(
@@ -81,7 +99,7 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
         event_name="signup_completed",
         properties={"signup_method": "email"},
         workspace_id=account_id,
-        user_id=user.id,
+        user_id=user_id,
     )
     
     # Track started_trial event (all new signups start with a trial)
@@ -90,22 +108,31 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
         event_name="started_trial",
         properties={"plan": "free", "trial_days": 14},
         workspace_id=account_id,
-        user_id=user.id,
+        user_id=user_id,
     )
 
-    token = create_access_token(user.id)
+    token = create_access_token(user_id)
     return token
 
 
 def login(db: Session, email: str, password: str) -> str:
+    from sqlalchemy import text
+    
     normalized_email = email.strip().lower()
-    user = db.query(User).filter(User.email == normalized_email).first()
-    if not user or not verify_password(password, user.password_hash):
+    
+    # Use raw SQL to avoid selecting columns that may not exist (password_reset_token, etc.)
+    result = db.execute(
+        text("SELECT id, password_hash FROM users WHERE email = :email LIMIT 1"),
+        {"email": normalized_email}
+    )
+    row = result.fetchone()
+    
+    if not row or not verify_password(password, row[1]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="Invalid email or password. Please try again."
         )
-    return create_access_token(user.id)
+    return create_access_token(row[0])
 
 
 def create_password_reset_token(db: Session, email: str) -> Optional[str]:
