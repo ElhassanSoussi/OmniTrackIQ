@@ -30,64 +30,62 @@ export default function PricingPage() {
           subtitle="Choose the plan that fits your business. All plans include a 14-day free trial. No credit card required."
           align="center"
         />
-        
+
         <div className="mt-12 grid gap-8 lg:grid-cols-3">
           {PLANS.map((plan) => (
-            <div 
-              key={plan.id} 
-              className={`relative flex flex-col rounded-md border p-8 transition hover:shadow-gh ${
-                plan.highlighted 
-                  ? "border-[#238636] bg-white ring-2 ring-[#238636] dark:border-[#238636] dark:bg-[#161b22]" 
-                  : "border-[#d0d7de] bg-white dark:border-[#30363d] dark:bg-[#161b22]"
-              }`}
+            <div
+              key={plan.id}
+              className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-200 hover:shadow-xl ${plan.highlighted
+                  ? "border-primary-500 bg-white ring-2 ring-primary-500 dark:border-primary-400 dark:bg-slate-800"
+                  : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
+                }`}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#238636] px-4 py-1 text-xs font-semibold text-white">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-1 text-xs font-semibold text-white shadow-md">
                   {plan.badge}
                 </div>
               )}
-              
+
               <div className="mb-6">
-                <h3 className="text-xl font-semibold text-[#1f2328] dark:text-[#e6edf3]">{plan.name}</h3>
-                <p className="mt-1 text-sm font-medium text-[#238636] dark:text-[#3fb950]">{plan.tagline}</p>
-                <p className="mt-2 text-sm text-[#57606a] dark:text-[#8b949e]">{plan.description}</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{plan.name}</h3>
+                <p className="mt-1 text-sm font-medium text-primary-600 dark:text-primary-400">{plan.tagline}</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{plan.description}</p>
               </div>
-              
+
               <div className="mb-6">
-                <span className="text-4xl font-bold text-[#1f2328] dark:text-[#e6edf3]">{plan.price}</span>
-                <span className="text-[#57606a] dark:text-[#8b949e]">{plan.period}</span>
+                <span className="text-4xl font-bold text-slate-900 dark:text-white">{plan.price}</span>
+                <span className="text-slate-500 dark:text-slate-400">{plan.period}</span>
               </div>
-              
+
               <ul className="mb-8 flex-1 space-y-3">
                 {getIncludedFeatures(plan).slice(0, 8).map((feature) => (
-                  <li key={feature.text} className="flex items-start gap-3 text-sm text-[#1f2328] dark:text-[#e6edf3]">
-                    <CheckIcon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${feature.highlight ? "text-[#238636]" : "text-[#57606a] dark:text-[#8b949e]"}`} />
-                    <span className={feature.highlight ? "font-medium" : ""}>{feature.text}</span>
+                  <li key={feature.text} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
+                    <CheckIcon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${feature.highlight ? "text-primary-500" : "text-slate-400 dark:text-slate-500"}`} />
+                    <span className={feature.highlight ? "font-medium text-slate-900 dark:text-white" : ""}>{feature.text}</span>
                   </li>
                 ))}
                 {getIncludedFeatures(plan).length > 8 && (
-                  <li className="text-sm text-[#0969da] dark:text-[#58a6ff]">
-                    <Link href={`/plans/${plan.slug}`} className="hover:underline">
+                  <li className="text-sm text-primary-600 dark:text-primary-400">
+                    <Link href={`/plans/${plan.slug}`} className="hover:underline font-medium">
                       + {getIncludedFeatures(plan).length - 8} more features →
                     </Link>
                   </li>
                 )}
               </ul>
-              
+
               <div className="space-y-3">
                 <Link
-                  href={plan.id === "advanced" ? "/contact" : "/signup"}
-                  className={`block w-full rounded-md py-2.5 text-center text-sm font-semibold transition ${
-                    plan.highlighted
-                      ? "bg-[#238636] text-white hover:bg-[#2ea043]"
-                      : "bg-[#f6f8fa] text-[#1f2328] hover:bg-[#eaeef2] dark:bg-[#21262d] dark:text-[#e6edf3] dark:hover:bg-[#30363d]"
-                  }`}
+                  href={plan.id === "enterprise" ? "/contact" : "/signup"}
+                  className={`block w-full rounded-lg py-3 text-center text-sm font-semibold transition-all duration-200 ${plan.highlighted
+                      ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md hover:from-primary-600 hover:to-primary-700 hover:shadow-lg"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    }`}
                 >
                   {plan.cta}
                 </Link>
                 <Link
                   href={`/plans/${plan.slug}`}
-                  className="block w-full rounded-md border border-[#d0d7de] py-2.5 text-center text-sm font-medium text-[#1f2328] transition hover:bg-[#f6f8fa] dark:border-[#30363d] dark:text-[#e6edf3] dark:hover:bg-[#21262d]"
+                  className="block w-full rounded-lg border border-slate-200 py-3 text-center text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   Learn more
                 </Link>
@@ -98,8 +96,8 @@ export default function PricingPage() {
 
         {/* Feature comparison hint */}
         <div className="mt-8 text-center">
-          <Link 
-            href="#comparison" 
+          <Link
+            href="#comparison"
             className="text-sm text-[#0969da] hover:underline dark:text-[#58a6ff]"
           >
             Compare all features →
@@ -116,8 +114,8 @@ export default function PricingPage() {
         />
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {PLANS.map((plan) => (
-            <div 
-              key={plan.id} 
+            <div
+              key={plan.id}
               className="rounded-md border border-[#d0d7de] bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]"
             >
               <div className="mb-4 text-2xl font-semibold text-[#1f2328] dark:text-[#e6edf3]">{plan.name}</div>

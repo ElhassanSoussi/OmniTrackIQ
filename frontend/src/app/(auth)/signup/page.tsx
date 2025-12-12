@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { SocialLoginButtons } from "@/components/auth";
 import { getOnboardingStatus } from "@/hooks/useOnboarding";
 import { trackEvent } from "@/lib/analytics";
+import { Zap, AlertCircle } from "lucide-react";
 
 // Client-side validation helpers
 function validateEmail(email: string): string | null {
@@ -63,12 +64,12 @@ export default function SignupPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    
+
     // Client-side validation
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
     const accountNameError = validateAccountName(accountName);
-    
+
     if (emailError || passwordError || accountNameError) {
       setFieldErrors({
         email: emailError || undefined,
@@ -77,7 +78,7 @@ export default function SignupPage() {
       });
       return;
     }
-    
+
     setFieldErrors({});
     setSubmitting(true);
 
@@ -96,92 +97,134 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gh-canvas-subtle px-4 py-8 dark:bg-gh-canvas-dark">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-md border border-gh-border bg-gh-canvas-default p-6 shadow-gh-md dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark">
-        <div className="space-y-1 text-center">
-          <h1 className="text-xl font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Create your account</h1>
-          <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">Start your free trial today</p>
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-8 dark:from-slate-900 dark:to-slate-800">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="mb-8 flex justify-center">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">
+              OmniTrackIQ
+            </span>
+          </Link>
         </div>
 
-        {/* Social Login Buttons */}
-        <SocialLoginButtons mode="signup" />
-        
-        <div className="space-y-1">
-          <label htmlFor="accountName" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Account name</label>
-          <input
-            id="accountName"
-            className={`gh-input w-full rounded-md border px-3 py-2 text-sm text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark ${
-              fieldErrors.accountName ? "border-gh-danger bg-gh-danger-subtle dark:border-gh-danger-dark" : "border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark"
-            }`}
-            placeholder="Your company or team name"
-            value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
-          />
-          {fieldErrors.accountName && <p className="text-xs text-gh-danger dark:text-gh-danger-dark">{fieldErrors.accountName}</p>}
-        </div>
-        
-        <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Email</label>
-          <input
-            id="email"
-            className={`gh-input w-full rounded-md border px-3 py-2 text-sm text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark ${
-              fieldErrors.email ? "border-gh-danger bg-gh-danger-subtle dark:border-gh-danger-dark" : "border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark"
-            }`}
-            placeholder="you@example.com"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {fieldErrors.email && <p className="text-xs text-gh-danger dark:text-gh-danger-dark">{fieldErrors.email}</p>}
-        </div>
-        
-        <div className="space-y-1">
-          <label htmlFor="password" className="text-sm font-medium text-gh-text-primary dark:text-gh-text-primary-dark">Password</label>
-          <input
-            id="password"
-            className={`gh-input w-full rounded-md border px-3 py-2 text-sm text-gh-text-primary placeholder:text-gh-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gh-text-primary-dark dark:placeholder:text-gh-text-tertiary-dark ${
-              fieldErrors.password ? "border-gh-danger bg-gh-danger-subtle dark:border-gh-danger-dark" : "border-gh-border bg-gh-canvas-default dark:border-gh-border-dark dark:bg-gh-canvas-dark"
-            }`}
-            placeholder="At least 8 characters"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {fieldErrors.password && <p className="text-xs text-gh-danger dark:text-gh-danger-dark">{fieldErrors.password}</p>}
-        </div>
-        
-        {fieldErrors.form && (
-          <div className="gh-flash-danger rounded-md border border-gh-danger bg-gh-danger-subtle px-3 py-2 text-sm text-gh-danger dark:border-gh-danger-dark dark:bg-gh-danger-subtle-dark dark:text-gh-danger-dark">
-            {fieldErrors.form}
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Create your account</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Start your free trial today</p>
           </div>
-        )}
-        
-        <button
-          type="submit"
-          disabled={isBusy}
-          className="gh-btn-primary w-full rounded-md bg-brand-500 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isBusy ? "Creating account..." : "Create account"}
-        </button>
-        
-        <p className="text-center text-xs text-gh-text-secondary dark:text-gh-text-secondary-dark">
-          By signing up, you agree to our{" "}
-          <Link href="/terms" className="text-gh-link hover:underline dark:text-gh-link-dark">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="text-gh-link hover:underline dark:text-gh-link-dark">
-            Privacy Policy
-          </Link>
-        </p>
-        
-        <p className="text-center text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-gh-link hover:underline dark:text-gh-link-dark">
-            Sign in
-          </Link>
-        </p>
-      </form>
+
+          {/* Social Login Buttons */}
+          <SocialLoginButtons mode="signup" />
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label htmlFor="accountName" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Account name
+              </label>
+              <input
+                id="accountName"
+                className={`w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${fieldErrors.accountName
+                    ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
+                    : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  }`}
+                placeholder="Your company or team name"
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
+              />
+              {fieldErrors.accountName && (
+                <p className="flex items-center gap-1 text-xs text-danger-600 dark:text-danger-400">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.accountName}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Email
+              </label>
+              <input
+                id="email"
+                className={`w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${fieldErrors.email
+                    ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
+                    : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  }`}
+                placeholder="you@example.com"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {fieldErrors.email && (
+                <p className="flex items-center gap-1 text-xs text-danger-600 dark:text-danger-400">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.email}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Password
+              </label>
+              <input
+                id="password"
+                className={`w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${fieldErrors.password
+                    ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
+                    : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  }`}
+                placeholder="At least 8 characters"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {fieldErrors.password && (
+                <p className="flex items-center gap-1 text-xs text-danger-600 dark:text-danger-400">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.password}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {fieldErrors.form && (
+            <div className="mt-4 flex items-start gap-3 rounded-lg border border-danger-200 bg-danger-50 px-4 py-3 dark:border-danger-800 dark:bg-danger-900/20">
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-danger-600 dark:text-danger-400" />
+              <p className="text-sm text-danger-700 dark:text-danger-300">{fieldErrors.form}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isBusy}
+            className="mt-6 w-full rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isBusy ? "Creating account..." : "Create account"}
+          </button>
+
+          <p className="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
+            By signing up, you agree to our{" "}
+            <Link href="/terms" className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400">
+              Privacy Policy
+            </Link>
+          </p>
+
+          <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
+            Already have an account?{" "}
+            <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400">
+              Sign in
+            </Link>
+          </p>
+        </form>
+      </div>
     </main>
   );
 }
+

@@ -36,20 +36,20 @@ export function PlanDetail({ plan }: PlanDetailProps) {
           </div>
           <h1 className="text-4xl font-semibold text-[#1f2328] dark:text-[#e6edf3] md:text-5xl">{plan.name}</h1>
           <p className="mt-4 max-w-2xl text-lg text-[#57606a] dark:text-[#8b949e]">{plan.description}</p>
-          
+
           <div className="mt-8 flex items-baseline gap-1">
             <span className="text-5xl font-bold text-[#1f2328] dark:text-[#e6edf3]">{plan.price}</span>
             <span className="text-xl text-[#57606a] dark:text-[#8b949e]">{plan.period}</span>
           </div>
-          
+
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
-              href={plan.id === "advanced" ? "/contact" : "/signup"}
+              href={plan.id === "enterprise" ? "/contact" : "/signup"}
               className="rounded-md bg-[#238636] px-8 py-3 text-sm font-semibold text-white transition hover:bg-[#2ea043]"
             >
               {plan.cta}
             </Link>
-            {plan.ctaSecondary && plan.id === "advanced" && (
+            {plan.ctaSecondary && plan.id === "enterprise" && (
               <Link
                 href="/contact"
                 className="rounded-md border border-[#d0d7de] bg-white px-8 py-3 text-sm font-semibold text-[#1f2328] transition hover:bg-[#f6f8fa] dark:border-[#30363d] dark:bg-[#161b22] dark:text-[#e6edf3] dark:hover:bg-[#21262d]"
@@ -58,7 +58,7 @@ export function PlanDetail({ plan }: PlanDetailProps) {
               </Link>
             )}
           </div>
-          
+
           <p className="mt-4 text-sm text-[#57606a] dark:text-[#8b949e]">
             14-day free trial • No credit card required
           </p>
@@ -75,7 +75,7 @@ export function PlanDetail({ plan }: PlanDetailProps) {
         <div className="mx-auto mt-8 max-w-2xl text-center">
           <p className="text-lg text-[#57606a] dark:text-[#8b949e]">{plan.targetCustomer}</p>
         </div>
-        
+
         {/* Pains this plan solves */}
         <div className="mx-auto mt-12 max-w-3xl">
           <h3 className="mb-6 text-center text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3]">
@@ -83,8 +83,8 @@ export function PlanDetail({ plan }: PlanDetailProps) {
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             {plan.pains.map((pain) => (
-              <div 
-                key={pain} 
+              <div
+                key={pain}
                 className="flex items-start gap-3 rounded-md border border-[#d0d7de] bg-white p-4 dark:border-[#30363d] dark:bg-[#161b22]"
               >
                 <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#ffebe9] text-[#cf222e] dark:bg-[#f8514920] dark:text-[#f85149]">
@@ -95,7 +95,7 @@ export function PlanDetail({ plan }: PlanDetailProps) {
             ))}
           </div>
         </div>
-        
+
         {/* Key benefits */}
         <div className="mx-auto mt-12 max-w-3xl">
           <h3 className="mb-6 text-center text-lg font-semibold text-[#1f2328] dark:text-[#e6edf3]">
@@ -103,8 +103,8 @@ export function PlanDetail({ plan }: PlanDetailProps) {
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             {plan.keyBenefits.map((benefit) => (
-              <div 
-                key={benefit} 
+              <div
+                key={benefit}
                 className="flex items-start gap-3 rounded-md border border-[#d0d7de] bg-white p-4 dark:border-[#30363d] dark:bg-[#161b22]"
               >
                 <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#dafbe1] text-[#1a7f37] dark:bg-[#23863620] dark:text-[#3fb950]">
@@ -129,8 +129,8 @@ export function PlanDetail({ plan }: PlanDetailProps) {
           <div className="rounded-md border border-[#d0d7de] bg-white dark:border-[#30363d] dark:bg-[#161b22]">
             <div className="divide-y divide-[#d0d7de] dark:divide-[#30363d]">
               {plan.features.map((feature) => (
-                <div 
-                  key={feature.text} 
+                <div
+                  key={feature.text}
                   className="flex items-center justify-between px-6 py-4"
                 >
                   <span className={`text-sm ${feature.included ? "text-[#1f2328] dark:text-[#e6edf3]" : "text-[#57606a] dark:text-[#8b949e]"} ${feature.highlight ? "font-medium" : ""}`}>
@@ -228,7 +228,7 @@ export function PlanDetail({ plan }: PlanDetailProps) {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href={plan.id === "advanced" ? "/contact" : "/signup"}
+              href={plan.id === "enterprise" ? "/contact" : "/signup"}
               className="rounded-md bg-[#238636] px-8 py-3 text-sm font-semibold text-white transition hover:bg-[#2ea043]"
             >
               {plan.cta}

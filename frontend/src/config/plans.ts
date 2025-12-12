@@ -5,7 +5,7 @@
  * Used across pricing pages, feature gating, and upgrade prompts.
  */
 
-export type PlanId = "starter" | "pro" | "advanced";
+export type PlanId = "starter" | "pro" | "enterprise";
 
 export interface PlanFeature {
   text: string;
@@ -145,15 +145,15 @@ export const PLANS: Plan[] = [
     badge: "Most Popular",
   },
   {
-    id: "advanced",
-    name: "Advanced",
-    slug: "advanced",
+    id: "enterprise",
+    name: "Enterprise",
+    slug: "enterprise",
     tagline: "For agencies & multi-store brands",
     description: "Enterprise-grade features for agencies managing multiple clients. White-label dashboards, AI strategy recommendations, and unlimited scale.",
     targetCustomer: "Agencies, larger brands with multiple stores/clients, enterprise teams",
-    price: "$399",
-    priceNumeric: 399,
-    period: "/month",
+    price: "Custom",
+    priceNumeric: 0,
+    period: "",
     limits: {
       seats: -1, // Unlimited
       workspaces: -1, // Unlimited
@@ -192,7 +192,7 @@ export const PLANS: Plan[] = [
       "Want AI to help optimize budgets",
       "Need higher limits and enterprise support",
     ],
-    cta: "Start free trial",
+    cta: "Contact Us",
     ctaSecondary: "Talk to sales",
   },
 ];
@@ -265,7 +265,7 @@ export const PLAN_FAQS: Record<PlanId, FAQ[]> = {
       answer: "Smart alerts for: ROAS dropping below threshold, spend spikes, campaigns with no conversions, and tracking issues (no events in X hours).",
     },
   ],
-  advanced: [
+  enterprise: [
     {
       question: "How does white-labeling work?",
       answer: "Add your agency's logo, colors, and branding to all dashboards and reports. Your clients see your brand, not ours. Perfect for client presentations.",
