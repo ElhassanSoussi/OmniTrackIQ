@@ -7,7 +7,8 @@ import {
   AttributionModel,
   ATTRIBUTION_MODELS,
 } from "@/hooks/useAttribution";
-import { formatCurrency, formatNumber, formatPercent } from "@/lib/format";
+import { formatCurrency, formatNumber } from "@/lib/format";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const CHANNEL_COLORS: Record<string, string> = {
   facebook: "bg-blue-500",
@@ -35,7 +36,7 @@ export default function AttributionPage() {
     model,
     lookbackDays,
   );
-  
+
   const { data: paths, isLoading: pathsLoading } = useConversionPaths(
     dateRange.from || undefined,
     dateRange.to || undefined,
@@ -227,9 +228,8 @@ export default function AttributionPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         {path.path.split(" → ").map((step, stepIdx) => (
                           <span key={stepIdx} className="flex items-center gap-1">
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
-                              getChannelColor(step).replace("bg-", "bg-opacity-20 text-").replace("-500", "-700")
-                            } ${getChannelColor(step)}`}>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getChannelColor(step).replace("bg-", "bg-opacity-20 text-").replace("-500", "-700")
+                              } ${getChannelColor(step)}`}>
                               {step}
                             </span>
                             {stepIdx < path.path.split(" → ").length - 1 && (
@@ -259,8 +259,16 @@ export default function AttributionPage() {
                 ))}
               </div>
             ) : (
-              <div className="px-6 py-8 text-center text-gray-500">
-                No conversion paths found for this period
+              <div className="p-6">
+                <EmptyState
+                  variant="default"
+                  icon="branch"
+                  title="No conversion paths found"
+                  description="Conversion paths will appear here once you have data from multiple touchpoints leading to purchases."
+                  actionLabel="Connect integrations"
+                  actionHref="/integrations"
+                  showDemoHint
+                />
               </div>
             )}
           </div>

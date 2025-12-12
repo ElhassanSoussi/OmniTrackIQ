@@ -63,7 +63,7 @@ const testimonials = [
   {
     quote: "The unified dashboard saves our team 10+ hours per week. We can make faster, more confident budget decisions.",
     name: "Michael Torres",
-    role: "Growth Lead", 
+    role: "Growth Lead",
     company: "GlowUp Beauty",
   },
   {
@@ -117,6 +117,29 @@ export default function LandingPage() {
                 View live demo
               </Button>
             </div>
+
+            {/* Trust badges */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex items-center gap-2 text-sm text-gh-text-tertiary dark:text-gh-text-tertiary-dark">
+                <svg className="h-5 w-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>SOC 2 Compliant</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gh-text-tertiary dark:text-gh-text-tertiary-dark">
+                <svg className="h-5 w-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>GDPR Ready</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gh-text-tertiary dark:text-gh-text-tertiary-dark">
+                <svg className="h-5 w-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>256-bit SSL</span>
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-center gap-3 text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
               <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-400">7-day setup</span>
               <span>•</span>
