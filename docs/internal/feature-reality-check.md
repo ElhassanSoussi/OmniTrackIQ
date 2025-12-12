@@ -7,6 +7,7 @@ This document compares features promised on marketing pages vs actual implementa
 ---
 
 ## Legend
+
 - ✅ **Implemented** - Works end-to-end with real/demo data
 - ⚠️ **Partial** - UI exists but backend stubbed or limited
 - ❌ **Not Yet** - Only marketing copy, no real feature
@@ -90,10 +91,12 @@ This document compares features promised on marketing pages vs actual implementa
 ## Priority Fixes Needed
 
 ### Must Fix (Misleading Claims)
+
 1. **Weekly/Daily email reports** - UI exists but no email sender wired
 2. **SOC 2 Compliant badge** on homepage - Security page says "On Roadmap"
 
 ### Should Add "Coming Soon" Labels
+
 1. AI Strategist Mode
 2. Budget recommendations
 3. A/B Creative Inspector
@@ -102,4 +105,43 @@ This document compares features promised on marketing pages vs actual implementa
 6. Per-product profitability
 
 ### Data Pipeline Gap
+
 Many features show ⚠️ Partial because ad platform data sync isn't fully wired. The n8n workflows exist as stubs but need real API polling.
+
+---
+
+## Phase 2 Marketing Sync Changes
+
+**Date**: December 12, 2025
+
+### Files Updated
+
+| File | Change |
+|------|--------|
+| `frontend/src/config/plans.ts` | Added `comingSoon` property; marked 9 features as Coming Soon |
+| `frontend/src/app/(marketing)/pricing/page.tsx` | Added Coming Soon badge display |
+| `frontend/src/app/(marketing)/solutions/page.tsx` | Replaced false claims with real features |
+| `frontend/src/app/(marketing)/page.tsx` | SOC 2 badge changed from "Compliant" to "In Progress" |
+
+### Features Marked "Coming Soon"
+
+| Feature | Plan |
+|---------|------|
+| Weekly email report | Starter |
+| Daily email reports | Pro |
+| Per-product profitability | Pro |
+| White-label options | Enterprise |
+| A/B Creative Inspector | Enterprise |
+| AI Strategist Mode | Enterprise |
+| Budget recommendations | Enterprise |
+| Pause suggestions | Enterprise |
+| Industry benchmarks | Enterprise |
+
+### Claims Removed/Changed
+
+| Old Claim | New Claim | Location |
+|-----------|-----------|----------|
+| "White-label reports, automated alerts" | "Multi-account access, role-based permissions" | Solutions page |
+| "Cross-client benchmarking" | "Unified performance dashboards" | Solutions page |
+| "SOC 2 Compliant" | "SOC 2 In Progress" | Homepage |
+| "AI strategy recommendations" | "role-based access, dedicated support" | Enterprise description |

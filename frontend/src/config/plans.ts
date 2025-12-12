@@ -11,6 +11,7 @@ export interface PlanFeature {
   text: string;
   included: boolean;
   highlight?: boolean;
+  comingSoon?: boolean; // Feature is planned but not yet implemented
 }
 
 export interface PlanLimit {
@@ -67,7 +68,7 @@ export const PLANS: Plan[] = [
       { text: "Simple ROAS by channel & campaign", included: true },
       { text: "Founder Mode: 3-5 key numbers with plain-English explanations", included: true, highlight: true },
       { text: "Basic alerts (ROAS below threshold, spend spikes)", included: true },
-      { text: "Weekly email report", included: true },
+      { text: "Weekly email report", included: true, comingSoon: true },
       { text: "2 team seats", included: true },
       { text: "Email support", included: true },
       { text: "GA4 integration", included: false },
@@ -113,13 +114,13 @@ export const PLANS: Plan[] = [
       { text: "Additional ad channels (Pinterest, Snapchat)", included: true },
       { text: "Cohort analysis (new vs returning customers)", included: true, highlight: true },
       { text: "Funnel view (ad → session → cart → purchase)", included: true },
-      { text: "Per-product profitability", included: true },
+      { text: "Per-product profitability", included: true, comingSoon: true },
       { text: "Creative Intelligence v1", included: true, highlight: true },
       { text: "Top creatives by ROAS / profit", included: true },
       { text: "Creative fatigue detection (CTR/CR drop alerts)", included: true },
       { text: "Smart alerts (ROAS drop, spend spikes, no conversions, tracking issues)", included: true },
       { text: "AI \"Ask Your Data\" chatbot", included: true, highlight: true },
-      { text: "Daily email reports", included: true },
+      { text: "Daily email reports", included: true, comingSoon: true },
       { text: "Up to 5 team seats", included: true },
       { text: "2 workspaces", included: true },
       { text: "Priority support", included: true },
@@ -149,7 +150,7 @@ export const PLANS: Plan[] = [
     name: "Enterprise",
     slug: "enterprise",
     tagline: "For agencies & multi-store brands",
-    description: "Enterprise-grade features for agencies managing multiple clients. White-label dashboards, AI strategy recommendations, and unlimited scale.",
+    description: "Enterprise-grade features for agencies managing multiple clients. Unlimited workspaces, role-based access, and dedicated support.",
     targetCustomer: "Agencies, larger brands with multiple stores/clients, enterprise teams",
     price: "Custom",
     priceNumeric: 0,
@@ -165,15 +166,15 @@ export const PLANS: Plan[] = [
       { text: "Unlimited client workspaces", included: true, highlight: true },
       { text: "Easy client switching", included: true },
       { text: "Client-specific permissions & logins", included: true },
-      { text: "Agency branding / white-label options", included: true, highlight: true },
+      { text: "White-label options", included: true, comingSoon: true },
       { text: "Automatic client reports per workspace", included: true },
-      { text: "A/B Creative Inspector", included: true, highlight: true },
+      { text: "A/B Creative Inspector", included: true, comingSoon: true },
       { text: "Compare creatives: spend, CTR, CVR, revenue, ROAS, profit", included: true },
-      { text: "AI Strategist Mode", included: true, highlight: true },
-      { text: "Budget recommendations (\"Increase Campaign A by 20%\")", included: true },
-      { text: "Pause suggestions (\"Campaign B ROAS < 0.8 for 7 days\")", included: true },
-      { text: "Industry benchmarks", included: true },
-      { text: "Compare to anonymized category averages", included: true },
+      { text: "AI Strategist Mode", included: true, comingSoon: true },
+      { text: "Budget recommendations", included: true, comingSoon: true },
+      { text: "Pause suggestions", included: true, comingSoon: true },
+      { text: "Industry benchmarks", included: true, comingSoon: true },
+      { text: "Compare to anonymized category averages", included: true, comingSoon: true },
       { text: "Advanced alert rules", included: true },
       { text: "One-click CSV export for accountants", included: true },
       { text: "Unlimited data retention", included: true },
@@ -182,8 +183,8 @@ export const PLANS: Plan[] = [
     ],
     keyBenefits: [
       "Manage all clients from one dashboard",
-      "Deliver professional white-label reports",
-      "AI-powered budget optimization",
+      "Role-based permissions per client",
+      "Dedicated success manager",
       "Scale without limits",
     ],
     pains: [

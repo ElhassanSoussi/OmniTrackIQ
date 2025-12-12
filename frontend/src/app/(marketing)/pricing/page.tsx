@@ -36,8 +36,8 @@ export default function PricingPage() {
             <div
               key={plan.id}
               className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-200 hover:shadow-xl ${plan.highlighted
-                  ? "border-primary-500 bg-white ring-2 ring-primary-500 dark:border-primary-400 dark:bg-slate-800"
-                  : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
+                ? "border-primary-500 bg-white ring-2 ring-primary-500 dark:border-primary-400 dark:bg-slate-800"
+                : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
                 }`}
             >
               {plan.badge && (
@@ -61,7 +61,14 @@ export default function PricingPage() {
                 {getIncludedFeatures(plan).slice(0, 8).map((feature) => (
                   <li key={feature.text} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
                     <CheckIcon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${feature.highlight ? "text-primary-500" : "text-slate-400 dark:text-slate-500"}`} />
-                    <span className={feature.highlight ? "font-medium text-slate-900 dark:text-white" : ""}>{feature.text}</span>
+                    <span className={feature.highlight ? "font-medium text-slate-900 dark:text-white" : ""}>
+                      {feature.text}
+                      {feature.comingSoon && (
+                        <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                          Coming Soon
+                        </span>
+                      )}
+                    </span>
                   </li>
                 ))}
                 {getIncludedFeatures(plan).length > 8 && (
@@ -77,8 +84,8 @@ export default function PricingPage() {
                 <Link
                   href={plan.id === "enterprise" ? "/contact" : "/signup"}
                   className={`block w-full rounded-lg py-3 text-center text-sm font-semibold transition-all duration-200 ${plan.highlighted
-                      ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md hover:from-primary-600 hover:to-primary-700 hover:shadow-lg"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md hover:from-primary-600 hover:to-primary-700 hover:shadow-lg"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
                     }`}
                 >
                   {plan.cta}
