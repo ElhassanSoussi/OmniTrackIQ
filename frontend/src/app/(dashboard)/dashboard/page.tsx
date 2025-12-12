@@ -13,6 +13,7 @@ import {
   SummaryChart,
   WidgetContainer,
   DashboardToolbar,
+  FounderMode,
 } from "@/components/dashboard";
 import { OnboardingChecklist } from "@/components/ui/onboarding-checklist";
 import { KPIGridSkeleton, ChartSkeleton, TableSkeleton } from "@/components/ui/loading-skeleton";
@@ -40,6 +41,12 @@ const CHANNEL_OPTIONS = [
 export default function DashboardPage() {
   const [range, setRange] = useState<DateRangeValue>("30d");
   const [channelFilter, setChannelFilter] = useState<string>("");
+  const [founderMode, setFounderMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("founderMode") === "true";
+    }
+    return false;
+  });
   const { from, to } = getDateRange(range);
 
   const { data: summary, isError: summaryError, error: summaryErr, isPending: summaryLoading } = useMetrics(from, to, channelFilter || undefined);
@@ -85,7 +92,7 @@ export default function DashboardPage() {
     const data: MetricsSummary = summary;
     const roasTone = data.roas >= 3 ? "positive" : data.roas >= 2 ? "neutral" : "negative";
     const cpaTone = data.cpa <= 30 ? "positive" : data.cpa <= 50 ? "neutral" : "negative";
-    
+
     return [
       { label: "Revenue", value: formatCurrency(data.revenue), subtext: "Blended revenue", trend: "Live", tone: "positive" },
       { label: "Ad Spend", value: formatCurrency(data.spend), subtext: "Across channels", trend: "Live", tone: "neutral" },
@@ -162,9 +169,9 @@ export default function DashboardPage() {
         ? ordersData[1]
         : ordersData
       : (ordersData as Record<string, unknown>)?.items ||
-        (ordersData as Record<string, unknown>)?.orders ||
-        (ordersData as Record<string, unknown>)?.results ||
-        []) as OrderRecord[];
+      (ordersData as Record<string, unknown>)?.orders ||
+      (ordersData as Record<string, unknown>)?.results ||
+      []) as OrderRecord[];
 
     if (!rawOrders.length) return [];
 
@@ -194,12 +201,33 @@ export default function DashboardPage() {
       {!onboardingComplete && (
         <OnboardingChecklist steps={onboardingSteps} />
       )}
-      
+
       <DashboardSection
         title="Performance overview"
         description="Unified view of revenue, spend, and ROAS across every channel."
         actions={
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* Founder Mode Toggle */}
+            <div className="flex items-center rounded-lg border border-slate-200 p-1 dark:border-slate-700">
+              <button
+                onClick={() => {
+                  setFounderMode(false);
+                  localStorage.setItem("founderMode", "false");
+                }}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${!founderMode ? "bg-primary-500 text-white" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"}`}
+              >
+                Full
+              </button>
+              <button
+                onClick={() => {
+                  setFounderMode(true);
+                  localStorage.setItem("founderMode", "true");
+                }}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${founderMode ? "bg-primary-500 text-white" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"}`}
+              >
+                Founder
+              </button>
+            </div>
             <select
               value={channelFilter}
               onChange={(e) => setChannelFilter(e.target.value)}
@@ -211,227 +239,246 @@ export default function DashboardPage() {
               ))}
             </select>
             <DateRangeToggle value={range} onChange={setRange} />
-            <DashboardToolbar
-              isEditing={isEditing}
-              onToggleEdit={() => setIsEditing(!isEditing)}
-              onReset={resetLayout}
-              hiddenWidgets={hiddenWidgets}
-              onShowWidget={toggleWidget}
-            />
+            {!founderMode && (
+              <DashboardToolbar
+                isEditing={isEditing}
+                onToggleEdit={() => setIsEditing(!isEditing)}
+                onReset={resetLayout}
+                hiddenWidgets={hiddenWidgets}
+                onShowWidget={toggleWidget}
+              />
+            )}
           </div>
         }
       >
-        <div className="flex flex-col gap-4 sm:gap-6">
-          {/* Edit mode hint */}
-          {isEditing && (
-            <div className="rounded-md border border-brand-300 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-700 dark:bg-brand-900/20 dark:text-brand-300">
-              <div className="flex items-center gap-2">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span><strong>Customization mode:</strong> Drag widgets to reorder, resize them, or hide ones you don&apos;t need. Click &quot;Done&quot; when finished.</span>
+        {founderMode ? (
+          /* Founder Mode - Simplified View */
+          <FounderMode
+            revenue={summary ? (summary as MetricsSummary).revenue : 124200}
+            spend={summary ? (summary as MetricsSummary).spend : 32400}
+            profit={summary ? (summary as MetricsSummary).profit : 91800}
+            revenueTrend={18}
+            spendTrend={6}
+            profitTrend={24}
+            topChannel={channelData?.channels?.length ? {
+              name: channelData.channels.reduce((a, b) => a.roas > b.roas ? a : b).platform_label,
+              roas: channelData.channels.reduce((a, b) => a.roas > b.roas ? a : b).roas,
+            } : { name: "Google Brand", roas: 4.3 }}
+            concernChannel={{ name: "Facebook Retargeting", issue: "CPA up 12%" }}
+          />
+        ) : (
+          <div className="flex flex-col gap-4 sm:gap-6">
+            {/* Edit mode hint */}
+            {isEditing && (
+              <div className="rounded-md border border-brand-300 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-700 dark:bg-brand-900/20 dark:text-brand-300">
+                <div className="flex items-center gap-2">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span><strong>Customization mode:</strong> Drag widgets to reorder, resize them, or hide ones you don&apos;t need. Click &quot;Done&quot; when finished.</span>
+                </div>
+              </div>
+            )}
+
+            {hasNoLiveData && (
+              <div className="rounded-md border border-gh-attention-emphasis bg-gh-attention-subtle px-4 py-3 text-sm text-gh-attention-fg dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
+                    <a href="/integrations" className="ml-2 font-semibold underline hover:text-yellow-900 dark:hover:text-yellow-100">
+                      Connect integrations
+                    </a>
+                  </div>
+                  {!sampleDataStats?.has_sample_data && (
+                    <button
+                      onClick={() => generateSampleData.mutate()}
+                      disabled={generateSampleData.isPending}
+                      className="inline-flex items-center gap-2 rounded-md bg-gh-attention-emphasis px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-yellow-600 disabled:opacity-50"
+                    >
+                      {generateSampleData.isPending ? (
+                        <>
+                          <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Generating...
+                        </>
+                      ) : (
+                        "Generate Sample Data"
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {sampleDataStats?.has_sample_data && (
+              <div className="rounded-md border border-gh-accent-emphasis bg-gh-accent-subtle px-4 py-3 text-sm text-gh-accent-fg dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <span className="font-semibold">Demo mode:</span> You&apos;re viewing sample data ({sampleDataStats.ad_spend_records} ad records, {sampleDataStats.order_records} orders).
+                    Connect real integrations or remove demo data.
+                  </div>
+                  <button
+                    onClick={() => deleteSampleData.mutate()}
+                    disabled={deleteSampleData.isPending}
+                    className="inline-flex items-center gap-2 rounded-md border border-gh-accent-emphasis bg-gh-canvas-default px-3 py-1.5 text-xs font-medium text-gh-accent-fg shadow-sm transition hover:bg-gh-canvas-subtle disabled:opacity-50 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                  >
+                    {deleteSampleData.isPending ? "Removing..." : "Remove Sample Data"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-4 rounded-md border border-gh-border bg-gh-canvas-default p-5 md:flex md:items-center md:justify-between dark:border-gh-border-dark dark:bg-gh-canvas-dark">
+              <div className="space-y-1">
+                <div className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Account health</div>
+                <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
+                  ROAS above target; TikTok prospecting is accelerating and Google brand remains most efficient.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="rounded-full bg-gh-success-subtle px-3 py-1 font-semibold text-gh-success-fg dark:bg-green-900/30 dark:text-green-400">Healthy</span>
+                <span className="rounded-full border border-gh-border bg-gh-canvas-subtle px-3 py-1 font-semibold text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
+                  {range === "7d" ? "Last 7 days" : range === "30d" ? "Last 30 days" : "Last 90 days"}
+                </span>
+                <span className="rounded-full border border-gh-border bg-gh-canvas-subtle px-3 py-1 font-semibold text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
+                  Blended CAC $27.4
+                </span>
               </div>
             </div>
-          )}
 
-          {hasNoLiveData && (
-            <div className="rounded-md border border-gh-attention-emphasis bg-gh-attention-subtle px-4 py-3 text-sm text-gh-attention-fg dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  No live data yet. Connect ad platforms and Shopify to start seeing revenue, spend, and orders.
-                  <a href="/integrations" className="ml-2 font-semibold underline hover:text-yellow-900 dark:hover:text-yellow-100">
-                    Connect integrations
-                  </a>
-                </div>
-                {!sampleDataStats?.has_sample_data && (
-                  <button
-                    onClick={() => generateSampleData.mutate()}
-                    disabled={generateSampleData.isPending}
-                    className="inline-flex items-center gap-2 rounded-md bg-gh-attention-emphasis px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-yellow-600 disabled:opacity-50"
+            {summaryError ? (
+              <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                Failed to load metrics: {formatErrorMessage(summaryErr)}
+              </div>
+            ) : summaryLoading ? (
+              visibleWidgets.find((w) => w.id === "kpis") && (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "kpis")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("kpis")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <div className="p-4 sm:p-5">
+                    <KPIGridSkeleton />
+                  </div>
+                </WidgetContainer>
+              )
+            ) : (
+              visibleWidgets.find((w) => w.id === "kpis") && (
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "kpis")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("kpis")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  <div className="p-4 sm:p-5">
+                    <KPIGrid items={kpis} />
+                  </div>
+                </WidgetContainer>
+              )
+            )}
+
+            {visibleWidgets.find((w) => w.id === "revenue-chart") && (
+              <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.6fr,1fr]">
+                <WidgetContainer
+                  widget={visibleWidgets.find((w) => w.id === "revenue-chart")!}
+                  isEditing={isEditing}
+                  index={getWidgetIndex("revenue-chart")}
+                  onMove={moveWidget}
+                  onResize={resizeWidget}
+                  onToggle={toggleWidget}
+                >
+                  {summaryLoading ? <ChartSkeleton /> : <SummaryChart data={chartData} />}
+                </WidgetContainer>
+                {visibleWidgets.find((w) => w.id === "channel-breakdown") && (
+                  <WidgetContainer
+                    widget={visibleWidgets.find((w) => w.id === "channel-breakdown")!}
+                    isEditing={isEditing}
+                    index={getWidgetIndex("channel-breakdown")}
+                    onMove={moveWidget}
+                    onResize={resizeWidget}
+                    onToggle={toggleWidget}
                   >
-                    {generateSampleData.isPending ? (
-                      <>
-                        <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                        Generating...
-                      </>
-                    ) : (
-                      "Generate Sample Data"
-                    )}
-                  </button>
+                    <ChannelTable channels={channelPerformance ?? undefined} isLoading={channelLoading} />
+                  </WidgetContainer>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {sampleDataStats?.has_sample_data && (
-            <div className="rounded-md border border-gh-accent-emphasis bg-gh-accent-subtle px-4 py-3 text-sm text-gh-accent-fg dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="font-semibold">Demo mode:</span> You&apos;re viewing sample data ({sampleDataStats.ad_spend_records} ad records, {sampleDataStats.order_records} orders).
-                  Connect real integrations or remove demo data.
-                </div>
-                <button
-                  onClick={() => deleteSampleData.mutate()}
-                  disabled={deleteSampleData.isPending}
-                  className="inline-flex items-center gap-2 rounded-md border border-gh-accent-emphasis bg-gh-canvas-default px-3 py-1.5 text-xs font-medium text-gh-accent-fg shadow-sm transition hover:bg-gh-canvas-subtle disabled:opacity-50 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
-                >
-                  {deleteSampleData.isPending ? "Removing..." : "Remove Sample Data"}
-                </button>
-              </div>
+            <div className="grid gap-4">
+              <InsightCard title="Budget shift" description="Shift +10% to TikTok Prospecting and +5% to Google Brand for efficient growth." badge="Recommendation" />
+              <InsightCard title="Alerting" description="CPA drift detected on FB - Retargeting. Alert sent to Slack #growth." badge="Alert" />
+              <InsightCard title="Attribution" description="Shopify and GA4 aligned at 98% for last 7 days; variance within tolerance." badge="Data quality" />
             </div>
-          )}
-          
-          <div className="grid gap-4 rounded-md border border-gh-border bg-gh-canvas-default p-5 md:flex md:items-center md:justify-between dark:border-gh-border-dark dark:bg-gh-canvas-dark">
-            <div className="space-y-1">
-              <div className="text-sm font-semibold text-gh-text-primary dark:text-gh-text-primary-dark">Account health</div>
-              <p className="text-sm text-gh-text-secondary dark:text-gh-text-secondary-dark">
-                ROAS above target; TikTok prospecting is accelerating and Google brand remains most efficient.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full bg-gh-success-subtle px-3 py-1 font-semibold text-gh-success-fg dark:bg-green-900/30 dark:text-green-400">Healthy</span>
-              <span className="rounded-full border border-gh-border bg-gh-canvas-subtle px-3 py-1 font-semibold text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
-                {range === "7d" ? "Last 7 days" : range === "30d" ? "Last 30 days" : "Last 90 days"}
-              </span>
-              <span className="rounded-full border border-gh-border bg-gh-canvas-subtle px-3 py-1 font-semibold text-gh-text-secondary dark:border-gh-border-dark dark:bg-gh-canvas-subtle-dark dark:text-gh-text-secondary-dark">
-                Blended CAC $27.4
-              </span>
-            </div>
-          </div>
 
-          {summaryError ? (
-            <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
-              Failed to load metrics: {formatErrorMessage(summaryErr)}
-            </div>
-          ) : summaryLoading ? (
-            visibleWidgets.find((w) => w.id === "kpis") && (
-              <WidgetContainer
-                widget={visibleWidgets.find((w) => w.id === "kpis")!}
-                isEditing={isEditing}
-                index={getWidgetIndex("kpis")}
-                onMove={moveWidget}
-                onResize={resizeWidget}
-                onToggle={toggleWidget}
-              >
-                <div className="p-4 sm:p-5">
-                  <KPIGridSkeleton />
-                </div>
-              </WidgetContainer>
-            )
-          ) : (
-            visibleWidgets.find((w) => w.id === "kpis") && (
-              <WidgetContainer
-                widget={visibleWidgets.find((w) => w.id === "kpis")!}
-                isEditing={isEditing}
-                index={getWidgetIndex("kpis")}
-                onMove={moveWidget}
-                onResize={resizeWidget}
-                onToggle={toggleWidget}
-              >
-                <div className="p-4 sm:p-5">
-                  <KPIGrid items={kpis} />
-                </div>
-              </WidgetContainer>
-            )
-          )}
-
-          {visibleWidgets.find((w) => w.id === "revenue-chart") && (
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.6fr,1fr]">
-              <WidgetContainer
-                widget={visibleWidgets.find((w) => w.id === "revenue-chart")!}
-                isEditing={isEditing}
-                index={getWidgetIndex("revenue-chart")}
-                onMove={moveWidget}
-                onResize={resizeWidget}
-                onToggle={toggleWidget}
-              >
-                {summaryLoading ? <ChartSkeleton /> : <SummaryChart data={chartData} />}
-              </WidgetContainer>
-              {visibleWidgets.find((w) => w.id === "channel-breakdown") && (
-                <WidgetContainer
-                  widget={visibleWidgets.find((w) => w.id === "channel-breakdown")!}
-                  isEditing={isEditing}
-                  index={getWidgetIndex("channel-breakdown")}
-                  onMove={moveWidget}
-                  onResize={resizeWidget}
-                  onToggle={toggleWidget}
-                >
-                  <ChannelTable channels={channelPerformance ?? undefined} isLoading={channelLoading} />
-                </WidgetContainer>
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+              {visibleWidgets.find((w) => w.id === "campaigns-table") && (
+                campaignsError ? (
+                  <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                    Failed to load campaigns: {formatErrorMessage(campaignsErr)}
+                  </div>
+                ) : campaignsLoading ? (
+                  <WidgetContainer
+                    widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
+                    isEditing={isEditing}
+                    index={getWidgetIndex("campaigns-table")}
+                    onMove={moveWidget}
+                    onResize={resizeWidget}
+                    onToggle={toggleWidget}
+                  >
+                    <TableSkeleton rows={3} />
+                  </WidgetContainer>
+                ) : (
+                  <WidgetContainer
+                    widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
+                    isEditing={isEditing}
+                    index={getWidgetIndex("campaigns-table")}
+                    onMove={moveWidget}
+                    onResize={resizeWidget}
+                    onToggle={toggleWidget}
+                  >
+                    <CampaignsTable campaigns={topCampaigns} />
+                  </WidgetContainer>
+                )
+              )}
+              {visibleWidgets.find((w) => w.id === "orders-table") && (
+                ordersError ? (
+                  <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                    Failed to load orders: {formatErrorMessage(ordersErr)}
+                  </div>
+                ) : ordersLoading ? (
+                  <WidgetContainer
+                    widget={visibleWidgets.find((w) => w.id === "orders-table")!}
+                    isEditing={isEditing}
+                    index={getWidgetIndex("orders-table")}
+                    onMove={moveWidget}
+                    onResize={resizeWidget}
+                    onToggle={toggleWidget}
+                  >
+                    <TableSkeleton rows={4} />
+                  </WidgetContainer>
+                ) : (
+                  <WidgetContainer
+                    widget={visibleWidgets.find((w) => w.id === "orders-table")!}
+                    isEditing={isEditing}
+                    index={getWidgetIndex("orders-table")}
+                    onMove={moveWidget}
+                    onResize={resizeWidget}
+                    onToggle={toggleWidget}
+                  >
+                    <OrdersTable orders={recentOrders} />
+                  </WidgetContainer>
+                )
               )}
             </div>
-          )}
-
-          <div className="grid gap-4">
-            <InsightCard title="Budget shift" description="Shift +10% to TikTok Prospecting and +5% to Google Brand for efficient growth." badge="Recommendation" />
-            <InsightCard title="Alerting" description="CPA drift detected on FB - Retargeting. Alert sent to Slack #growth." badge="Alert" />
-            <InsightCard title="Attribution" description="Shopify and GA4 aligned at 98% for last 7 days; variance within tolerance." badge="Data quality" />
           </div>
-
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-            {visibleWidgets.find((w) => w.id === "campaigns-table") && (
-              campaignsError ? (
-                <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
-                  Failed to load campaigns: {formatErrorMessage(campaignsErr)}
-                </div>
-              ) : campaignsLoading ? (
-                <WidgetContainer
-                  widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
-                  isEditing={isEditing}
-                  index={getWidgetIndex("campaigns-table")}
-                  onMove={moveWidget}
-                  onResize={resizeWidget}
-                  onToggle={toggleWidget}
-                >
-                  <TableSkeleton rows={3} />
-                </WidgetContainer>
-              ) : (
-                <WidgetContainer
-                  widget={visibleWidgets.find((w) => w.id === "campaigns-table")!}
-                  isEditing={isEditing}
-                  index={getWidgetIndex("campaigns-table")}
-                  onMove={moveWidget}
-                  onResize={resizeWidget}
-                  onToggle={toggleWidget}
-                >
-                  <CampaignsTable campaigns={topCampaigns} />
-                </WidgetContainer>
-              )
-            )}
-            {visibleWidgets.find((w) => w.id === "orders-table") && (
-              ordersError ? (
-                <div className="rounded-md border border-gh-danger-emphasis bg-gh-danger-subtle p-4 text-sm text-gh-danger-fg dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
-                  Failed to load orders: {formatErrorMessage(ordersErr)}
-                </div>
-              ) : ordersLoading ? (
-                <WidgetContainer
-                  widget={visibleWidgets.find((w) => w.id === "orders-table")!}
-                  isEditing={isEditing}
-                  index={getWidgetIndex("orders-table")}
-                  onMove={moveWidget}
-                  onResize={resizeWidget}
-                  onToggle={toggleWidget}
-                >
-                  <TableSkeleton rows={4} />
-                </WidgetContainer>
-              ) : (
-                <WidgetContainer
-                  widget={visibleWidgets.find((w) => w.id === "orders-table")!}
-                  isEditing={isEditing}
-                  index={getWidgetIndex("orders-table")}
-                  onMove={moveWidget}
-                  onResize={resizeWidget}
-                  onToggle={toggleWidget}
-                >
-                  <OrdersTable orders={recentOrders} />
-                </WidgetContainer>
-              )
-            )}
-          </div>
-        </div>
+        )}
       </DashboardSection>
     </div>
   );

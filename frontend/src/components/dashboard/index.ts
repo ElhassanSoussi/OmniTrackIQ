@@ -10,3 +10,4 @@ export { default as OrdersTable } from "./orders-table";
 export { default as ChannelTable } from "./channel-table";
 export type { ChannelRow } from "./channel-table";
 export { WidgetContainer, DashboardToolbar } from "./widget-container";
+export { FounderMode } from "./founder-mode";
