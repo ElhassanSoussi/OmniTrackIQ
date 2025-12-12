@@ -114,6 +114,9 @@ migration_tables = {
     "0009_onboarding_fields": None,
     "0010_client_accounts": "client_accounts",
     "0011_enterprise": "sso_configs",
+    "0012_fix_onboarding_columns": None,
+    "0013_product_events": "product_events",
+    "0014_password_reset": None,
 }
 
 migrations = list(migration_tables.keys())
