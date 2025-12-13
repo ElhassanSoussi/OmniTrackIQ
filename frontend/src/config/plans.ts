@@ -114,7 +114,7 @@ export const PLANS: Plan[] = [
       { text: "Additional ad channels (Pinterest, Snapchat)", included: true },
       { text: "Cohort analysis (new vs returning customers)", included: true, highlight: true },
       { text: "Funnel view (ad → session → cart → purchase)", included: true },
-      { text: "Per-product profitability", included: true, comingSoon: true },
+      { text: "Per-product profitability", included: true, highlight: true },
       { text: "Creative Intelligence v1", included: true, highlight: true },
       { text: "Top creatives by ROAS / profit", included: true },
       { text: "Creative fatigue detection (CTR/CR drop alerts)", included: true },

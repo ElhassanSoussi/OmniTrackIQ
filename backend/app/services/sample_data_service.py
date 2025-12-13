@@ -9,8 +9,24 @@ from sqlalchemy.orm import Session
 
 from app.models.ad_spend import AdSpend
 from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.models.daily_metrics import DailyMetrics, Channel
 from app.models.ad_account import AdAccount, AdAccountStatus
+
+
+# Sample products for demo data
+SAMPLE_PRODUCTS = [
+    {"id": "PROD-001", "name": "Premium Wireless Earbuds", "sku": "PWE-BLK-001", "price": 79.99, "cost": 25.00},
+    {"id": "PROD-002", "name": "Bluetooth Speaker Pro", "sku": "BSP-GRY-001", "price": 149.99, "cost": 45.00},
+    {"id": "PROD-003", "name": "Smart Watch Series X", "sku": "SWX-SLV-001", "price": 299.99, "cost": 95.00},
+    {"id": "PROD-004", "name": "Noise Canceling Headphones", "sku": "NCH-WHT-001", "price": 199.99, "cost": 55.00},
+    {"id": "PROD-005", "name": "Portable Charger 20000mAh", "sku": "PC2-BLK-001", "price": 49.99, "cost": 12.00},
+    {"id": "PROD-006", "name": "Wireless Charging Pad", "sku": "WCP-WHT-001", "price": 39.99, "cost": 8.00},
+    {"id": "PROD-007", "name": "USB-C Hub 7-in-1", "sku": "UCH-SLV-001", "price": 59.99, "cost": 18.00},
+    {"id": "PROD-008", "name": "Ergonomic Mouse", "sku": "ERM-BLK-001", "price": 69.99, "cost": 20.00},
+    {"id": "PROD-009", "name": "Mechanical Keyboard", "sku": "MKB-RGB-001", "price": 129.99, "cost": 40.00},
+    {"id": "PROD-010", "name": "Webcam 4K Pro", "sku": "WC4-BLK-001", "price": 179.99, "cost": 50.00},
+]
 
 
 SAMPLE_CAMPAIGNS = [
@@ -92,8 +108,9 @@ def generate_sample_orders(
     days: int = 30,
     orders_per_day: int = 15,
 ) -> int:
-    """Generate sample order data for the last N days."""
-    created_count = 0
+    """Generate sample order data with line items for the last N days."""
+    orders_created = 0
+    items_created = 0
     today = date.today()
     
     for day_offset in range(days):
@@ -110,28 +127,56 @@ def generate_sample_orders(
             minute = random.randint(0, 59)
             order_datetime = f"{order_date}T{hour:02d}:{minute:02d}:00"
             
-            # Random amount between $30 and $250
-            amount = round(random.uniform(30, 250), 2)
-            
             # Random UTM attribution
             utm_source = random.choice(UTM_SOURCES) if random.random() > 0.2 else None
             utm_campaign = random.choice(UTM_CAMPAIGNS) if utm_source else None
             
+            # Create order with placeholder amount (will update after items)
+            order_id = str(uuid.uuid4())
             order = Order(
+                id=order_id,
                 account_id=account_id,
                 external_order_id=f"DEMO-{uuid.uuid4().hex[:8].upper()}",
                 date_time=order_datetime,
-                total_amount=amount,
+                total_amount=0,  # Will be calculated from items
                 currency="USD",
                 utm_source=utm_source,
                 utm_campaign=utm_campaign,
                 source_platform="demo",
             )
             db.add(order)
-            created_count += 1
+            orders_created += 1
+            
+            # Generate 1-4 line items per order
+            num_items = random.randint(1, 4)
+            order_total = 0
+            
+            for _ in range(num_items):
+                product = random.choice(SAMPLE_PRODUCTS)
+                quantity = random.randint(1, 3)
+                unit_price = product["price"]
+                total_price = round(unit_price * quantity, 2)
+                order_total += total_price
+                
+                order_item = OrderItem(
+                    order_id=order_id,
+                    account_id=account_id,
+                    product_id=product["id"],
+                    product_name=product["name"],
+                    sku=product["sku"],
+                    quantity=quantity,
+                    unit_price=unit_price,
+                    total_price=total_price,
+                    cost_per_unit=product["cost"],
+                )
+                db.add(order_item)
+                items_created += 1
+            
+            # Update order total
+            order.total_amount = round(order_total, 2)
     
     db.commit()
-    return created_count
+    return orders_created
 
 
 def delete_sample_data(db: Session, account_id: str) -> dict:
@@ -141,6 +186,19 @@ def delete_sample_data(db: Session, account_id: str) -> dict:
         AdSpend.account_id == account_id,
         AdSpend.external_campaign_id.like("DEMO-%"),
     ).delete(synchronize_session=False)
+    
+    # Delete demo order items first (FK constraint)
+    # Get demo order IDs first
+    demo_order_ids = [o.id for o in db.query(Order.id).filter(
+        Order.account_id == account_id,
+        Order.source_platform == "demo",
+    ).all()]
+    
+    order_items_deleted = 0
+    if demo_order_ids:
+        order_items_deleted = db.query(OrderItem).filter(
+            OrderItem.order_id.in_(demo_order_ids),
+        ).delete(synchronize_session=False)
     
     # Delete demo orders
     orders_deleted = db.query(Order).filter(

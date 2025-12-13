@@ -36,7 +36,7 @@ This document compares features promised on marketing pages vs actual implementa
 | GA4 integration | Pro+ | ⚠️ Partial | OAuth flow only, no data sync |
 | Cohort analysis | Pro+ | ✅ Implemented | `/analytics/cohorts` with heatmap |
 | Funnel view | Pro+ | ✅ Implemented | `/analytics/funnel` 3 views |
-| Per-product profitability | Pro+ | ❌ Not Yet | Only in marketing copy |
+| Per-product profitability | Pro+ | ✅ Implemented | `/analytics/products` with COGS and margin |
 | Creative Intelligence v1 | Pro+ | ✅ Implemented | `/analytics/creatives` with fatigue detection |
 | Top creatives by ROAS | Pro+ | ⚠️ Partial | Uses mock data array |
 | Creative fatigue detection | Pro+ | ✅ Implemented | CTR/CTR drop indicators |

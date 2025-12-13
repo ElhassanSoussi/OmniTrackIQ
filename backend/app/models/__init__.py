@@ -4,6 +4,7 @@ from app.models.integration import Integration
 from app.models.ad_account import AdAccount, AdAccountStatus
 from app.models.ad_spend import AdSpend
 from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.models.daily_metrics import DailyMetrics, Channel
 from app.models.subscription import Subscription
 from app.models.team_invite import TeamInvite, InviteStatus
@@ -39,6 +40,7 @@ __all__ = [
     "AdAccountStatus",
     "AdSpend",
     "Order",
+    "OrderItem",
     "DailyMetrics",
     "Channel",
     "Subscription",

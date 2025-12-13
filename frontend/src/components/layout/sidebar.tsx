@@ -43,6 +43,7 @@ const navigationGroups = [
       { href: "/analytics/attribution", label: "Attribution", icon: GitBranch },
       { href: "/analytics/cohorts", label: "Cohorts", icon: Users },
       { href: "/analytics/funnel", label: "Funnel", icon: TrendingUp },
+      { href: "/analytics/products", label: "Products", icon: BarChart3 },
       { href: "/analytics/creatives", label: "Creative Intel", icon: Zap },
       { href: "/analytics/anomalies", label: "Anomalies", icon: AlertTriangle },
       { href: "/analytics/reports", label: "Reports", icon: FileText },
