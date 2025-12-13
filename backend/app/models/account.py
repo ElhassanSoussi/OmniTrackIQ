@@ -13,6 +13,7 @@ class AccountPlan(str, Enum):
     STARTER = "starter"
     PRO = "pro"
     AGENCY = "agency"
+    ENTERPRISE = "enterprise"
 
 
 # Default onboarding steps structure
