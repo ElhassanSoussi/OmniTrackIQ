@@ -9,12 +9,14 @@ OmniTrackIQ is a SaaS platform that connects all your marketing data—Facebook 
 ## ✨ Features
 
 ### Dashboards & Analytics
+
 - **Overview Dashboard**: Real-time KPIs (revenue, ad spend, ROAS, orders, CAC) with date range filters
 - **Campaigns**: Drill-down by platform, campaign, ad set, and ad with performance metrics
 - **Orders**: Revenue attribution, order-level insights, and customer acquisition data
 - **Anomaly Detection**: Automatic alerts when metrics deviate from normal patterns
 
 ### Integrations
+
 - **Facebook Ads**: Campaign, ad set, and conversion data from Meta Ads Manager
 - **Google Ads**: Search, Shopping, and Display campaign metrics
 - **TikTok Ads**: Campaign performance and creative insights
@@ -23,15 +25,18 @@ OmniTrackIQ is a SaaS platform that connects all your marketing data—Facebook 
 - **n8n Workflows**: Extensible automation for custom data pipelines
 
 ### Billing & Subscriptions
+
 - **Stripe Integration**: Secure checkout, subscription management, and billing portal
 - **Plans**: Starter ($49/mo), Pro ($149/mo), Agency ($399/mo)
 - **Free Trial**: 14-day trial on all plans
 
 ### Onboarding
+
 - **Guided Setup**: Step-by-step workspace creation, integration connection, and dashboard tour
 - **Checklist Banner**: Progress tracking until onboarding is complete
 
 ### Multi-Tenancy & Security
+
 - **Workspace Isolation**: All data scoped by workspace (account)
 - **Role-Based Access**: Owner, Admin, Member roles (team invites supported)
 - **Secure Auth**: JWT-based authentication with bcrypt password hashing
@@ -88,6 +93,7 @@ OmniTrackIQ is a SaaS platform that connects all your marketing data—Facebook 
 ```
 
 **Data Flow:**
+
 1. Users interact with the Next.js frontend
 2. Frontend calls FastAPI backend via REST API
 3. Backend stores all data in PostgreSQL, scoped by workspace
@@ -99,6 +105,7 @@ OmniTrackIQ is a SaaS platform that connects all your marketing data—Facebook 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - **Node.js**: 20.x (see `frontend/.nvmrc`)
 - **Python**: 3.11+
 - **PostgreSQL**: 14+
@@ -150,6 +157,7 @@ The app will be available at `http://localhost:3000`.
 ## 📦 Deployment
 
 OmniTrackIQ is deployed on **Render** with:
+
 - **Frontend**: Static Site or Web Service (Node 20.x)
 - **Backend**: Web Service (Python 3.11)
 - **Database**: Render PostgreSQL
@@ -160,7 +168,18 @@ OmniTrackIQ is deployed on **Render** with:
 2. Render auto-deploys both services
 3. Migrations run automatically via build command
 
-👉 **See [docs/SETUP.md](docs/SETUP.md) for detailed Render configuration.**
+## 📚 Documentation
+
+> **[Start Here: Documentation Index](./docs/INDEX.md)**
+
+All specific guides, architecture notes, and engineering logs are available in the `docs/` folder.
+
+### Quick Links
+
+- [Setup Guide](./docs/SETUP.md)
+- [Roadmap](./docs/ROADMAP.md)
+- [Project Structure](./docs/PROJECT_STRUCTURE.md)
+- [Security](./docs/SECURITY.md)
 
 ---
 
@@ -233,7 +252,7 @@ omnitrackiq/
 
 ## 📧 Support
 
-- **Email**: support@omnitrackiq.com
+- **Email**: <support@omnitrackiq.com>
 - **Documentation**: [docs.omnitrackiq.com](https://docs.omnitrackiq.com)
 
 ---

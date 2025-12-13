@@ -10,15 +10,15 @@ Made the Settings → Profile page fully functional end-to-end. The page now loa
 
 | File | Change |
 |------|--------|
-| [auth.py](file:///Users/elhassansoussi/Desktop/OmnniTrackIQ/backend/app/schemas/auth.py) | Added `UpdateAccountRequest`, `UpdateEmailRequest`, `UpdatePasswordRequest` schemas; Updated `UserInfo` to include `account_name` |
-| [auth_service.py](file:///Users/elhassansoussi/Desktop/OmnniTrackIQ/backend/app/services/auth_service.py) | Added `update_account()`, `update_email()`, `update_password()`, `get_account_name()` functions |
-| [routes_auth.py](file:///Users/elhassansoussi/Desktop/OmnniTrackIQ/backend/app/routers/routes_auth.py) | Added `/update-account`, `/update-email`, `/update-password` endpoints; Updated `/me` to return `account_name` |
+| [auth.py](../../../backend/app/schemas/auth.py) | Added `UpdateAccountRequest`, `UpdateEmailRequest`, `UpdatePasswordRequest` schemas; Updated `UserInfo` to include `account_name` |
+| [auth_service.py](../../../backend/app/services/auth_service.py) | Added `update_account()`, `update_email()`, `update_password()`, `get_account_name()` functions |
+| [routes_auth.py](../../../backend/app/routers/routes_auth.py) | Added `/update-account`, `/update-email`, `/update-password` endpoints; Updated `/me` to return `account_name` |
 
 ### Tests
 
 | File | Description |
 |------|-------------|
-| [test_profile_update.py](file:///Users/elhassansoussi/Desktop/OmnniTrackIQ/backend/tests/test_profile_update.py) | Unit tests for update schemas |
+| [test_profile_update.py](../../../backend/tests/test_profile_update.py) | Unit tests for update schemas |
 
 ## API Endpoints
 
