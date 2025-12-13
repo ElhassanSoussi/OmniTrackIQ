@@ -22,12 +22,20 @@ Made the Settings → Profile page fully functional end-to-end. The page now loa
 
 ## API Endpoints
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/auth/me` | GET | Get user profile + workspace name |
-| `/auth/update-account` | POST | Update display name and/or workspace name |
-| `/auth/update-email` | POST | Update login email |
-| `/auth/update-password` | POST | Change password (requires current password) |
+- `GET /auth/me`: Returns user profile + `account_name`.
+- `POST /auth/update-account`: Updates generic account settings.
+- `POST /auth/update-email`: Updates email.
+- `POST /auth/update-password`: Updates password.
+
+## Phase 5A Update (Real Implementation)
+
+As of Phase 5A, the following real endpoints were added/updated:
+
+- **Models**: Added `avatar_url`, `timezone` to User; `industry`, `currency`, `timezone` to Account.
+- **Endpoints**:
+  - `PATCH /auth/me`: Updates User Profile (name, avatar, timezone).
+  - `PATCH /auth/account/me`: Updates Organization (name, industry, currency, timezone).
+  - `POST /auth/update-account`: **Deprecated**.
 
 ### Example: GET /auth/me
 

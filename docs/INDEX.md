@@ -42,6 +42,10 @@ We maintain detailed logs of each development phase to track decisions and progr
 - [Inventory](./internal/phase-3b-settings/inventory.md)
 - [Summary](./internal/phase-3b-settings/summary.md)
 
+### Phase 5: Settings Implementation
+
+- **Phase 5A**: Added real Profile/Organization settings (PATCH endpoints). See [Phase 3B Summary](./internal/phase-3b-settings/summary.md#phase-5a-update) for details.
+
 ### Other Topics
 
 - **Pricing**: [Sync Notes](./internal/pricing/sync-notes.md)

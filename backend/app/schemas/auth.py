@@ -57,6 +57,8 @@ class UserInfo(BaseModel):
     role: str
     name: Optional[str] = None
     account_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    timezone: Optional[str] = None
 
 
 class ForgotPasswordRequest(BaseModel):
@@ -87,20 +89,11 @@ class MessageResponse(BaseModel):
 
 # ================== Profile Update Schemas ==================
 
-class UpdateAccountRequest(BaseModel):
-    """Update account/profile settings"""
-    account_name: Optional[str] = None  # Workspace name
-    name: Optional[str] = None  # Display name
-
-    @validator("account_name")
-    def validate_account_name(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None:
-            v = v.strip()
-            if len(v) < 1:
-                raise ValueError("Account name cannot be empty")
-            if len(v) > 100:
-                raise ValueError("Account name must be 100 characters or less")
-        return v
+class UpdateUserProfileRequest(BaseModel):
+    """Update user profile settings"""
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    timezone: Optional[str] = None
 
     @validator("name")
     def validate_name(cls, v: Optional[str]) -> Optional[str]:
@@ -109,6 +102,39 @@ class UpdateAccountRequest(BaseModel):
             if len(v) > 100:
                 raise ValueError("Display name must be 100 characters or less")
         return v
+
+
+class UpdateOrganizationRequest(BaseModel):
+    """Update organization settings"""
+    name: Optional[str] = None  # Workspace name
+    industry: Optional[str] = None
+    currency: Optional[str] = None
+    timezone: Optional[str] = None
+
+    @validator("name")
+    def validate_name(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip()
+            if len(v) < 1:
+                raise ValueError("Workspace name cannot be empty")
+            if len(v) > 100:
+                raise ValueError("Workspace name must be 100 characters or less")
+        return v
+
+    @validator("currency")
+    def validate_currency(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip().upper()
+            if len(v) != 3:
+                raise ValueError("Currency must be a 3-letter code (e.g. USD)")
+        return v
+
+
+# Deprecated but kept for backward compatibility if needed, though we will switch to above
+class UpdateAccountRequest(BaseModel):
+    """Legacy update request - mixes profile and account"""
+    account_name: Optional[str] = None
+    name: Optional[str] = None
 
 
 class UpdateEmailRequest(BaseModel):

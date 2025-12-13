@@ -198,37 +198,82 @@ def reset_password(db: Session, token: str, new_password: str) -> bool:
 
 # ================== Profile Update Functions ==================
 
-def update_account(db: Session, user: User, account_name: Optional[str] = None, name: Optional[str] = None) -> None:
+def update_user_profile(
+    db: Session, 
+    user: User, 
+    name: Optional[str] = None,
+    avatar_url: Optional[str] = None,
+    timezone: Optional[str] = None
+) -> None:
     """
-    Update account and user profile settings.
-    
-    :param user: Current user
-    :param account_name: New workspace/account name (optional)
-    :param name: New display name for user (optional)
+    Update user profile settings.
     """
     from sqlalchemy import text
     
-    # Update user display name if provided
-    if name is not None:
-        db.execute(
-            text("UPDATE users SET name = :name WHERE id = :user_id"),
-            {"name": name.strip() if name else None, "user_id": user.id}
-        )
+    # Build update query dynamically
+    updates = []
+    params = {"user_id": user.id}
     
-    # Update account name if provided
-    if account_name is not None:
-        account_name = account_name.strip()
-        if not account_name:
+    if name is not None:
+        updates.append("name = :name")
+        params["name"] = name.strip() if name else None
+        
+    if avatar_url is not None:
+        updates.append("avatar_url = :avatar_url")
+        params["avatar_url"] = avatar_url.strip() if avatar_url else None
+        
+    if timezone is not None:
+        updates.append("timezone = :timezone")
+        params["timezone"] = timezone.strip() if timezone else None
+        
+    if updates:
+        query = f"UPDATE users SET {', '.join(updates)} WHERE id = :user_id"
+        db.execute(text(query), params)
+        db.commit()
+
+
+def update_organization_settings(
+    db: Session,
+    user: User,
+    name: Optional[str] = None,
+    industry: Optional[str] = None,
+    currency: Optional[str] = None,
+    timezone: Optional[str] = None
+) -> None:
+    """
+    Update organization (account) settings.
+    """
+    from sqlalchemy import text
+    
+    updates = ["updated_at = NOW()"]
+    params = {"account_id": user.account_id}
+    
+    if name is not None:
+        clean_name = name.strip()
+        if not clean_name:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Account name cannot be empty"
+                detail="Workspace name cannot be empty"
             )
-        db.execute(
-            text("UPDATE accounts SET name = :name, updated_at = NOW() WHERE id = :account_id"),
-            {"name": account_name, "account_id": user.account_id}
-        )
-    
-    db.commit()
+        updates.append("name = :name")
+        params["name"] = clean_name
+        
+    if industry is not None:
+        updates.append("industry = :industry")
+        params["industry"] = industry.strip() if industry else None
+        
+    if currency is not None:
+        updates.append("currency = :currency")
+        params["currency"] = currency.strip().upper() if currency else None
+        
+    if timezone is not None:
+        updates.append("timezone = :timezone")
+        params["timezone"] = timezone.strip() if timezone else None
+        
+    if len(updates) > 1:  # More than just updated_at
+        query = f"UPDATE accounts SET {', '.join(updates)} WHERE id = :account_id"
+        db.execute(text(query), params)
+        db.commit()
 
 
 def update_email(db: Session, user: User, new_email: str) -> None:

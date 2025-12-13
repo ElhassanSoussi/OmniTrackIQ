@@ -28,6 +28,10 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_login_at = Column(DateTime(timezone=True), nullable=True)
     
+    # Profile fields
+    avatar_url = Column(String, nullable=True)
+    timezone = Column(String, nullable=True, default="UTC")
+    
     # Password reset fields - deferred to avoid SELECT errors if columns don't exist yet
     password_reset_token = deferred(Column(String, nullable=True))
     password_reset_expires = deferred(Column(DateTime(timezone=True), nullable=True))

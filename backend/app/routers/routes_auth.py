@@ -8,7 +8,7 @@ from app.routers.deps import get_current_user, get_db
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest, SignupRequest, TokenResponse, UserInfo, MessageResponse,
-    UpdateAccountRequest, UpdateEmailRequest, UpdatePasswordRequest
+    UpdateUserProfileRequest, UpdateOrganizationRequest, UpdateEmailRequest, UpdatePasswordRequest
 )
 from app.services import auth_service
 from app.config import settings
@@ -117,30 +117,68 @@ def me(current_user: User = Depends(get_current_user), db: Session = Depends(get
         account_id=current_user.account_id,
         role=current_user.role.value if current_user.role else "member",
         name=current_user.name,
-        account_name=account_name
+        account_name=account_name,
+        avatar_url=getattr(current_user, "avatar_url", None),
+        timezone=getattr(current_user, "timezone", None)
     )
 
 
 # ================== Profile Update Endpoints ==================
-
-
-@router.post("/update-account", response_model=MessageResponse, summary="Update account settings")
+@router.patch("/me", response_model=MessageResponse, summary="Update user profile", tags=["Settings"])
 @limiter.limit(get_auth_rate_limit())
-def update_account(
+def update_profile(
     request: Request,
-    body: UpdateAccountRequest,
+    body: UpdateUserProfileRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Update account and profile settings.
-    
-    - **account_name**: New workspace/organization name (optional)
-    - **name**: New display name (optional)
-    
-    Requires authentication.
+    Update user profile settings (name, avatar, timezone).
     """
-    auth_service.update_account(db, current_user, body.account_name, body.name)
+    auth_service.update_user_profile(
+        db, 
+        current_user, 
+        name=body.name,
+        avatar_url=body.avatar_url,
+        timezone=body.timezone
+    )
+    return MessageResponse(message="Profile updated successfully")
+
+
+@router.patch("/account/me", response_model=MessageResponse, summary="Update organization settings", tags=["Settings"])
+@limiter.limit(get_auth_rate_limit())
+def update_organization(
+    request: Request,
+    body: UpdateOrganizationRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update organization settings (name, industry, currency, timezone).
+    """
+    auth_service.update_organization_settings(
+        db, 
+        current_user, 
+        name=body.name,
+        industry=body.industry,
+        currency=body.currency,
+        timezone=body.timezone
+    )
+    return MessageResponse(message="Organization settings updated successfully")
+
+
+# Deprecated - kept for compatibility if needed, but routing to new logic
+@router.post("/update-account", response_model=MessageResponse, summary="Update account settings (Deprecated)")
+@limiter.limit(get_auth_rate_limit())
+def update_account_deprecated(
+    request: Request,
+    body: UpdateUserProfileRequest, # Schema also changed, but this endpoint is legacy
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    auth_service.update_user_profile(db, current_user, name=body.name)
+    # Note: legacy endpoint only updated user name and account name mixed. 
+    # Just updating user name here for safety.
     return MessageResponse(message="Account settings updated successfully")
 
 

@@ -10,13 +10,18 @@ export interface AccountSettings {
   name?: string;
   account_id?: string;
   account_name?: string;
+  avatar_url?: string;
+  timezone?: string;
+  industry?: string;
+  currency?: string;
+  role?: string;
 }
 
 export function useSettings() {
   const [account, setAccount] = useState<AccountSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState<null | "account" | "email" | "password">(null);
+  const [saving, setSaving] = useState<null | "profile" | "organization" | "email" | "password">(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -38,16 +43,16 @@ export function useSettings() {
     refresh();
   }, [refresh]);
 
-  async function updateAccount(accountName?: string, name?: string) {
-    setSaving("account");
+  async function updateProfile(name?: string, avatarUrl?: string, timezone?: string) {
+    setSaving("profile");
     setError(null);
     setMessage(null);
     try {
-      await apiFetch("/auth/update-account", {
-        method: "POST",
-        body: JSON.stringify({ account_name: accountName, name }),
+      await apiFetch("/auth/me", {
+        method: "PATCH",
+        body: JSON.stringify({ name, avatar_url: avatarUrl, timezone }),
       });
-      setMessage("Account details updated");
+      setMessage("Profile updated successfully");
       await refresh();
     } catch (err) {
       const msg = formatErrorMessage(err);
@@ -56,6 +61,32 @@ export function useSettings() {
     } finally {
       setSaving(null);
     }
+  }
+
+  async function updateOrganization(name?: string, industry?: string, currency?: string, timezone?: string) {
+    setSaving("organization");
+    setError(null);
+    setMessage(null);
+    try {
+      await apiFetch("/auth/account/me", {
+        method: "PATCH",
+        body: JSON.stringify({ name, industry, currency, timezone }),
+      });
+      setMessage("Organization updated successfully");
+      await refresh();
+    } catch (err) {
+      const msg = formatErrorMessage(err);
+      setError(msg);
+      throw err;
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  // Deprecated wrapper
+  async function updateAccount(accountName?: string, name?: string) {
+    if (name) await updateProfile(name);
+    if (accountName) await updateOrganization(accountName);
   }
 
   async function updateEmail(email: string) {
@@ -104,6 +135,8 @@ export function useSettings() {
     saving,
     message,
     refresh,
+    updateProfile,
+    updateOrganization,
     updateAccount,
     updateEmail,
     updatePassword,

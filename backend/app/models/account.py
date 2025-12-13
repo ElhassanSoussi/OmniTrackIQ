@@ -35,6 +35,11 @@ class Account(Base):
     stripe_customer_id = Column(String, nullable=True, index=True)
     stripe_subscription_id = Column(String, nullable=True)
     
+    # Organization settings
+    industry = Column(String, nullable=True)
+    currency = Column(String, nullable=True, default="USD")
+    timezone = Column(String, nullable=True, default="UTC")
+    
     # Onboarding tracking - nullable to support databases without these columns yet
     onboarding_completed = Column(Boolean, nullable=True, default=False)
     onboarding_steps = Column(JSON, nullable=True, default=lambda: DEFAULT_ONBOARDING_STEPS.copy())
