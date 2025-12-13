@@ -6,8 +6,12 @@ import logging
 from typing import Dict, Any
 
 # Config
+import time
+timestamp = int(time.time())
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
-EMAIL = os.getenv("TEST_EMAIL", "test@example.com")
+# Dynamic default email to prevent collisions if not provided
+DEFAULT_EMAIL = f"test+{timestamp}@example.com"
+EMAIL = os.getenv("TEST_EMAIL", DEFAULT_EMAIL)
 PASSWORD = os.getenv("TEST_PASSWORD", "password123")
 ACCOUNT_NAME = "Test Workspace"
 
@@ -21,32 +25,42 @@ class E2EClient:
         self.headers = {}
 
     def login_or_signup(self):
-        logger.info(f"Attempting login as {EMAIL}...")
+        logger.info(f"Account: {EMAIL} / {PASSWORD}")
+        
+        # 1. Try Login first
         try:
-            # Try login
             resp = self.client.post("/auth/login", json={"email": EMAIL, "password": PASSWORD})
             if resp.status_code == 200:
                 data = resp.json()
                 self.token = data["access_token"]
-                logger.info("Login successful.")
-            elif resp.status_code == 401 or resp.status_code == 404:
-                # Try signup
-                logger.info("Login failed/user not found. Attempting signup...")
-                resp = self.client.post("/auth/signup", json={"email": EMAIL, "password": PASSWORD, "account_name": ACCOUNT_NAME})
-                if resp.status_code == 200:
-                     data = resp.json()
-                     self.token = data["access_token"]
-                     logger.info("Signup successful.")
-                else:
-                    logger.error(f"Signup failed: {resp.status_code} {resp.text}")
-                    sys.exit(1)
+                logger.info(f"✅ Login successful for {EMAIL}")
             else:
-                logger.error(f"Login failed unexpected: {resp.status_code} {resp.text}")
-                sys.exit(1)
+                # 2. If Login failed, try Signup
+                logger.info(f"Login failed ({resp.status_code}). Attempting signup...")
+                resp = self.client.post("/auth/signup", json={"email": EMAIL, "password": PASSWORD, "account_name": ACCOUNT_NAME})
+                
+                if resp.status_code == 200:
+                    data = resp.json()
+                    self.token = data["access_token"]
+                    logger.info(f"✅ Signup successful for {EMAIL}")
+                elif resp.status_code == 409:
+                    # 3. If Signup says "Already Exists", try Login again (race condition or previous run)
+                     logger.warning("User already exists (409). Retrying login...")
+                     resp = self.client.post("/auth/login", json={"email": EMAIL, "password": PASSWORD})
+                     if resp.status_code == 200:
+                        data = resp.json()
+                        self.token = data["access_token"]
+                        logger.info(f"✅ Login successful after 409.")
+                     else:
+                        logger.error(f"❌ Login retry failed: {resp.status_code} {resp.text}")
+                        sys.exit(1)
+                else:
+                    logger.error(f"❌ Signup failed: {resp.status_code} {resp.text}")
+                    sys.exit(1)
             
             self.headers = {"Authorization": f"Bearer {self.token}"}
         except Exception as e:
-            logger.error(f"Connection failed: {e}")
+            logger.error(f"❌ Connection/Auth failed: {e}")
             sys.exit(1)
 
     def verify_profile(self):
