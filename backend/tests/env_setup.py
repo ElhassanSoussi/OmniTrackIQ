@@ -5,7 +5,8 @@ Environment setup for tests - MUST be imported before any app modules.
 import os
 
 # Set test environment variables
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+if "DATABASE_URL" not in os.environ:
+    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-testing-only"
 os.environ["STRIPE_SECRET_KEY"] = "sk_test_fake"
 os.environ["STRIPE_WEBHOOK_SECRET"] = "whsec_test"

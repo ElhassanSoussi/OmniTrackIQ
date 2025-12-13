@@ -31,7 +31,10 @@ export type ProductEventName =
   // Feature Usage
   | "report_created"
   | "report_exported"
-  | "team_member_invited";
+  | "team_member_invited"
+  // Analytics Management
+  | "report_template_deleted"
+  | "custom_metric_deleted";
 
 // API base URL - same as api-client
 const API_BASE_URL = (() => {
@@ -123,20 +126,20 @@ export function trackDashboardView(
   dashboardType: "overview" | "campaigns" | "orders"
 ): void {
   const eventKey = `dashboard_${dashboardType}`;
-  
+
   // Only track first view per session
   if (viewedDashboardsThisSession.has(eventKey)) {
     return;
   }
-  
+
   viewedDashboardsThisSession.add(eventKey);
-  
+
   const eventMap: Record<string, ProductEventName> = {
     dashboard_overview: "viewed_overview_dashboard",
     dashboard_campaigns: "viewed_campaigns_dashboard",
     dashboard_orders: "viewed_orders_dashboard",
   };
-  
+
   const eventName = eventMap[eventKey];
   if (eventName) {
     trackEvent(eventName);

@@ -1,7 +1,8 @@
 import uuid
 from enum import Enum
 
-from sqlalchemy import Column, DateTime, String, Integer, Boolean, Enum as SQLEnum, JSON
+from sqlalchemy import Column, String, ForeignKey, DateTime, Integer, Boolean, Enum as SQLEnum, Float, JSON
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db import Base
@@ -34,6 +35,10 @@ class Account(Base):
     max_users = Column(Integer, nullable=False, default=1)  # Determined by plan
     stripe_customer_id = Column(String, nullable=True, index=True)
     stripe_subscription_id = Column(String, nullable=True)
+    
+    # Relationships for Phase 5B
+    report_templates = relationship("ReportTemplate", back_populates="account", cascade="all, delete-orphan")
+    custom_metrics = relationship("CustomMetric", back_populates="account", cascade="all, delete-orphan")
     
     # Organization settings
     industry = Column(String, nullable=True)

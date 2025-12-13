@@ -1,4 +1,6 @@
 from app.models.user import User, UserRole
+from app.models.report_template import ReportTemplate
+from app.models.custom_metric import CustomMetric
 from app.models.account import Account, AccountPlan
 from app.models.integration import Integration
 from app.models.ad_account import AdAccount, AdAccountStatus
