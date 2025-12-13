@@ -15,3 +15,15 @@ services:
       - key: ENVIRONMENT
         value: production
     healthCheckPath: /health/
+
+  - type: web
+    name: omnitrackiq-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://omnitrackiq-backend.onrender.com
+      - key: NODE_ENV
+        value: production
