@@ -245,8 +245,10 @@ def update_organization_settings(
     """
     from sqlalchemy import text
     
-    updates = ["updated_at = NOW()"]
-    params = {"account_id": user.account_id}
+    from datetime import datetime
+    
+    updates = ["updated_at = :updated_at"]
+    params = {"account_id": user.account_id, "updated_at": datetime.utcnow()}
     
     if name is not None:
         clean_name = name.strip()
