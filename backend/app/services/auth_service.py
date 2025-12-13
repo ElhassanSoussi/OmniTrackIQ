@@ -194,3 +194,112 @@ def reset_password(db: Session, token: str, new_password: str) -> bool:
     db.commit()
     
     return True
+
+
+# ================== Profile Update Functions ==================
+
+def update_account(db: Session, user: User, account_name: Optional[str] = None, name: Optional[str] = None) -> None:
+    """
+    Update account and user profile settings.
+    
+    :param user: Current user
+    :param account_name: New workspace/account name (optional)
+    :param name: New display name for user (optional)
+    """
+    from sqlalchemy import text
+    
+    # Update user display name if provided
+    if name is not None:
+        db.execute(
+            text("UPDATE users SET name = :name WHERE id = :user_id"),
+            {"name": name.strip() if name else None, "user_id": user.id}
+        )
+    
+    # Update account name if provided
+    if account_name is not None:
+        account_name = account_name.strip()
+        if not account_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Account name cannot be empty"
+            )
+        db.execute(
+            text("UPDATE accounts SET name = :name, updated_at = NOW() WHERE id = :account_id"),
+            {"name": account_name, "account_id": user.account_id}
+        )
+    
+    db.commit()
+
+
+def update_email(db: Session, user: User, new_email: str) -> None:
+    """
+    Update user email address.
+    
+    :param user: Current user
+    :param new_email: New email address
+    """
+    from sqlalchemy import text
+    
+    normalized_email = new_email.strip().lower()
+    
+    # Check if email is already in use by another user
+    result = db.execute(
+        text("SELECT id FROM users WHERE email = :email AND id != :user_id LIMIT 1"),
+        {"email": normalized_email, "user_id": user.id}
+    )
+    if result.fetchone():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This email is already in use by another account"
+        )
+    
+    # Update email
+    db.execute(
+        text("UPDATE users SET email = :email WHERE id = :user_id"),
+        {"email": normalized_email, "user_id": user.id}
+    )
+    db.commit()
+
+
+def update_password(db: Session, user: User, current_password: str, new_password: str) -> None:
+    """
+    Update user password after verifying current password.
+    
+    :param user: Current user
+    :param current_password: Current password for verification
+    :param new_password: New password to set
+    """
+    from sqlalchemy import text
+    
+    # Get current password hash
+    result = db.execute(
+        text("SELECT password_hash FROM users WHERE id = :user_id"),
+        {"user_id": user.id}
+    )
+    row = result.fetchone()
+    
+    if not row or not verify_password(current_password, row[0]):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect"
+        )
+    
+    # Update to new password
+    db.execute(
+        text("UPDATE users SET password_hash = :password_hash WHERE id = :user_id"),
+        {"password_hash": hash_password(new_password), "user_id": user.id}
+    )
+    db.commit()
+
+
+def get_account_name(db: Session, account_id: str) -> Optional[str]:
+    """Get account name by account ID."""
+    from sqlalchemy import text
+    
+    result = db.execute(
+        text("SELECT name FROM accounts WHERE id = :account_id"),
+        {"account_id": account_id}
+    )
+    row = result.fetchone()
+    return row[0] if row else None
+

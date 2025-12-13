@@ -99,19 +99,87 @@ def logout(request: Request):
 
 
 @router.get("/me", response_model=UserInfo, summary="Get current user info")
-def me(current_user: User = Depends(get_current_user)):
+def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Get the currently authenticated user's profile information.
     
     Requires a valid JWT token in the Authorization header.
     """
+    # Get account name
+    account_name = auth_service.get_account_name(db, current_user.account_id)
+    
     return UserInfo(
         id=current_user.id, 
         email=current_user.email, 
         account_id=current_user.account_id,
         role=current_user.role.value if current_user.role else "member",
-        name=current_user.name
+        name=current_user.name,
+        account_name=account_name
     )
+
+
+# ================== Profile Update Endpoints ==================
+
+from app.schemas.auth import UpdateAccountRequest, UpdateEmailRequest, UpdatePasswordRequest
+
+
+@router.post("/update-account", response_model=MessageResponse, summary="Update account settings")
+@limiter.limit(get_auth_rate_limit())
+def update_account(
+    request: Request,
+    body: UpdateAccountRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update account and profile settings.
+    
+    - **account_name**: New workspace/organization name (optional)
+    - **name**: New display name (optional)
+    
+    Requires authentication.
+    """
+    auth_service.update_account(db, current_user, body.account_name, body.name)
+    return MessageResponse(message="Account settings updated successfully")
+
+
+@router.post("/update-email", response_model=MessageResponse, summary="Update email address")
+@limiter.limit(get_auth_rate_limit())
+def update_email(
+    request: Request,
+    body: UpdateEmailRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update login email address.
+    
+    - **email**: New email address
+    
+    Requires authentication. The new email must not be in use by another account.
+    """
+    auth_service.update_email(db, current_user, body.email)
+    return MessageResponse(message="Email updated successfully")
+
+
+@router.post("/update-password", response_model=MessageResponse, summary="Update password")
+@limiter.limit(get_auth_rate_limit())
+def update_password(
+    request: Request,
+    body: UpdatePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update account password.
+    
+    - **current_password**: Your current password for verification
+    - **new_password**: New password (minimum 8 characters)
+    
+    Requires authentication.
+    """
+    auth_service.update_password(db, current_user, body.current_password, body.new_password)
+    return MessageResponse(message="Password updated successfully")
 
 
 @router.get("/{provider}/login")
