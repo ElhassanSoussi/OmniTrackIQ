@@ -52,6 +52,7 @@ def cleanup_multiple_heads(connection):
     except Exception as e:
         # Table might not exist yet, which is fine
         logger.debug(f"Cleanup check skipped: {e}")
+        connection.rollback()
 
 
 def run_migrations_offline() -> None:
