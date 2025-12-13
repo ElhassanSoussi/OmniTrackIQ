@@ -1,10 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { AlertCircle } from "lucide-react"
-
 export default function CustomMetricsPage() {
     return (
         <div className="space-y-6">
@@ -16,61 +9,32 @@ export default function CustomMetricsPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Create Custom Metric</CardTitle>
-                        <CardDescription>Compose a new metric formula.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="metric-name">Metric Name</Label>
-                            <Input id="metric-name" placeholder="e.g. Blended ROAS" />
-                        </div>
+                <div className="p-6 border rounded-lg bg-white shadow-sm">
+                    <h2 className="text-lg font-semibold mb-2">Create Custom Metric</h2>
+                    <p className="text-sm text-gray-500 mb-4">Compose a new metric formula.</p>
 
+                    <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="formula">Formula</Label>
-                            <div className="flex gap-2">
-                                <Select>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Select Metric" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="revenue">Total Revenue</SelectItem>
-                                        <SelectItem value="spend">Ad Spend</SelectItem>
-                                        <SelectItem value="orders">Orders</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <div className="flex items-center text-muted-foreground font-mono">/</div>
-                                <Select>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Select Metric" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="revenue">Total Revenue</SelectItem>
-                                        <SelectItem value="spend">Ad Spend</SelectItem>
-                                        <SelectItem value="orders">Orders</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            <label htmlFor="metric-name" className="text-sm font-medium">Metric Name</label>
+                            <input
+                                id="metric-name"
+                                placeholder="e.g. Blended ROAS"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
                         </div>
 
                         <div className="pt-4">
-                            <Button className="w-full">Save Metric</Button>
+                            <button className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save Metric</button>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card className="bg-muted/50">
-                    <CardHeader>
-                        <CardTitle>Metric Library</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-                            <AlertCircle className="h-8 w-8 mb-2" />
-                            <p>No custom metrics defined yet.</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <div className="p-6 border rounded-lg bg-gray-50">
+                    <h2 className="text-lg font-semibold mb-2">Metric Library</h2>
+                    <div className="flex flex-col items-center justify-center py-8 text-center text-gray-500">
+                        <p>No custom metrics defined yet.</p>
+                    </div>
+                </div>
             </div>
         </div>
     )
