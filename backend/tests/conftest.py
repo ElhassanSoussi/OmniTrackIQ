@@ -9,7 +9,8 @@ import sys
 
 # Set test environment variables BEFORE any app imports
 # This must be at the very top of the file
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+if "DATABASE_URL" not in os.environ:
+    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-testing-only"
 os.environ["STRIPE_SECRET_KEY"] = "sk_test_fake"
 os.environ["STRIPE_WEBHOOK_SECRET"] = "whsec_test"
@@ -42,10 +43,12 @@ from app.security.password import hash_password
 
 
 # Create test database engine
-TEST_DATABASE_URL = "sqlite:///:memory:"
+TEST_DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
+connect_args = {"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {}
+
 engine = create_engine(
     TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args=connect_args,
     poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
