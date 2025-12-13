@@ -23,7 +23,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
     account_id = Column(String, ForeignKey("accounts.id"), nullable=False)
-    role = Column(SQLEnum(UserRole), nullable=False, default=UserRole.OWNER)
+    role = Column(String, nullable=False, default="owner")
     name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_login_at = Column(DateTime(timezone=True), nullable=True)

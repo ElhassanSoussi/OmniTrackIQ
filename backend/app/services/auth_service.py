@@ -81,14 +81,15 @@ def signup(db: Session, email: str, password: str, account_name: str) -> str:
     user_id = str(uuid.uuid4())
     db.execute(
         text("""
-            INSERT INTO users (id, email, password_hash, account_id)
-            VALUES (:id, :email, :password_hash, :account_id)
+            INSERT INTO users (id, email, password_hash, account_id, role)
+            VALUES (:id, :email, :password_hash, :account_id, :role)
         """),
         {
             "id": user_id,
             "email": normalized_email,
             "password_hash": hash_password(password),
             "account_id": account_id,
+            "role": "owner",
         }
     )
     db.commit()

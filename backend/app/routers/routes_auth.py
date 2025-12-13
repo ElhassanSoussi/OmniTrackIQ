@@ -115,7 +115,7 @@ def me(current_user: User = Depends(get_current_user), db: Session = Depends(get
         id=current_user.id, 
         email=current_user.email, 
         account_id=current_user.account_id,
-        role=current_user.role.value if current_user.role else "member",
+        role=current_user.role if current_user.role else "member",
         name=current_user.name,
         account_name=account_name,
         avatar_url=getattr(current_user, "avatar_url", None),

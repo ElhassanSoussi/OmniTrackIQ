@@ -136,6 +136,24 @@ class UpdateAccountRequest(BaseModel):
     account_name: Optional[str] = None
     name: Optional[str] = None
 
+    @validator("account_name")
+    def validate_account_name(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip()
+            if len(v) < 1:
+                raise ValueError("Account name cannot be empty")
+            if len(v) > 100:
+                raise ValueError("Account name must be 100 characters or less")
+        return v
+
+    @validator("name")
+    def validate_name(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip()
+            if len(v) > 100:
+                raise ValueError("Display name must be 100 characters or less")
+        return v
+
 
 class UpdateEmailRequest(BaseModel):
     """Update user email address"""

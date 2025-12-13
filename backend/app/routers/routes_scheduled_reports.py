@@ -1,8 +1,10 @@
 """Scheduled reports CRUD endpoints."""
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, BackgroundTasks
 from sqlalchemy.orm import Session
+
+from app.config import settings
 
 from app.routers.deps import get_current_account_user, get_db
 from app.models.scheduled_report import ReportFrequency, ReportType
@@ -140,6 +142,7 @@ def toggle_report_active(
 def send_test_report(
     report_id: str,
     data: SendTestReportRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     user=Depends(get_current_account_user),
 ):
@@ -151,8 +154,26 @@ def send_test_report(
             detail="Scheduled report not found",
         )
     
-    # TODO: Implement actual email sending with a background task
-    # For now, return success to indicate the endpoint works
+    # Generate email message
+    from app.services.email_service import get_weekly_report_email, send_email
+    
+    # Mock data for test report (since we don't have a full report generator service yet)
+    # In a real scenario, this would call the report generation logic
+    email_msg = get_weekly_report_email(
+        user_name=user.full_name or user.email,
+        account_name=user.account_id, # Should get real account name
+        period="Test Report",
+        total_spend=1234.56,
+        total_revenue=5678.90,
+        total_roas=4.6,
+        top_campaigns=[{"name": "Test Campaign", "spend": 500, "roas": 5.0}],
+        dashboard_url=f"{settings.FRONTEND_URL}/dashboard"
+    )
+    email_msg.to = data.email
+    
+    # Send in background
+    background_tasks.add_task(send_email, email_msg)
+
     return {
         "message": f"Test report queued for delivery to {data.email}",
         "report_id": report_id,

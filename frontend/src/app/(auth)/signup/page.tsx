@@ -117,8 +117,6 @@ export default function SignupPage() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Start your free trial today</p>
           </div>
 
-          {/* Social Login Buttons */}
-          <SocialLoginButtons mode="signup" />
 
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -128,8 +126,8 @@ export default function SignupPage() {
               <input
                 id="accountName"
                 className={`w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${fieldErrors.accountName
-                    ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
-                    : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
+                  : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                   }`}
                 placeholder="Your company or team name"
                 value={accountName}
@@ -150,8 +148,8 @@ export default function SignupPage() {
               <input
                 id="email"
                 className={`w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${fieldErrors.email
-                    ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
-                    : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
+                  : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                   }`}
                 placeholder="you@example.com"
                 type="email"
@@ -173,8 +171,8 @@ export default function SignupPage() {
               <input
                 id="password"
                 className={`w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${fieldErrors.password
-                    ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
-                    : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  ? "border-danger-500 bg-danger-50 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-400 dark:bg-danger-900/20"
+                  : "border-slate-200 bg-white focus:border-primary-500 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                   }`}
                 placeholder="At least 8 characters"
                 type="password"
