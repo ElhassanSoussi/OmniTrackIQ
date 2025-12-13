@@ -112,8 +112,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["account_id"], ["accounts.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
-    with op.batch_alter_table("daily_metrics") as batch_op:
-        batch_op.create_unique_constraint("idx_daily_metrics_unique", ["account_id", "date"])
+    op.create_unique_constraint("idx_daily_metrics_unique", "daily_metrics", ["account_id", "date"])
 
     op.create_table(
         "subscriptions",
@@ -132,8 +131,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("subscriptions")
-    with op.batch_alter_table("daily_metrics") as batch_op:
-        batch_op.drop_constraint("idx_daily_metrics_unique", type_="unique")
+    op.drop_constraint("idx_daily_metrics_unique", "daily_metrics", type_="unique")
     op.drop_table("daily_metrics")
     op.drop_index("idx_orders_account", table_name="orders")
     op.drop_index("idx_orders_date_time", table_name="orders")
