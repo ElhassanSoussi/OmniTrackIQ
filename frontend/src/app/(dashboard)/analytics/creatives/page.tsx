@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TrendingUp, TrendingDown, AlertTriangle, Award, Image, Play, Zap, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, Award, Image as ImageIcon, Play, Zap, BarChart3 } from "lucide-react";
 
 // Mock creative data - in production this would come from the API
 const MOCK_CREATIVES = [
@@ -165,7 +165,7 @@ function CreativeCard({ creative }: { creative: typeof MOCK_CREATIVES[0] }) {
                     {creative.type === "video" ? (
                         <Play className="h-8 w-8 text-slate-400" />
                     ) : (
-                        <Image className="h-8 w-8 text-slate-400" />
+                        <ImageIcon className="h-8 w-8 text-slate-400" />
                     )}
                 </div>
 
