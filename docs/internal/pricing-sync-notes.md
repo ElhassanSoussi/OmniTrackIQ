@@ -27,6 +27,7 @@ All pricing displays use the centralized `plans.ts` config. No hardcoded values 
 ### Stripe Configuration Required
 
 Prices must be set in Stripe Dashboard:
+
 - `starter_monthly` → $49/month
 - `pro_monthly` → $149/month  
 - `enterprise` → Custom quote

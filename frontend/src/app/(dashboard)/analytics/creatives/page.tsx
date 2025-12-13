@@ -256,6 +256,7 @@ export default function CreativeIntelligencePage() {
                     <select
                         value={filterPlatform}
                         onChange={(e) => setFilterPlatform(e.target.value)}
+                        aria-label="Filter by platform"
                         className="rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500"
                     >
                         <option value="all">All Platforms</option>
@@ -266,6 +267,7 @@ export default function CreativeIntelligencePage() {
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as "roas" | "spend" | "fatigue")}
+                        aria-label="Sort creatives by"
                         className="rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500"
                     >
                         <option value="roas">Sort by ROAS</option>
