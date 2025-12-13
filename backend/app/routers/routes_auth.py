@@ -6,7 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.routers.deps import get_current_user, get_db
 from app.models.user import User
-from app.schemas.auth import LoginRequest, SignupRequest, TokenResponse, UserInfo
+from app.schemas.auth import (
+    LoginRequest, SignupRequest, TokenResponse, UserInfo, MessageResponse,
+    UpdateAccountRequest, UpdateEmailRequest, UpdatePasswordRequest
+)
 from app.services import auth_service
 from app.config import settings
 from app.security.rate_limit import limiter, get_auth_rate_limit
@@ -119,8 +122,6 @@ def me(current_user: User = Depends(get_current_user), db: Session = Depends(get
 
 
 # ================== Profile Update Endpoints ==================
-
-from app.schemas.auth import UpdateAccountRequest, UpdateEmailRequest, UpdatePasswordRequest
 
 
 @router.post("/update-account", response_model=MessageResponse, summary="Update account settings")
