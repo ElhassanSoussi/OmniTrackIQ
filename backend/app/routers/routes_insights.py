@@ -32,7 +32,7 @@ router = APIRouter()
 
 # ================== AI Insights Endpoints ==================
 
-@router.get("/insights")
+@router.get("/insights", tags=["AI Insights"])
 def insights(
     from_date: Optional[date] = Query(None, alias="from"),
     to_date: Optional[date] = Query(None, alias="to"),
@@ -62,7 +62,7 @@ def insights(
     )
 
 
-@router.get("/insights/anomaly-explanation")
+@router.get("/insights/anomaly-explanation", tags=["AI Insights"])
 def anomaly_explanation(
     anomaly_date: date = Query(..., description="Date of the anomaly"),
     metric: str = Query(..., description="Metric that showed anomaly (revenue, spend, roas, etc.)"),
@@ -91,7 +91,7 @@ def anomaly_explanation(
     return explain_anomaly(db, user.account_id, anomaly_date, metric, anomaly_type)
 
 
-@router.get("/insights/predictive-alerts")
+@router.get("/insights/predictive-alerts", tags=["AI Insights"])
 def predictive_alerts(
     days_ahead: int = Query(7, ge=1, le=30, description="Days to forecast ahead"),
     db: Session = Depends(get_db),
@@ -111,7 +111,7 @@ def predictive_alerts(
 
 # ================== Marketing Mix Modeling Endpoints ==================
 
-@router.get("/mmm/channel-contribution")
+@router.get("/mmm/channel-contribution", tags=["Marketing Mix Modeling"])
 def channel_contribution(
     from_date: Optional[date] = Query(None, alias="from"),
     to_date: Optional[date] = Query(None, alias="to"),
@@ -134,7 +134,7 @@ def channel_contribution(
     return get_channel_contribution_analysis(db, user.account_id, from_date, to_date)
 
 
-@router.get("/mmm/budget-optimization")
+@router.get("/mmm/budget-optimization", tags=["Marketing Mix Modeling"])
 def budget_optimization(
     from_date: Optional[date] = Query(None, alias="from"),
     to_date: Optional[date] = Query(None, alias="to"),
@@ -168,7 +168,7 @@ def budget_optimization(
     )
 
 
-@router.post("/mmm/scenario-analysis")
+@router.post("/mmm/scenario-analysis", tags=["Marketing Mix Modeling"])
 def scenario_analysis(
     scenarios: List[dict],
     from_date: Optional[date] = Query(None, alias="from"),
@@ -203,7 +203,7 @@ def scenario_analysis(
     return get_scenario_analysis(db, user.account_id, from_date, to_date, scenarios)
 
 
-@router.get("/mmm/diminishing-returns")
+@router.get("/mmm/diminishing-returns", tags=["Marketing Mix Modeling"])
 def diminishing_returns(
     from_date: Optional[date] = Query(None, alias="from"),
     to_date: Optional[date] = Query(None, alias="to"),
@@ -229,7 +229,7 @@ def diminishing_returns(
 
 # ================== Incrementality Testing Endpoints ==================
 
-@router.get("/incrementality/analyze")
+@router.get("/incrementality/analyze", tags=["Incrementality"])
 def incrementality_analyze(
     channel: str = Query(..., description="Channel to analyze"),
     from_date: Optional[date] = Query(None, alias="from", description="Test period start"),
@@ -260,7 +260,7 @@ def incrementality_analyze(
     )
 
 
-@router.get("/incrementality/baseline")
+@router.get("/incrementality/baseline", tags=["Incrementality"])
 def baseline_estimate(
     channel: str = Query(..., description="Channel to analyze"),
     from_date: Optional[date] = Query(None, alias="from"),
@@ -281,7 +281,7 @@ def baseline_estimate(
     return estimate_baseline_conversions(db, user.account_id, channel, from_date, to_date)
 
 
-@router.get("/incrementality/test-design")
+@router.get("/incrementality/test-design", tags=["Incrementality"])
 def test_design(
     channel: str = Query(..., description="Channel to test"),
     duration_days: int = Query(14, ge=7, le=90, description="Test duration in days"),
@@ -306,7 +306,7 @@ def test_design(
     )
 
 
-@router.get("/incrementality/conversion-lift")
+@router.get("/incrementality/conversion-lift", tags=["Incrementality"])
 def conversion_lift(
     channel: Optional[str] = Query(None, description="Channel to analyze"),
     campaign: Optional[str] = Query(None, description="Campaign name to analyze"),

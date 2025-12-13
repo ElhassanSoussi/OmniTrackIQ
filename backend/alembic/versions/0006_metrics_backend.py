@@ -58,13 +58,13 @@ def upgrade() -> None:
     op.add_column("daily_metrics", sa.Column("total_conversions", sa.Integer(), nullable=False, server_default="0"))
     
     # Add foreign key for ad_account_id
-    op.create_foreign_key(
-        "fk_daily_metrics_ad_account_id",
-        "daily_metrics",
-        "ad_accounts",
-        ["ad_account_id"],
-        ["id"],
-    )
+    with op.batch_alter_table("daily_metrics") as batch_op:
+        batch_op.create_foreign_key(
+            "fk_daily_metrics_ad_account_id",
+            "ad_accounts",
+            ["ad_account_id"],
+            ["id"],
+        )
     
     # Create indexes for daily_metrics
     op.create_index("ix_daily_metrics_account_id", "daily_metrics", ["account_id"])
@@ -85,7 +85,8 @@ def downgrade() -> None:
     op.drop_index("ix_daily_metrics_account_id", table_name="daily_metrics")
     
     # Drop foreign key
-    op.drop_constraint("fk_daily_metrics_ad_account_id", "daily_metrics", type_="foreignkey")
+    with op.batch_alter_table("daily_metrics") as batch_op:
+        batch_op.drop_constraint("fk_daily_metrics_ad_account_id", type_="foreignkey")
     
     # Drop new columns from daily_metrics
     op.drop_column("daily_metrics", "total_conversions")

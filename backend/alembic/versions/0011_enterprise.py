@@ -17,6 +17,10 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Skip for SQLite as this migration uses Postgres-specific features (ENUMs)
+    if op.get_bind().dialect.name == 'sqlite':
+        return
+
     # Drop enum types if they exist (from partial previous migration)
     op.execute("DROP TYPE IF EXISTS ssoprovider CASCADE")
     op.execute("DROP TYPE IF EXISTS ssoconfigstatus CASCADE")
@@ -194,6 +198,9 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    if op.get_bind().dialect.name == 'sqlite':
+        return
+
     # Drop indexes
     op.drop_index('ix_api_keys_is_active', table_name='api_keys')
     op.drop_index('ix_api_keys_key_prefix', table_name='api_keys')
