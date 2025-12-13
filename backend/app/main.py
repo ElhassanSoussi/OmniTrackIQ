@@ -10,7 +10,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
-from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports, routes_funnel, routes_anomaly, routes_notifications, routes_onboarding, routes_insights, routes_agency, routes_enterprise, routes_events, routes_chat, routes_products
+from app.routers import routes_auth, routes_billing, routes_health, routes_integrations, routes_metrics, routes_team, routes_saved_views, routes_sample_data, routes_scheduled_reports, routes_jobs, routes_custom_reports, routes_funnel, routes_anomaly, routes_notifications, routes_onboarding, routes_insights, routes_agency, routes_enterprise, routes_events, routes_chat, routes_products, routes_analytics_mgmt
 from app.routers import routes_websocket
 from app.security.rate_limit import limiter
 
@@ -301,6 +301,7 @@ app.include_router(routes_enterprise.router, prefix="/enterprise", tags=["Enterp
 app.include_router(routes_events.router, prefix="/events", tags=["Events"])
 app.include_router(routes_chat.router, prefix="/chat", tags=["Chat"])
 app.include_router(routes_products.router, prefix="/products", tags=["Products"])
+app.include_router(routes_analytics_mgmt.router, prefix="/analytics")  # Shared prefix with insights
 app.include_router(routes_websocket.router, tags=["WebSocket"])
 
 
