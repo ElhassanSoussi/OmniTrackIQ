@@ -15,7 +15,7 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGINS
-        value: https://omnitrackiq.onrender.com,https://omnitrackiq-frontend.onrender.com,http://localhost:3000
+        value: https://omnitrackiq.onrender.com,https://omnitrackiq-frontend.onrender.com,https://elhassansoussi.github.io,http://localhost:3000
     healthCheckPath: /health/
 
   - type: web
