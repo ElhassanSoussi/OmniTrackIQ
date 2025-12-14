@@ -240,18 +240,19 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # CORS origins for local development and production
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://omnitrackiq.com",
-    "https://www.omnitrackiq.com",
-    "https://omnitrackiq.onrender.com",
-    "https://omnitrackiq-frontend.onrender.com",
-    # Vercel deployments
-    "https://omnitrackiq.vercel.app",
-    "https://omnni-track-iq.vercel.app",
-    "https://omni-track-iq.vercel.app",
-]
+# CORS origins
+# Comma-separated env var: "https://omnitrackiq.onrender.com,https://elhassansoussi.github.io,http://localhost:3000"
+raw_origins = os.getenv("CORS_ORIGINS", "")
+origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
+# Safe fallback for local dev
+if not origins:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://omnitrackiq.com",
+        "https://www.omnitrackiq.com",
+    ]
 
 # Add FRONTEND_URL to origins if set
 if settings.FRONTEND_URL and settings.FRONTEND_URL not in origins:
