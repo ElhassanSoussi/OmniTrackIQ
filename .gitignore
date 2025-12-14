@@ -66,8 +66,8 @@ backend/omnitrack.db
 .env.development.local
 .env.test.local
 .env.production.local
-.env.production
-*.env
+# Note: .env.production is NOT ignored - it contains only public URLs
+# *.env - removed to allow .env.production
 
 # Mobile / Android
 .android/
