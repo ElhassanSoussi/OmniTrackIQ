@@ -89,3 +89,7 @@ metrics/spool/
 # Local artifacts
 *.zip
 OmniTrackIQ.zip
+
+# Azurite (local Azure storage emulator)
+__azurite_db_*
+__blobstorage__/
