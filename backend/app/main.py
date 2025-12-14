@@ -239,39 +239,42 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# CORS origins for local development and production
-# CORS origins
-# Comma-separated env var: "https://omnitrackiq.onrender.com,https://elhassansoussi.github.io,http://localhost:3000"
-raw_origins = os.getenv("CORS_ORIGINS", "")
-origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+# CORS configuration with normalization and logging
+def norm(o: str) -> str:
+    """Normalize origin by stripping whitespace and trailing slashes."""
+    return o.strip().rstrip("/")
 
-# Safe fallback for local dev
-if not origins:
-    origins = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://omnitrackiq.com",
-        "https://www.omnitrackiq.com",
-    ]
+# Get origins from environment variable
+raw_origins = os.getenv("CORS_ORIGINS", "")
+origins = [norm(o) for o in raw_origins.split(",") if norm(o)]
+
+# Fallback origins - ALWAYS include these
+fallback_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://omnitrackiq.onrender.com",          # REQUIRED - current frontend on Render
+    "https://omnitrackiq-frontend.onrender.com", # Alternative frontend name
+    "https://elhassansoussi.github.io",          # GitHub pages
+    "https://omnitrackiq.com",                   # Future custom domain
+    "https://www.omnitrackiq.com",               # Future custom domain with www
+]
+
+# Add fallback origins if not already in list
+for o in fallback_origins:
+    if o not in origins:
+        origins.append(o)
 
 # Add FRONTEND_URL to origins if set
-if settings.FRONTEND_URL and settings.FRONTEND_URL not in origins:
-    origins.append(settings.FRONTEND_URL)
+if settings.FRONTEND_URL and norm(settings.FRONTEND_URL) not in origins:
+    origins.append(norm(settings.FRONTEND_URL))
 
-# Allow all Vercel preview deployments
-import re
-def is_vercel_preview(origin: str) -> bool:
-    """Check if origin is a Vercel preview deployment."""
-    if not origin:
-        return False
-    # Match patterns like: https://<project>-<hash>-<team>.vercel.app
-    # or https://<project>-git-<branch>-<team>.vercel.app
-    return bool(re.match(r'^https://[\w-]+-[\w-]+\.vercel\.app$', origin))
+# Log the effective CORS allowlist on startup
+logger.info("CORS allow_origins=%s", origins)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview deployments
+    allow_origin_regex=r"^https://.*\.vercel\.app$",  # Allow all Vercel preview deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -316,4 +319,23 @@ def root():
         "docs": "/docs",
         "health": "/health",
         "status": "/health/status",
+    }
+
+# Health check endpoint
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring."""
+    try:
+        db = next(get_db())
+        db.execute(text("SELECT 1"))
+        db.close()
+        db_status = "healthy"
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+    
+    return {
+        "status": "healthy" if db_status == "healthy" else "degraded",
+        "database": db_status,
+        "timestamp": datetime.utcnow().isoformat(),
+        "cors_configured": len(origins)
     }

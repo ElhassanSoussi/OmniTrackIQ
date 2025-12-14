@@ -85,3 +85,7 @@ n8n-data/
 **/tmp/
 *.log
 metrics/spool/
+
+# Local artifacts
+*.zip
+OmniTrackIQ.zip
